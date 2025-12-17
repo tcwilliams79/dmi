@@ -415,7 +415,7 @@
             'CPI_HOUSING': 'Housing',
             'CPI_APPAREL': 'Apparel',
             'CPI_TRANSPORTATION': 'Transportation',
-            'CPI_MEDICAL': 'Medical Care',
+            'CPI_MEDICAL_CARE': 'Medical Care',
             'CPI_RECREATION': 'Recreation',
             'CPI_EDUCATION_COMMUNICATION': 'Education & Communication',
             'CPI_OTHER': 'Other Goods & Services'
@@ -450,7 +450,7 @@
                 const banner = document.getElementById('freshness-banner');
                 const statusEl = document.getElementById('freshness-status');
 
-                if (daysSince > 45) {
+                if (daysSince > 60) {  // Changed from 45 to 60 days
                     banner.classList.add('stale');
                     statusEl.textContent = '⚠️  Delayed';
                 } else {
