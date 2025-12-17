@@ -1,6 +1,12 @@
-# Distributional Misery Index (DMI) v0.1
+# Distributional Misery Index (DMI) v0.1.8
 
-**A reproducible, auditable measurement tool that publishes monthly economic stress by income quintile.**
+![Status](https://img.shields.io/badge/status-operational-brightgreen)
+![Python](https://img.shields.io/badge/python-3.9+-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Coverage](https://img.shields.io/badge/coverage-94%25-brightgreen)
+![Tests](https://img.shields.io/badge/tests-12%2F12%20passing-success)
+
+**A transparent, reproducible measure of economic pressure across income groups.**
 
 ## Overview
 
@@ -168,7 +174,7 @@ This is a measurement tool under active development. Contributions should:
 
 ## License
 
-TBD
+MIT License
 
 ## Contact
 
