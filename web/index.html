@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distributional Misery Index (DMI) v0.1.9</title>
+    <title>Distributional Misery Index (DMI) v0.1.11</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -53,6 +53,88 @@
             margin-top: 1rem;
             font-weight: 600;
             color: #667eea;
+        }
+
+        /* Freshness Banner */
+        .freshness-banner {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 0.75rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .freshness-banner.stale {
+            background: #fff3cd;
+            border-left-color: #f59e0b;
+            color: #856404;
+        }
+
+        .freshness-item {
+            display: inline-block;
+            margin-right: 1.5rem;
+        }
+
+        .freshness-label {
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .freshness-status {
+            font-weight: 700;
+        }
+
+        .separator {
+            color: #ccc;
+            margin: 0 0.5rem;
+        }
+
+        /* Top Contributors Section */
+        .contributors-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .contributors-section h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .quintile-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: #f0f4ff;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        #contributors-chart-container {
+            height: 300px;
+            margin-top: 1rem;
         }
 
         .grid {
@@ -217,7 +299,42 @@
             <div class="period-info" id="period">Loading...</div>
         </header>
 
+        <!-- Freshness Banner -->
+        <div class="freshness-banner" id="freshness-banner">
+            <span class="freshness-item">
+                <span class="freshness-label">📊 Data through:</span>
+                <strong id="freshness-period">Loading...</strong>
+            </span>
+            <span class="separator">•</span>
+            <span class="freshness-item">
+                <span class="freshness-label">Published:</span>
+                <strong id="freshness-published">Loading...</strong>
+            </span>
+            <span class="separator">•</span>
+            <span class="freshness-item">
+                <span class="freshness-status" id="freshness-status">✅ Current</span>
+            </span>
+        </div>
+
         <div class="grid" id="summary-cards">
+            <!-- Cards will be populated by JavaScript -->
+        </div>
+
+        <!-- Top Contributors Panel -->
+        <div class="contributors-section" style="display:none;" id="contributors-section">
+            <h2>What's Driving Inflation? (Top 5 Contributors)</h2>
+            <div class="quintile-tabs">
+                <button class="tab active" data-quintile="Q1" onclick="switchQuintile('Q1')">Q1 (Lowest Income)</button>
+                <button class="tab" data-quintile="Q3" onclick="switchQuintile('Q3')">Q3 (Middle)</button>
+                <button class="tab" data-quintile="Q5" onclick="switchQuintile('Q5')">Q5 (Highest Income)</button>
+            </div>
+            <div id="contributors-chart-container">
+                <canvas id="contributors-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid" id="summary-cards">
+
             <!-- Cards will be populated by JavaScript -->
         </div>
 
@@ -283,11 +400,143 @@
         </div>
 
         <div class="footer">
-            <p>DMI v0.1.9 | Data as of <span id="data-date">2024-11</span></p>
+            <p>DMI v0.1.11 | Data as of <span id="data-date">2024-11</span></p>
         </div>
     </div>
 
     <script>
+        // Global variables
+        let currentData = null;
+        let contributorsChart = null;
+
+        // Category label mapping
+        const categoryLabels = {
+            'CPI_FOOD_BEVERAGES': 'Food & Beverages',
+            'CPI_HOUSING': 'Housing',
+            'CPI_APPAREL': 'Apparel',
+            'CPI_TRANSPORTATION': 'Transportation',
+            'CPI_MEDICAL': 'Medical Care',
+            'CPI_RECREATION': 'Recreation',
+            'CPI_EDUCATION_COMMUNICATION': 'Education & Communication',
+            'CPI_OTHER': 'Other Goods & Services'
+        };
+
+        // Update freshness banner
+        async function updateFreshnessBanner() {
+            try {
+                const response = await fetch('health.json');
+                const health = await response.json();
+
+                // Format period (e.g., "2024-11" → "November 2024")
+                const [year, month] = health.latest_period.split('-');
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+                const formattedPeriod = `${monthNames[parseInt(month) - 1]} ${year}`;
+
+                // Format published date
+                const publishedDate = new Date(health.last_updated);
+                const formattedPublished = publishedDate.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+
+                // Calculate staleness
+                const latestDate = new Date(year, parseInt(month) - 1, 1);
+                const daysSince = (new Date() - latestDate) / (1000 * 60 * 60 * 24);
+
+                // Update banner
+                document.getElementById('freshness-period').textContent = formattedPeriod;
+                document.getElementById('freshness-published').textContent = formattedPublished;
+
+                const banner = document.getElementById('freshness-banner');
+                const statusEl = document.getElementById('freshness-status');
+
+                if (daysSince > 45) {
+                    banner.classList.add('stale');
+                    statusEl.textContent = '⚠️  Delayed';
+                } else {
+                    statusEl.textContent = '✅ Current';
+                }
+            } catch (error) {
+                console.error('Error loading health data:', error);
+            }
+        }
+
+        // Switch quintile tab
+        function switchQuintile(quintile) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.quintile === quintile) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Render chart for selected quintile
+            if (currentData) {
+                renderContributorsChart(currentData, quintile);
+            }
+        }
+
+        // Render contributors chart
+        function renderContributorsChart(data, quintile = 'Q1') {
+            // Get inflation contributions for selected quintile
+            const contributions = data.inflation_contributions
+                .filter(c => c.group_id === quintile)
+                .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+                .slice(0, 5);  // Top 5
+
+            // Prepare data
+            const labels = contributions.map(c => categoryLabels[c.category_id] || c.category_id);
+            const values = contributions.map(c => c.contribution);
+
+            // Destroy existing chart
+            if (contributorsChart) {
+                contributorsChart.destroy();
+            }
+
+            // Create new chart
+            const ctx = document.getElementById('contributors-chart').getContext('2d');
+            contributorsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Contribution to Inflation (percentage points)',
+                        data: values,
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',  // Horizontal bars
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Contribution (pp)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.parsed.x.toFixed(2)} percentage points`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Load DMI data (latest + time series)
         async function loadData() {
             try {
@@ -299,7 +548,16 @@
                 const timeseriesResponse = await fetch('../data/outputs/published/dmi_timeseries_2010_2024.json');
                 const timeseriesData = await timeseriesResponse.json();
 
+                // Store data globally
+                currentData = latestData;
+
                 displayData(latestData, timeseriesData);
+
+                // Show and render contributors panel
+                if (latestData.inflation_contributions) {
+                    document.getElementById('contributors-section').style.display = 'block';
+                    renderContributorsChart(latestData, 'Q1');
+                }
             } catch (error) {
                 console.error('Error loading DMI data:', error);
                 document.getElementById('period').textContent = 'Error loading data';
@@ -500,8 +758,11 @@
             });
         }
 
-        // Load data on page load
-        loadData();
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateFreshnessBanner();
+            loadData();
+        });
     </script>
 </body>
 

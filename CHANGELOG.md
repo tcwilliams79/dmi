@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11] - 2025-12-17
+
+### Added - Dashboard Polish
+- Freshness banner showing data currency (latest period, publish date, staleness indicator)
+- Data staleness warning (⚠️ if >45 days old)
+- Top contributors panel showing top 5 inflation drivers by category
+- Interactive quintile switching (Q1, Q3, Q5) for contributors
+- Category label mapping for readable chart labels
+- Chart.js horizontal bar charts for contribution visualization
+
+### Changed - User Experience
+- Updated dashboard version to v0.1.11
+- Enhanced transparency with automatic health.json integration
+- Improved interpretability with "What's driving inflation?"  insights
+
+### Fixed
+- None
+
+---
+
 ## [0.1.10] - 2025-12-17
 
 ### Added - Production Hardening
