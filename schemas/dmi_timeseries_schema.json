@@ -1,0 +1,228 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://dmianalysis.org/schemas/dmi_timeseries_schema.json",
+    "title": "DMI Time Series Dataset",
+    "description": "JSON Schema for Distributional Misery Index time series data files",
+    "type": "object",
+    "required": [
+        "series_id",
+        "description",
+        "start_period",
+        "end_period",
+        "observations_count",
+        "observations"
+    ],
+    "properties": {
+        "series_id": {
+            "type": "string",
+            "description": "Unique identifier for this time series",
+            "enum": [
+                "DMI_NATIONAL_QUINTILE"
+            ],
+            "examples": [
+                "DMI_NATIONAL_QUINTILE"
+            ]
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description of the dataset",
+            "examples": [
+                "Monthly DMI by income quintile, 2011-2024"
+            ]
+        },
+        "start_period": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$",
+            "description": "First period in YYYY-MM format",
+            "examples": [
+                "2011-01"
+            ]
+        },
+        "end_period": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$",
+            "description": "Last period in YYYY-MM format",
+            "examples": [
+                "2024-11"
+            ]
+        },
+        "observations_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of observations in the dataset",
+            "examples": [
+                835
+            ]
+        },
+        "observations": {
+            "type": "array",
+            "description": "Array of DMI observations by period and income group",
+            "minItems": 1,
+            "items": {
+                "$ref": "#/definitions/observation"
+            }
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the dataset",
+            "properties": {
+                "note": {
+                    "type": "string",
+                    "description": "Important notes about the data"
+                },
+                "weights_vintage": {
+                    "type": "string",
+                    "pattern": "^\\d{4}$",
+                    "description": "Year of CE weights used",
+                    "examples": [
+                        "2023"
+                    ]
+                },
+                "specification": {
+                    "type": "string",
+                    "description": "DMI specification variant",
+                    "enum": [
+                        "BASELINE",
+                        "U6",
+                        "CORE_CPI"
+                    ],
+                    "examples": [
+                        "BASELINE"
+                    ]
+                }
+            }
+        }
+    },
+    "definitions": {
+        "observation": {
+            "type": "object",
+            "required": [
+                "period",
+                "group_id",
+                "dmi",
+                "inflation",
+                "slack"
+            ],
+            "properties": {
+                "period": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}$",
+                    "description": "Period in YYYY-MM format",
+                    "examples": [
+                        "2024-11"
+                    ]
+                },
+                "group_id": {
+                    "type": "string",
+                    "enum": [
+                        "Q1",
+                        "Q2",
+                        "Q3",
+                        "Q4",
+                        "Q5"
+                    ],
+                    "description": "Income quintile identifier (Q1=lowest, Q5=highest)",
+                    "examples": [
+                        "Q1"
+                    ]
+                },
+                "dmi": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "DMI value (point estimate or median)",
+                    "examples": [
+                        6.85
+                    ]
+                },
+                "dmi_ci_lower": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "95% confidence interval lower bound (optional)",
+                    "examples": [
+                        6.72
+                    ]
+                },
+                "dmi_ci_upper": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "95% confidence interval upper bound (optional)",
+                    "examples": [
+                        6.98
+                    ]
+                },
+                "dmi_se": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Standard error (optional)",
+                    "examples": [
+                        0.066
+                    ]
+                },
+                "inflation": {
+                    "type": "number",
+                    "description": "12-month inflation rate (percent)",
+                    "examples": [
+                        2.65
+                    ]
+                },
+                "inflation_ci_lower": {
+                    "type": "number",
+                    "description": "Inflation CI lower bound (optional)",
+                    "examples": [
+                        2.59
+                    ]
+                },
+                "inflation_ci_upper": {
+                    "type": "number",
+                    "description": "Inflation CI upper bound (optional)",
+                    "examples": [
+                        2.71
+                    ]
+                },
+                "inflation_se": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Inflation standard error (optional)",
+                    "examples": [
+                        0.030
+                    ]
+                },
+                "slack": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Unemployment rate (percent)",
+                    "examples": [
+                        4.2
+                    ]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "examples": [
+        {
+            "series_id": "DMI_NATIONAL_QUINTILE",
+            "description": "Monthly DMI by income quintile, 2011-2024",
+            "start_period": "2011-01",
+            "end_period": "2024-11",
+            "observations_count": 835,
+            "observations": [
+                {
+                    "period": "2024-11",
+                    "group_id": "Q1",
+                    "dmi": 6.85,
+                    "dmi_ci_lower": 6.72,
+                    "dmi_ci_upper": 6.98,
+                    "dmi_se": 0.066,
+                    "inflation": 2.65,
+                    "slack": 4.2
+                }
+            ],
+            "metadata": {
+                "note": "All periods use 2023 CE weights",
+                "weights_vintage": "2023",
+                "specification": "BASELINE"
+            }
+        }
+    ]
+}

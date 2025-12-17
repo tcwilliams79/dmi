@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this dataset, please cite it as below."
+authors:
+  - family-names: Williams
+    given-names: Thomas C.
+title: "Distributional Misery Index: Measuring Economic Pressure Across Income Groups"
+version: 0.1.10
+date-released: 2024-12-17
+url: "https://github.com/tcwilliams79/dmi"
+repository-code: "https://github.com/tcwilliams79/dmi"
+license: MIT
+keywords:
+  - economics
+  - inflation
+  - unemployment
+  - income distribution
+  - consumer expenditure
+  - economic indicators
+  - distributional analysis
+  - misery index
+abstract: >
+  The Distributional Misery Index (DMI) measures economic pressure across
+  income groups by combining group-specific inflation (weighted by Consumer
+  Expenditure Survey patterns) with labor market slack. Unlike the traditional
+  Misery Index, DMI recognizes that economic shocks affect different income
+  groups differently due to varying expenditure patterns. The index provides
+  monthly measures for five income quintiles with bootstrap confidence intervals,
+  historical data (2011-2024), and alternative specifications (U-6 unemployment,
+  Core CPI).
+references:
+  - type: article
+    title: "The Misery Index"
+    authors:
+      - family-names: Okun
+        given-names: Arthur M.
+    year: 1970
+  - type: report
+    title: "Consumer Expenditure Survey"
+    authors:
+      - name: "U.S. Bureau of Labor Statistics"
+    year: 2023
+contact:
+  - name: Thomas C. Williams
+    website: "https://dmianalysis.org"
