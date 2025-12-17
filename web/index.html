@@ -507,7 +507,20 @@
                         data: values,
                         backgroundColor: 'rgba(102, 126, 234, 0.7)',
                         borderColor: 'rgba(102, 126, 234, 1)',
-                        borderWidth: 2
+                        borderWidth: 2,
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'right',
+                            offset: 4,
+                            formatter: function (value) {
+                                return value.toFixed(2) + ' pp';
+                            },
+                            color: '#667eea',
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            }
+                        }
                     }]
                 },
                 options: {
@@ -533,21 +546,10 @@
                                     return `${context.parsed.x.toFixed(2)} percentage points`;
                                 }
                             }
-                        },
-                        datalabels: {
-                            anchor: 'end',
-                            align: 'end',
-                            formatter: function (value) {
-                                return value.toFixed(2) + ' pp';
-                            },
-                            color: '#667eea',
-                            font: {
-                                weight: 'bold',
-                                size: 12
-                            }
                         }
                     }
-                }
+                },
+                plugins: [ChartDataLabels]  // Explicitly register the plugin
             });
         }
 
