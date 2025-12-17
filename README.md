@@ -26,6 +26,24 @@ The DMI combines group-weighted inflation (π) with labor market slack (S) to re
 
 ---
 
+## Recent Enhancements (v0.1.11)
+
+Version 0.1.11 improves dashboard clarity and interpretability:
+
+- **Data Freshness Banner**
+  - Displays data coverage period and publication date
+  - Automatically flags potentially stale data
+  - Driven by machine-readable metadata (`health.json`)
+
+- **Top Contributors Panel**
+  - Shows leading inflation drivers by category
+  - Switchable by income quintile (Q1 / Q3 / Q5)
+  - Helps answer "What's driving inflation right now?" in a distribution-aware way
+
+These enhancements strengthen transparency and reader trust without altering the underlying DMI methodology.
+
+---
+
 ## ✨ v0.1.9 Features
 
 ### 📈 Historical Data (2011-2024)
