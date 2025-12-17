@@ -8,6 +8,7 @@ unemployment (slack) data using the BLS Public Data API.
 import os
 import json
 import time
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
@@ -15,6 +16,8 @@ from datetime import datetime
 import requests
 import pandas as pd
 from dotenv import load_dotenv
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 # Load environment variables
@@ -22,6 +25,41 @@ load_dotenv()
 
 BLS_API_BASE_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 BLS_API_KEY = os.getenv("BLS_API_KEY")
+
+# Configure structured logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Rate limiting configuration
+MAX_REQUESTS_PER_DAY = 500  # BLS API limit for registered keys
+REQUEST_DELAY_SECONDS = 1.0  # Delay between requests to avoid rate limiting
+
+
+def get_retry_session(retries=3, backoff_factor=1.0):
+    """
+    Create a requests session with retry logic.
+    
+    Args:
+        retries: Number of retry attempts
+        backoff_factor: Exponential backoff factor (delay = backoff_factor * (2 ** retry_count))
+    
+    Returns:
+        requests.Session with retry configuration
+    """
+    session = requests.Session()
+    retry_strategy = Retry(
+        total=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=[500, 502, 503, 504],  # Retry on server errors
+        allowed_methods=["POST", "GET"]  # Retry on these methods
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
 
 
 def fetch_cpi_data(
@@ -48,6 +86,7 @@ def fetch_cpi_data(
     api_key = api_key or BLS_API_KEY
     
     if not api_key:
+        logger.error("BLS_API_KEY not found in environment variables")
         raise ValueError("BLS_API_KEY not found in environment variables")
     
     # BLS API v2 request payload
@@ -58,13 +97,22 @@ def fetch_cpi_data(
         "registrationkey": api_key
     }
     
+    logger.info(f"Fetching CPI data for {len(series_ids)} series ({start_year}-{end_year})")
+    logger.debug(f"Series IDs: {series_ids}")
     print(f"Fetching CPI data for {len(series_ids)} series ({start_year}-{end_year})...")
     print(f"  Series: {series_ids[:3]}{'...' if len(series_ids) > 3 else ''}")
     
     headers = {"Content-Type": "application/json"}
     
+    # Use retry session with exponential backoff
+    session = get_retry_session(retries=3, backoff_factor=2.0)
+    
     try:
-        response = requests.post(
+        # Rate limiting: Add delay to avoid exceeding daily limit
+        time.sleep(REQUEST_DELAY_SECONDS)
+        
+        logger.debug(f"POST request to {BLS_API_BASE_URL}")
+        response = session.post(
             BLS_API_BASE_URL,
             json=payload,
             headers=headers,
@@ -77,6 +125,8 @@ def fetch_cpi_data(
         # Check response status
         if data.get("status") != "REQUEST_SUCCEEDED":
             error_msg = data.get("message", ["Unknown error"])[0]
+            logger.error(f"BLS API error: {error_msg}")
+            logger.debug(f"Full response: {json.dumps(data, indent=2)}")
             raise ValueError(f"BLS API error: {error_msg}")
         
         # Parse results
@@ -95,6 +145,9 @@ def fetch_cpi_data(
         
         df = pd.DataFrame(records)
         
+        logger.info(f"Successfully fetched {len(df)} observations for {len(series_ids)} series")
+        logger.debug(f"Date range: {df['year'].min()}-{df['year'].max()}")
+        
         print(f"✓ Fetched {len(df)} observations for {len(series_ids)} series")
         print(f"  Date range: {df['year'].min()}-{df['year'].max()}")
         print(f"  Periods: {df['period'].nunique()} unique periods")
@@ -102,7 +155,10 @@ def fetch_cpi_data(
         return df
     
     except requests.RequestException as e:
+        logger.error(f"Failed to fetch CPI data from BLS API: {e}")
         raise ValueError(f"Failed to fetch CPI data from BLS API: {e}")
+    finally:
+        session.close()
 
 
 def fetch_slack_data(

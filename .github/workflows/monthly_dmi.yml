@@ -1,0 +1,130 @@
+name: Monthly DMI Computation
+
+on:
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      reference_period:
+        description: 'Reference period (YYYY-MM)'
+        required: true
+        default: '2024-11'
+  
+  # Scheduled: 15th of each month at 10am UTC (after BLS CPI release)
+  schedule:
+    - cron: '0 10 15 * *'
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  compute-dmi:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Set reference period
+        id: period
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "period=${{ github.event.inputs.reference_period }}" >> $GITHUB_OUTPUT
+          else
+            # Auto-compute: previous month (CPI lags by ~2 weeks)
+            echo "period=$(date -d 'last month' '+%Y-%m')" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Fetch CPI data
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          echo "Fetching CPI data for ${{ steps.period.outputs.period }}..."
+          python -m scripts.test_bls_api
+      
+      - name: Check CE weights status
+        run: |
+          PERIOD_YEAR=$(echo "${{ steps.period.outputs.period }}" | cut -d'-' -f1)
+          WEIGHTS_YEAR=$(python -c "import json; print(json.load(open('data/curated/weights_by_group_2023.json'))['weights_year'])")
+          
+          echo "Period year: $PERIOD_YEAR"
+          echo "Current weights year: $WEIGHTS_YEAR"
+          
+          if [ $((PERIOD_YEAR - WEIGHTS_YEAR)) -gt 2 ]; then
+            echo "⚠️ WARNING: Weights are $((PERIOD_YEAR - WEIGHTS_YEAR)) years old"
+            echo "Consider updating CE weights"
+          fi
+      
+      - name: Compute DMI
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          echo "Computing DMI for ${{ steps.period.outputs.period }}..."
+          python -m scripts.compute_dmi
+      
+      - name: Run QA validation
+        run: |
+          echo "QA validation completed (integrated in compute_dmi.py)"
+          
+          # Check if QA report exists and passed
+          QA_STATUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}.json'))['status'])")
+          
+          if [ "$QA_STATUS" != "PASS" ] && [ "$QA_STATUS" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS"
+            exit 1
+          fi
+          
+          echo "✅ QA validation: $QA_STATUS"
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Add DMI release for ${{ steps.period.outputs.period }}
+            
+            - DMI computed for all quintiles
+            - QA validation: PASSED
+            - Ready for review and publication
+          branch: release/${{ steps.period.outputs.period }}
+          title: 'DMI Release: ${{ steps.period.outputs.period }}'
+          body: |
+            ## DMI Release for ${{ steps.period.outputs.period }}
+            
+            **Automated monthly computation**
+            
+            ### Summary
+            - **Reference Period**: ${{ steps.period.outputs.period }}
+            - **QA Status**: See `data/outputs/qa_report_${{ steps.period.outputs.period }}.json`
+            - **DMI Results**: See `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
+            
+            ### Files Changed
+            - `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
+            - `data/outputs/qa_report_${{ steps.period.outputs.period }}.json`
+            - `data/staging/cpi_levels_*.json` (updated)
+            - `data/staging/slack_u3_*.json` (updated)
+            
+            ### Next Steps
+            1. Review DMI values for reasonableness
+            2. Check QA report for any warnings
+            3. Approve and merge to publish
+            4. Vercel will auto-deploy web dashboard
+            
+            ---
+            *This PR was automatically created by the Monthly DMI workflow*
+          labels: |
+            automated
+            release
+          add-paths: |
+            data/outputs/
+            data/staging/

@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distributional Misery Index (DMI) v0.1.8</title>
+    <title>Distributional Misery Index (DMI) v0.1.9</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -220,6 +221,34 @@
             <!-- Cards will be populated by JavaScript -->
         </div>
 
+        <!-- Historical Context Panel -->
+        <div class="chart-container" id="historical-context" style="display:none;">
+            <h2 class="chart-title">📊 Historical Context</h2>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="card">
+                    <div class="card-title">Current vs Average</div>
+                    <div class="card-value" id="vs-avg">--</div>
+                    <div class="card-detail">2011-2024 mean</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Percentile Rank</div>
+                    <div class="card-value" id="percentile">--</div>
+                    <div class="card-detail">Historical position</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Trend (3mo)</div>
+                    <div class="card-value" id="trend">--</div>
+                    <div class="card-detail">Direction</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DMI Time Series Chart -->
+        <div class="chart-container" id="timeseries-container" style="display:none;">
+            <h2 class="chart-title">DMI Over Time (2011-2024)</h2>
+            <canvas id="dmi-timeseries" style="max-height: 400px;"></canvas>
+        </div>
+
         <div class="chart-container">
             <h2 class="chart-title">DMI by Income Quintile</h2>
             <div class="bar-chart" id="dmi-chart">
@@ -254,25 +283,30 @@
         </div>
 
         <div class="footer">
-            <p>DMI v0.1.8 | Data as of <span id="data-date">2024-11</span></p>
+            <p>DMI v0.1.9 | Data as of <span id="data-date">2024-11</span></p>
         </div>
     </div>
 
     <script>
-        // Load DMI data
+        // Load DMI data (latest + time series)
         async function loadData() {
             try {
-                const response = await fetch('data/outputs/dmi_release_2024-11.json');
-                const data = await response.json();
+                // Load latest DMI release
+                const latestResponse = await fetch('../data/outputs/dmi_release_2024-11.json');
+                const latestData = await latestResponse.json();
 
-                displayData(data);
+                // Load historical time series
+                const timeseriesResponse = await fetch('../data/outputs/published/dmi_timeseries_2010_2024.json');
+                const timeseriesData = await timeseriesResponse.json();
+
+                displayData(latestData, timeseriesData);
             } catch (error) {
                 console.error('Error loading DMI data:', error);
                 document.getElementById('period').textContent = 'Error loading data';
             }
         }
 
-        function displayData(data) {
+        function displayData(data, timeseriesData) {
             // Update period
             document.getElementById('period').textContent = `Reference Period: ${data.reference_period}`;
             document.getElementById('data-date').textContent = data.reference_period;
@@ -301,6 +335,15 @@
                 </div>
             `;
             document.getElementById('summary-cards').innerHTML = summaryHTML;
+
+            // If time series data available, show historical context and charts
+            if (timeseriesData && timeseriesData.observations) {
+                document.getElementById('historical-context').style.display = 'block';
+                document.getElementById('timeseries-container').style.display = 'block';
+
+                renderHistoricalContext(data, timeseriesData);
+                renderTimeSeriesChart(timeseriesData);
+            }
 
             // Create DMI chart
             const maxDmi = Math.max(...data.dmi_by_group.map(d => d.dmi));
@@ -331,6 +374,130 @@
                 </div>
             `).join('');
             document.getElementById('inflation-chart').innerHTML = inflationChartHTML;
+        }
+
+        function renderHistoricalContext(currentData, timeseriesData) {
+            // Get Q1 DMI values from time series
+            const q1Data = timeseriesData.observations.filter(obs => obs.group_id === 'Q1');
+            const q1Values = q1Data.map(obs => obs.dmi);
+
+            // Current Q1 DMI
+            const currentDMI = currentData.dmi_by_group[0].dmi;
+
+            // Historical average
+            const avgDMI = q1Values.reduce((a, b) => a + b, 0) / q1Values.length;
+            const vsAvg = currentDMI - avgDMI;
+            document.getElementById('vs-avg').innerHTML = `${vsAvg >= 0 ? '+' : ''}${vsAvg.toFixed(2)}`;
+            document.getElementById('vs-avg').style.color = vsAvg < 0 ? '#10b981' : '#ef4444';
+
+            // Percentile rank
+            const sorted = [...q1Values].sort((a, b) => a - b);
+            const rank = sorted.filter(v => v <= currentDMI).length;
+            const percentile = Math.round((rank / sorted.length) * 100);
+            document.getElementById('percentile').textContent = `${percentile}th`;
+
+            // 3-month trend
+            const recentPeriods = q1Data.slice(-4); // Last 4 periods including current
+            if (recentPeriods.length >= 3) {
+                const oldAvg = (recentPeriods[0].dmi + recentPeriods[1].dmi) / 2;
+                const newAvg = (recentPeriods[2].dmi + recentPeriods[3].dmi) / 2;
+                const trend = newAvg - oldAvg;
+                const trendText = trend < -0.1 ? '↓ Decreasing' : trend > 0.1 ? '↑ Increasing' : '→ Stable';
+                document.getElementById('trend').textContent = trendText;
+                document.getElementById('trend').style.color = trend < 0 ? '#10b981' : trend > 0 ? '#ef4444' : '#667eea';
+            }
+        }
+
+        function renderTimeSeriesChart(timeseriesData) {
+            const ctx = document.getElementById('dmi-timeseries').getContext('2d');
+
+            // Group data by quintile
+            const quintiles = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'];
+            const periods = [...new Set(timeseriesData.observations.map(obs => obs.period))].sort();
+
+            const datasets = quintiles.map((q, index) => {
+                const qData = timeseriesData.observations.filter(obs => obs.group_id === q);
+                const values = periods.map(p => {
+                    const obs = qData.find(d => d.period === p);
+                    return obs ? obs.dmi : null;
+                });
+
+                // Color gradient from dark to light blue
+                const colors = [
+                    'rgb(30, 64, 175)',   // Q1 - dark blue
+                    'rgb(59, 130, 246)',  // Q2 - blue
+                    'rgb(96, 165, 250)',  // Q3 - light blue
+                    'rgb(147, 197, 253)', // Q4 - lighter blue
+                    'rgb(191, 219, 254)'  // Q5 - lightest blue
+                ];
+
+                return {
+                    label: q,
+                    data: values,
+                    borderColor: colors[index],
+                    backgroundColor: colors[index] + '20',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.1
+                };
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: periods,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Period'
+                            },
+                            ticks: {
+                                maxTicksLimit: 20,
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'DMI'
+                            },
+                            beginAtZero: false,
+                            suggestedMin: 5,
+                            suggestedMax: 15
+                        }
+                    }
+                }
+            });
         }
 
         // Load data on page load
