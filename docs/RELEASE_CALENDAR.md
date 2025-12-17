@@ -92,8 +92,8 @@
 
 | Period | CPI Release | DMI Published | Days Elapsed |
 |--------|-------------|---------------|--------------|
-| 2024-11 | Dec 11 | Dec 17 | 6 days |
-| 2024-10 | Nov 13 | -- | (baseline established) |
+| 2024-11 | Dec 11, 2024 | Dec 17, 2024 | 6 days |
+| 2025-01 | TBD | TBD | (pending) |
 
 **Target**: Maintain <7 day average
 
