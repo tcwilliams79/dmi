@@ -1,12 +1,16 @@
-# Distributional Misery Index (DMI) v0.1.8
+# Distributional Misery Index (DMI) v0.1.9
 
-![Status](https://img.shields.io/badge/status-operational-brightgreen)
+![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.9+-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Coverage](https://img.shields.io/badge/coverage-94%25-brightgreen)
-![Tests](https://img.shields.io/badge/tests-12%2F12%20passing-success)
+![Data](https://img.shields.io/badge/data-2011--2024-blue)
+![Coverage](https://img.shields.io/badge/tests-passing-success)
 
 **A transparent, reproducible measure of economic pressure across income groups.**
+
+📊 **[Live Dashboard](https://dmianalysis.org/dashboard/)** | 📖 **[Methodology](docs/DMI_Methodology_Note.md)** | 🔌 **[API Docs](docs/API.md)**
+
+---
 
 ## Overview
 
@@ -18,28 +22,80 @@ The DMI combines group-weighted inflation (π) with labor market slack (S) to re
 - ✅ **Deterministic**: Same inputs → identical outputs
 - ✅ **Transparent**: All methodology documented and public
 - ✅ **Auditable**: Full audit trail from raw data to published results
-- ✅ **Non-partisan**: "Visibility, not advocacy"
+- ✅ **Research-Ready**: Bootstrap confidence intervals & alternative specifications
+
+---
+
+## ✨ v0.1.9 Features
+
+### 📈 Historical Data (2011-2024)
+- **835 observations**: 167 periods × 5 income quintiles
+- **13+ years** of time series data
+- **Complete backfill** with consistent methodology
+- Monthly updates via GitHub Actions
+
+### 📊 Interactive Visualizations
+- **Time series charts** showing DMI evolution (2011-2024)
+- **Historical context**: Percentile rank, vs average, trend analysis
+- **Chart.js integration** for smooth, responsive charts
+- Current DMI at **15th percentile** historically (Nov 2024)
+
+### 🔬 Alternative Specifications
+- **U-6 Unemployment**: Broader labor slack measure (+3.5 DMI points vs baseline)
+- **Core CPI**: Excludes food/beverages to isolate underlying inflation
+- **Comparison documentation** with use case guidance
+
+### 📉 Confidence Intervals
+- **Bootstrap simulation** (1000 iterations) for statistical rigor
+- **95% CI widths**: ~0.12 DMI points (Nov 2024)
+- Quantifies uncertainty from CE weights sampling error
+
+### 📚 Comprehensive Documentation
+- **[Methodology Note](docs/DMI_Methodology_Note.md)**: 20+ pages, academic-style, citable
+- **[API Documentation](docs/API.md)**: Multi-language examples (Python, R, JavaScript)
+- **[Alternative Specs Guide](docs/Alternative_Specifications.md)**: When to use which variant
+
+---
 
 ## Project Structure
 
 ```
 dmi/
 ├── dmi_calculator/          # Pure deterministic calculator
+│   ├── core.py              # DMI computation engine
+│   └── uncertainty.py       # Bootstrap confidence intervals
 ├── dmi_pipeline/            # Data pipeline + agents
-│   └── agents/              # 7 minimal agents
-├── dmi_web/                 # Next.js web interface
+│   └── agents/              
+│       └── bls_api_client.py  # Enhanced with retry logic & rate limiting
+├── scripts/                 # Computation scripts
+│   ├── compute_dmi.py       # Baseline DMI
+│   ├── compute_dmi_u6.py    # U-6 alternative
+│   ├── compute_dmi_core.py  # Core CPI alternative
+│   ├── compute_dmi_with_ci.py  # With confidence intervals
+│   └── backfill_historical.py  # Historical time series
+├── web/                     # Static web dashboard
+│   ├── index.html           # Interactive charts & visualizations
+│   └── data/                # Symlinked data files
 ├── data/                    # 4-layer storage
-│   ├── raw/                 # As-downloaded source files
-│   ├── staging/             # Normalized observations
-│   ├── curated/             # Calculator-ready matrices
-│   └── outputs/             # Published releases
-│       ├── published/       # Deployable to Vercel
-│       └── internal/        # Review packets (never deployed)
+│   ├── curated/             # CE weights (2023)
+│   └── outputs/            
+│       ├── published/       # Time series + historical releases
+│       │   ├── dmi_timeseries_2010_2024.json (151 KB, 835 obs)
+│       │   └── historical/  # 167 individual period files
+│       ├── dmi_release_2024-11.json
+│       ├── dmi_release_2024-11_u6.json
+│       ├── dmi_release_2024-11_core.json
+│       └── dmi_release_2024-11_with_ci.json
 ├── registry/                # Authoritative source declarations
-├── schemas/                 # JSON schemas for validation
-├── docs/                    # Methods note, PDD, checklist
+│   └── series_catalog_v0_1.json
+├── docs/                    # Documentation
+│   ├── DMI_Methodology_Note.md     # Comprehensive methodology
+│   ├── API.md                       # Programmatic access guide
+│   └── Alternative_Specifications.md  # Spec comparison
 └── tests/                   # Unit + integration tests
 ```
+
+---
 
 ## Quick Start
 
@@ -47,7 +103,6 @@ dmi/
 
 - Python 3.9+
 - BLS API key (register at https://data.bls.gov/registrationEngine/)
-- Node.js 18+ (for web interface)
 
 ### Installation
 
@@ -70,119 +125,212 @@ dmi/
    # Edit .env and add your BLS_API_KEY
    ```
 
-4. **Run tests** (when implemented):
+4. **Run DMI calculation**:
    ```bash
-   pytest tests/
+   ./venv/bin/python -m scripts.compute_dmi
    ```
 
-## Implementation Status
+---
 
-**Spec Version**: v0.1.8 (2025-12-17)
+## Usage Examples
 
-### Phase 1: Core Foundation (⏳ In Progress)
-- [x] Project structure initialized
-- [x] Registry & schemas copied from spec
-- [x] Python environment configured
-- [ ] Deterministic calculator implementation
-- [ ] Category-agnostic architecture
-- [ ] Unit tests for calculator
+### Compute Latest DMI
+```bash
+# Baseline (U-3, headline CPI)
+./venv/bin/python -m scripts.compute_dmi
 
-### Phase 2: CE Weights Pipeline (🔜 Next)
-- [ ] CE XLSX downloader
-- [ ] Structural validation (4 checks)
-- [ ] Extraction + mapping logic
-- [ ] Weights QA
+# With confidence intervals
+./venv/bin/python -m scripts.compute_dmi_with_ci --period 2024-11 --bootstrap 1000
 
-### Phase 3: CPI & Slack Integration
-- [ ] CPI data fetcher (BLS API)
-- [ ] Category coverage validator
-- [ ] Slack data fetcher
-- [ ] Alignment validator
+# U-6 alternative (broader unemployment)
+./venv/bin/python -m scripts.compute_dmi_u6
 
-### Phase 4: QA Gates & Publisher
-- [ ] Validator (Janus)
-- [ ] Weights vintage detector
-- [ ] Backfill candidate generator
-- [ ] Publisher with prevalidation
+# Core CPI alternative (excluding food)
+./venv/bin/python -m scripts.compute_dmi_core
+```
 
-### Phase 5: Web Interface
-- [ ] Next.js setup
-- [ ] DMI charts (Plotly)
-- [ ] Category breakdown
-- [ ] QA report viewer
+### Access Data Programmatically
 
-### Phase 6: Integration & Deployment
-- [ ] End-to-end pipeline test
-- [ ] GitHub Actions workflow
-- [ ] Vercel deployment
+**Python**:
+```python
+import requests
+import pandas as pd
+
+# Load time series
+url = "https://raw.githubusercontent.com/tcwilliams79/dmi/main/data/outputs/published/dmi_timeseries_2010_2024.json"
+data = requests.get(url).json()
+
+# Filter Q1 observations
+q1 = [obs for obs in data['observations'] if obs['group_id'] == 'Q1']
+df = pd.DataFrame(q1)
+print(df[['period', 'dmi', 'inflation', 'slack']])
+```
+
+**R**:
+```r
+library(jsonlite)
+
+url <- "https://raw.githubusercontent.com/tcwilliams79/dmi/main/data/outputs/published/dmi_timeseries_2010_2024.json"
+data <- fromJSON(url)
+q1 <- data$observations[data$observations$group_id == "Q1", ]
+```
+
+See [API.md](docs/API.md) for complete documentation.
+
+---
+
+## Web Dashboard
+
+### Local Preview
+```bash
+cd web
+python3 -m http.server 8000
+# Visit http://localhost:8000
+```
+
+### Production Deployment
+
+See `prepare_deployment.sh` to generate production-ready files:
+```bash
+./prepare_deployment.sh
+# Upload deploy/ directory to web host
+```
+
+**Features**:
+- Interactive time series (2011-2024)
+- Historical context (percentile, vs average, trend)
+- Current vs historical comparison
+- Quintile-specific analysis
+
+---
 
 ## Data Sources
 
 - **BLS CPI-U**: Monthly category index levels (inflation)
 - **BLS CE Tables**: Annual expenditure shares by income group (weights)
-- **BLS CPS**: National unemployment (U-3 baseline, U-6 sensitivity)
-- **BLS LAUS**: State/metro unemployment (future expansion)
+- **BLS CPS**: National unemployment (U-3 baseline, U-6 alternative)
 
-## Key Files
+**Current Data**:
+- CPI: December 2009 - November 2024
+- CE Weights: 2023 vintage
+- Unemployment: December 2009 - November 2024
+- Time Series: 167 periods (January 2011 - November 2024)
 
-- **Specification**: `dmi_v0.1_spec_package_v0.1.8/`
-- **Implementation Checklist**: `docs/DMI_v0.1_Implementation_Checklist.md`
-- **Methods Note**: `docs/DMI_v0.1_PDD.md`
-- **Output Contract**: `registry/output_contract_v0_1.json`
+---
 
-## Development
+## Implementation Status
 
-### Running the Calculator (when implemented)
-```python
-python
-from dmi_calculator import compute_dmi
+**Version**: v0.1.9 (December 2024)
 
-# Pass curated inputs
-dmi_results = compute_dmi(inflation_by_group, slack_by_geo)
-```
+### ✅ Phase A: Automation & Historical Backfill
+- [x] Enhanced BLS API client (retry logic, rate limiting, logging)
+- [x] Historical backfill script (2011-2024)
+- [x] GitHub Actions workflow (monthly automation)
+- [x] Time series dataset generation (835 observations)
+- [x] Data catalog fixes
 
-### Running the Pipeline (when implemented)
-```bash
-python scripts/run_monthly.py --reference-period 2024-11
-```
+### ✅ Phase B: Visualizations & Alternative Specifications
+- [x] Interactive Chart.js time series visualization
+- [x] Historical context panel
+- [x] U-6 unemployment alternative
+- [x] Core CPI alternative
+- [x] Alternative specifications documentation
 
-### Web Interface (when implemented)
-```bash
-cd dmi_web
-npm install
-npm run dev
-# Visit http://localhost:3000
-```
+### ✅ Phase C: Uncertainty & Documentation
+- [x] Bootstrap confidence intervals (1000 iterations)
+- [x] Uncertainty quantification module
+- [x] Comprehensive methodology note (20+ pages)
+- [x] API documentation (multi-language examples)
+- [x] Production deployment preparation
 
-## Deployment
+---
 
-**Target**: Vercel (static Next.js deployment)
+## Key Results (November 2024)
 
-**Process**:
-1. Pipeline runs in GitHub Actions
-2. Generates outputs to `data/outputs/published/`
-3. Copies to `dmi_web/public/data/`
-4. Deploys to Vercel on PR merge (semi-automated with approval)
+| Quintile | DMI | 95% CI | Inflation | Slack |
+|----------|-----|--------|-----------|-------|
+| **Q1** (Lowest income) | 6.88 | [6.83, 6.94] | 2.68% | 4.2% |
+| **Q2** | 6.85 | [6.79, 6.90] | 2.65% | 4.2% |
+| **Q3** (Middle income) | 6.75 | [6.69, 6.81] | 2.55% | 4.2% |
+| **Q4** | 6.71 | [6.65, 6.77] | 2.51% | 4.2% |
+| **Q5** (Highest income) | 6.65 | [6.59, 6.71] | 2.45% | 4.2% |
+
+**Historical Context**:
+- Current Q1 DMI: **15th percentile** (only 15% of historical periods had lower DMI)
+- **2.85 points below** 2011-2024 average
+- **Trend**: ↓ Decreasing (from 2020 COVID peak)
+
+---
+
+## Documentation
+
+- **[Methodology Note](docs/DMI_Methodology_Note.md)**: Complete technical documentation
+- **[API Documentation](docs/API.md)**: Programmatic access guide
+- **[Alternative Specifications](docs/Alternative_Specifications.md)**: U-6 & Core CPI guidance
+- **[Specification](docs/DMI_v0.1.9_Spec.md)**: Original design specification
+- **[Roadmap](docs/ROADMAP_v0.1.9.md)**: Implementation roadmap
+
+---
 
 ## Contributing
 
 This is a measurement tool under active development. Contributions should:
-- Maintain deterministic calculator properties (no I/O in calculator)
+- Maintain deterministic calculator properties
 - Follow conservative governance (no silent methodology changes)
 - Include tests and documentation
-- Align with v0.1.8 specification
+- Align with v0.1.9 specification
+
+**Areas for Contribution**:
+- Regional DMI variants (state/metro level)
+- Historical CE weights integration (2011-2022 vintages)
+- Demographic breakdowns (age, family structure)
+- Enhanced visualizations
+
+---
+
+## Citation
+
+**Suggested Format**:
+
+> Williams, T.C. (2024). Distributional Misery Index: Measuring Economic Pressure Across Income Groups. Methodology Note v0.1.9.
+
+**BibTeX**:
+```bibtex
+@techreport{williams2024dmi,
+  title={Distributional Misery Index: Measuring Economic Pressure Across Income Groups},
+  author={Williams, T.C.},
+  year={2024},
+  institution={Independent Research},
+  type={Methodology Note},
+  version={0.1.9},
+  url={https://github.com/tcwilliams79/dmi}
+}
+```
+
+---
 
 ## License
 
-MIT License
+MIT License - See [LICENSE](LICENSE) for details
+
+---
 
 ## Contact
 
 **Repository**: https://github.com/tcwilliams79/dmi  
+**Website**: https://dmianalysis.org  
 **Owner**: Thomas C. Williams
+
+---
 
 ## Acknowledgments
 
-Built following the DMI v0.1.8 specification developed with ChatGPT and Antigravity (Google Deepmind).
+Built following the DMI v0.1.9 specification developed with ChatGPT and Antigravity (Google Deepmind).
 
-Data sources: U.S. Bureau of Labor Statistics (BLS), Bureau of Economic Analysis (BEA).
+Data sources: U.S. Bureau of Labor Statistics (BLS).
+
+Special thanks to the open-source community for tools that made this possible: pandas, numpy, Chart.js, and the BLS Public Data API.
+
+---
+
+**Last Updated**: December 2024
