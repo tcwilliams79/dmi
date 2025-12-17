@@ -265,5 +265,5 @@ Future enhancement: Add computed `days_since_update` field
 
 ---
 
-**Last Updated**: December 17, 2024  
+**Last Updated**: December 17, 2025  
 **For**: DMI v0.1.10

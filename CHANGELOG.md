@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.10] - 2024-12-17
+## [0.1.10] - 2025-12-17
 
 ### Added - Production Hardening
 - Health/status endpoint (`health.json`) generated during deployment
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.9] - 2024-12-17
+## [0.1.9] - 2025-12-17
 
 ### Added - Feature Complete
 - Historical time series backfill (2011-2024, 835 observations)
@@ -57,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.8] - 2024-12-16
+## [0.1.8] - 2025-12-16
 
 ### Added - Initial Release
 - Basic DMI calculation (5 income quintiles)
