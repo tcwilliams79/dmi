@@ -1,0 +1,69 @@
+version: 0.1.1
+last_updated: '2025-12-16'
+sources:
+- dataset_id: BLS_CPI
+  publisher: U.S. Bureau of Labor Statistics (BLS)
+  access_method: api
+  base_url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+  docs_url: https://www.bls.gov/developers/api_signature_v2.htm
+  notes:
+  - Use CPI-U series (CUUR...) for national items. Area CPI series available for some
+    MSAs/regions.
+  - Store API responses (including footnotes) verbatim in raw/ before normalization.
+  license: "Public domain (US Government work) \u2014 verify per BLS terms."
+- dataset_id: BLS_CE_TABLES
+  publisher: U.S. Bureau of Labor Statistics (BLS)
+  access_method: download
+  base_url: https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/
+  docs_url: https://www.bls.gov/cex/tables.htm
+  notes:
+  - 'v0.1 default weights source: income deciles/quintiles before taxes; extract ''Share''
+    rows.'
+  - Pin weights_year and checksum raw XLSX in release metadata; update weights annually.
+  license: "Public domain (US Government work) \u2014 verify per BLS terms."
+- dataset_id: BLS_CE_PUMD
+  publisher: U.S. Bureau of Labor Statistics (BLS)
+  access_method: download
+  base_url: https://www.bls.gov/cex/pumd.htm
+  docs_url: https://www.bls.gov/cex/pumd_doc.htm
+  notes:
+  - 'v0.2+ optional: Interview + Diary PUMD zips for custom stratifications and richer
+    category alignment.'
+  - Not required for v0.1 when using CE published tables.
+  license: "Public domain (US Government work) \u2014 verify per BLS terms."
+- dataset_id: BLS_CE_CPI_CONCORDANCE
+  publisher: U.S. Bureau of Labor Statistics (BLS)
+  access_method: download
+  base_url: https://www.bls.gov/cpi/additional-resources/ce-cpi-concordance.htm
+  docs_url: https://www.bls.gov/cpi/additional-resources/ce-cpi-concordance.htm
+  notes:
+  - Official concordance mapping CE UCC to CPI ELI. Version and checksum must be recorded.
+  license: "Public domain (US Government work) \u2014 verify per BLS terms."
+- dataset_id: BLS_LAUS
+  publisher: U.S. Bureau of Labor Statistics (BLS)
+  access_method: download
+  base_url: https://download.bls.gov/pub/time.series/la/
+  docs_url: https://www.bls.gov/lau/
+  notes:
+  - Use LAUS U-3 rates for states and MSAs where available.
+  - Prefer time.series files for bulk reproducibility (avoid scraping HTML).
+  license: "Public domain (US Government work) \u2014 verify per BLS terms."
+- dataset_id: BLS_CPS
+  publisher: U.S. Bureau of Labor Statistics (BLS)
+  access_method: api
+  base_url: https://api.bls.gov/publicAPI/v2/timeseries/data/
+  docs_url: https://www.bls.gov/cps/
+  notes:
+  - 'National unemployment measures: U-3 (LNS14000000) baseline; U-6 (LNS13327709)
+    sensitivity.'
+  - Store series_ids used in series_catalog.json and manifest.
+  license: "Public domain (US Government work) \u2014 verify per BLS terms."
+- dataset_id: BEA_RPP
+  publisher: U.S. Bureau of Economic Analysis (BEA)
+  access_method: api
+  base_url: https://apps.bea.gov/api/data
+  docs_url: https://apps.bea.gov/api/_pdf/bea_web_service_api_user_guide.pdf
+  notes:
+  - 'Optional for v0.1: use as a price-level parity adjustment for cross-place comparisons;
+    not a substitute for state CPI inflation.'
+  license: "Public domain (US Government work) \u2014 verify per BEA terms."

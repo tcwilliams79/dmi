@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/dmi_output.schema.json",
+  "title": "DMI Release Output (JSON)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "release_id": {
+          "type": "string"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "manifest_version": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "qa_status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PASS_WITH_WARNING"
+          ]
+        },
+        "inflation_geo_policy_version": {
+          "type": "string"
+        },
+        "weights_year": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "release_id",
+        "run_id",
+        "manifest_version",
+        "published_at",
+        "qa_status",
+        "inflation_geo_policy_version"
+      ]
+    },
+    "dmi_by_group": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "geo_id": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$"
+          },
+          "grouping": {
+            "type": "string",
+            "enum": [
+              "quintile",
+              "decile"
+            ]
+          },
+          "group_id": {
+            "type": "string"
+          },
+          "dmi": {
+            "type": "number"
+          },
+          "inflation": {
+            "type": "number"
+          },
+          "slack_u3": {
+            "type": "number"
+          },
+          "inflation_geo_source": {
+            "type": "string",
+            "enum": [
+              "geo_specific_cpi",
+              "national_cpi_proxy"
+            ]
+          },
+          "rpp_applied": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "geo_id",
+          "period",
+          "grouping",
+          "group_id",
+          "dmi",
+          "inflation",
+          "slack_u3",
+          "inflation_geo_source",
+          "rpp_applied"
+        ]
+      }
+    },
+    "summary_metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "geo_id": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$"
+          },
+          "dmi_median": {
+            "type": "number"
+          },
+          "dmi_stress": {
+            "type": "number"
+          },
+          "dmi_dispersion_q5_q1": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "geo_id",
+          "period",
+          "dmi_median",
+          "dmi_stress",
+          "dmi_dispersion_q5_q1"
+        ]
+      }
+    },
+    "inflation_contributions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "geo_id": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$"
+          },
+          "grouping": {
+            "type": "string",
+            "enum": [
+              "quintile",
+              "decile"
+            ]
+          },
+          "group_id": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "string"
+          },
+          "contribution": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "geo_id",
+          "period",
+          "grouping",
+          "group_id",
+          "category_id",
+          "contribution"
+        ]
+      }
+    },
+    "qa_report": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "metadata",
+    "dmi_by_group",
+    "summary_metrics",
+    "inflation_contributions",
+    "qa_report"
+  ]
+}

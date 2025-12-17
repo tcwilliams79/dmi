@@ -1,0 +1,212 @@
+{
+  "contract_id": "dmi_output_contract_v0_1",
+  "version": "0.1.2",
+  "last_updated": "2025-12-17",
+  "purpose": "Define the required output artifacts, naming conventions, and directory layout for DMI v0.1 pipeline runs. Separates publishable outputs from internal review artifacts to avoid accidental public deployment.",
+  "principles": [
+    "Outputs are deterministic given pinned curated inputs and policies; agentic steps may only automate file production and narrative drafting.",
+    "Publishable outputs MUST live under data/outputs/published/ only.",
+    "Publisher MUST prevalidate required artifacts against this contract and validate schema-bound JSON artifacts before copying into the published release directory.",
+    "Internal-only review artifacts MUST live under data/outputs/internal/ only.",
+    "Release directories are immutable snapshots; a separate latest/ alias is maintained for web convenience.",
+    "All published outputs must be listed in release_metadata.json with checksums (where feasible).",
+    "Each published release includes a weights snapshot (weights_by_group.*) for transparency and reproducibility."
+  ],
+  "directories": {
+    "published_root": "data/outputs/published",
+    "published_release_dir_template": "data/outputs/published/releases/{reference_period}",
+    "published_latest_dir": "data/outputs/published/latest",
+    "internal_root": "data/outputs/internal",
+    "internal_review_dir_template": "data/outputs/internal/review_packets/{run_id}"
+  },
+  "grouping_conventions": {
+    "quintile": {
+      "group_ids": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4",
+        "Q5"
+      ],
+      "notes": "Q1 = lowest income fifth; Q5 = highest income fifth."
+    },
+    "decile": {
+      "group_ids": [
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6",
+        "D7",
+        "D8",
+        "D9",
+        "D10"
+      ],
+      "notes": "D1 = lowest income tenth; D10 = highest income tenth."
+    },
+    "default_public_reporting": "quintile",
+    "published_required_groupings": [
+      "quintile"
+    ],
+    "published_optional_groupings": [
+      "decile"
+    ]
+  },
+  "published_artifacts": [
+    {
+      "artifact_id": "release_metadata",
+      "relative_path": "releases/{reference_period}/release_metadata.json",
+      "format": "json",
+      "schema_ref": "schemas/release_metadata.schema.json",
+      "required": true,
+      "description": "Audit record for the release (inputs, decisions, QA status, output file list)."
+    },
+    {
+      "artifact_id": "qa_report",
+      "relative_path": "releases/{reference_period}/qa_report.json",
+      "format": "json",
+      "schema_ref": "schemas/qa_report.schema.json",
+      "required": true,
+      "description": "Machine-readable QA report emitted by Validator (Janus). Validates against schemas/qa_report.schema.json."
+    },
+    {
+      "artifact_id": "weights_by_group_json",
+      "relative_path": "releases/{reference_period}/weights_by_group.json",
+      "format": "json",
+      "schema_ref": "schemas/weights.schema.json",
+      "required": true,
+      "description": "Exact weight snapshot used for this release (w(g,c)) including weights_year and build metadata."
+    },
+    {
+      "artifact_id": "weights_by_group_csv",
+      "relative_path": "releases/{reference_period}/weights_by_group.csv",
+      "format": "csv",
+      "schema_ref": "schemas/weights.schema.json#/properties/rows",
+      "required": true,
+      "description": "Row-wise export of weights_by_group_json.rows for spreadsheet users."
+    },
+    {
+      "artifact_id": "weights_by_group_parquet",
+      "relative_path": "releases/{reference_period}/weights_by_group.parquet",
+      "format": "parquet",
+      "schema_ref": "schemas/weights.schema.json#/properties/rows",
+      "required": true,
+      "description": "Parquet export of weights_by_group_json.rows for analytics."
+    },
+    {
+      "artifact_id": "dmi_release_bundle",
+      "relative_path": "releases/{reference_period}/dmi_release.json",
+      "format": "json",
+      "schema_ref": "schemas/dmi_output.schema.json",
+      "required": true,
+      "description": "Single JSON bundle for the release: dmi_by_group, summary_metrics, inflation_contributions, and qa_report summary."
+    },
+    {
+      "artifact_id": "dmi_by_group_table_csv",
+      "relative_path": "releases/{reference_period}/dmi_by_group.csv",
+      "format": "csv",
+      "schema_ref": "schemas/dmi_output.schema.json#/properties/dmi_by_group",
+      "required": true,
+      "description": "Row-wise export of dmi_by_group from the JSON bundle."
+    },
+    {
+      "artifact_id": "dmi_by_group_table_parquet",
+      "relative_path": "releases/{reference_period}/dmi_by_group.parquet",
+      "format": "parquet",
+      "schema_ref": "schemas/dmi_output.schema.json#/properties/dmi_by_group",
+      "required": true,
+      "description": "Parquet export of dmi_by_group for fast analytics."
+    },
+    {
+      "artifact_id": "summary_metrics_csv",
+      "relative_path": "releases/{reference_period}/summary_metrics.csv",
+      "format": "csv",
+      "schema_ref": "schemas/dmi_output.schema.json#/properties/summary_metrics",
+      "required": true,
+      "description": "Row-wise export of summary_metrics from the JSON bundle."
+    },
+    {
+      "artifact_id": "summary_metrics_parquet",
+      "relative_path": "releases/{reference_period}/summary_metrics.parquet",
+      "format": "parquet",
+      "schema_ref": "schemas/dmi_output.schema.json#/properties/summary_metrics",
+      "required": true,
+      "description": "Parquet export of summary_metrics for fast analytics."
+    },
+    {
+      "artifact_id": "inflation_contributions_csv",
+      "relative_path": "releases/{reference_period}/inflation_contributions.csv",
+      "format": "csv",
+      "schema_ref": "schemas/dmi_output.schema.json#/properties/inflation_contributions",
+      "required": true,
+      "description": "Row-wise export of inflation_contributions from the JSON bundle."
+    },
+    {
+      "artifact_id": "inflation_contributions_parquet",
+      "relative_path": "releases/{reference_period}/inflation_contributions.parquet",
+      "format": "parquet",
+      "schema_ref": "schemas/dmi_output.schema.json#/properties/inflation_contributions",
+      "required": true,
+      "description": "Parquet export of inflation_contributions for fast analytics."
+    },
+    {
+      "artifact_id": "release_notes",
+      "relative_path": "releases/{reference_period}/release_notes.md",
+      "format": "md",
+      "schema_ref": null,
+      "required": false,
+      "description": "Human-readable narrative release notes (drafted from contribution tables; must not alter values)."
+    }
+  ],
+  "published_aliases": [
+    {
+      "alias_type": "latest_copy",
+      "source_relative_path": "releases/{reference_period}/dmi_release.json",
+      "dest_relative_path": "latest/dmi_release.json",
+      "description": "Convenience alias for web: the latest bundle JSON."
+    },
+    {
+      "alias_type": "latest_copy",
+      "source_relative_path": "releases/{reference_period}/dmi_by_group.csv",
+      "dest_relative_path": "latest/dmi_by_group.csv",
+      "description": "Convenience alias for web/data users."
+    },
+    {
+      "alias_type": "compatibility_alias",
+      "source_relative_path": "latest/dmi_release.json",
+      "dest_relative_path": "latest/dmi_us_quintile_latest.json",
+      "description": "Compatibility alias for early web prototypes that expect this filename."
+    },
+    {
+      "alias_type": "latest_copy",
+      "source_relative_path": "releases/{reference_period}/weights_by_group.json",
+      "dest_relative_path": "latest/weights_by_group.json",
+      "description": "Convenience alias: latest weights snapshot JSON."
+    },
+    {
+      "alias_type": "latest_copy",
+      "source_relative_path": "releases/{reference_period}/weights_by_group.csv",
+      "dest_relative_path": "latest/weights_by_group.csv",
+      "description": "Convenience alias: latest weights snapshot CSV."
+    }
+  ],
+  "internal_review_artifacts": [
+    {
+      "artifact_id": "weights_vintage_review_packet",
+      "trigger": "ce_weights_policy.vintage_change_policy.on_weights_year_change == FAIL_PUBLISH_BY_DEFAULT",
+      "relative_path": "review_packets/{run_id}/weights_vintage_review_packet.json",
+      "format": "json",
+      "schema_ref": "schemas/weights_vintage_review_packet.schema.json",
+      "required": false,
+      "description": "Internal-only review packet generated when weights_year changes; includes candidate backfill summary + diffs vs previous published release."
+    }
+  ],
+  "deployment_guidance": {
+    "vercel_static_publish_root": "data/outputs/published",
+    "notes": [
+      "For v0.1, deploy only data/outputs/published (never data/outputs/internal).",
+      "A simple safe copy command: cp -r data/outputs/published/* dmi_web/public/data/"
+    ]
+  }
+}

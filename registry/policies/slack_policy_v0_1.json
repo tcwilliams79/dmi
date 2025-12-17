@@ -1,0 +1,129 @@
+{
+  "policy_id": "slack_policy",
+  "version": "0.1.1",
+  "last_updated": "2025-12-16",
+  "purpose": "Deterministic rules for selecting and aligning labor-market slack series S(r,t) used in DMI(g,r,t).",
+  "principles": [
+    "Calculator purity: this policy selects slack observations and emits flags/metadata; it does not alter the deterministic calculator.",
+    "v0.1 uses a geographic proxy: within a given geo_id, the same slack value applies to all income groups (no quintile-specific unemployment yet).",
+    "Prefer authoritative, monthly, percent-rate series from BLS (CPS for national; LAUS for subnational).",
+    "No silent time misalignment: slack reference month must match the inflation reference month for a given release unless an explicit override is set and flagged.",
+    "The 'latest_available_not_after' alignment mode is permitted only for unpublished research/exploration runs; published releases must satisfy same_reference_month_required."
+  ],
+  "inputs": {
+    "geo_id": "DMI geo identifier (e.g., US, US-NJ, US-MSA-35620). Must exist in geo_registry.",
+    "metric_default": "U3",
+    "metric_options": [
+      "U3",
+      "U6"
+    ],
+    "series_catalog_ref": "registry/series_catalog_v0_1.json"
+  },
+  "selection_rules": [
+    {
+      "rule_id": "S1_US_NATIONAL_CPS",
+      "when": {
+        "geo_id_equals": "US",
+        "metric": "U3"
+      },
+      "use": {
+        "dataset_id": "BLS_CPS",
+        "series_id": "LNS14000000"
+      },
+      "notes": "National U-3 unemployment rate from CPS."
+    },
+    {
+      "rule_id": "S2_US_NATIONAL_CPS_U6_SENSITIVITY",
+      "when": {
+        "geo_id_equals": "US",
+        "metric": "U6"
+      },
+      "use": {
+        "dataset_id": "BLS_CPS",
+        "series_id": "LNS13327709"
+      },
+      "optional": true,
+      "notes": "National U-6 underutilization rate for sensitivity tables (not in baseline DMI unless configured)."
+    },
+    {
+      "rule_id": "S3_STATE_LAUS_U3",
+      "when": {
+        "geo_id_pattern": "^US-[A-Z]{2}$",
+        "metric": "U3"
+      },
+      "use": {
+        "dataset_id": "BLS_LAUS",
+        "series_id_rule": "Resolve state U-3 via la.series mapping (no hardcoded IDs)."
+      },
+      "notes": "State U-3 unemployment rate from LAUS."
+    },
+    {
+      "rule_id": "S4_MSA_LAUS_U3",
+      "when": {
+        "geo_id_pattern": "^US-MSA-[0-9]{5}$",
+        "metric": "U3"
+      },
+      "use": {
+        "dataset_id": "BLS_LAUS",
+        "series_id_rule": "Resolve metro U-3 via la.series mapping (no hardcoded IDs)."
+      },
+      "notes": "Metro U-3 unemployment rate from LAUS."
+    }
+  ],
+  "time_alignment": {
+    "mode_default": "same_reference_month_required",
+    "allowed_modes": [
+      "same_reference_month_required",
+      "latest_available_not_after"
+    ],
+    "if_latest_available_used": {
+      "required_flag": "slack_time_alignment=latest_available_not_after",
+      "required_metadata_fields": [
+        "slack_period_used",
+        "requested_period"
+      ]
+    },
+    "publish_allowed_modes": [
+      "same_reference_month_required"
+    ],
+    "research_allowed_modes": [
+      "same_reference_month_required",
+      "latest_available_not_after"
+    ],
+    "publish_gate_on_violation": "FAIL_PUBLISH",
+    "notes": "Published releases must use slack for the same reference month as inflation. If not available, the publish gate fails. Research runs may use 'latest_available_not_after' but must be flagged and must not be published under the canonical release channel."
+  },
+  "fallback_policy": {
+    "enabled": false,
+    "notes": "v0.1 default: no slack fallbacks. If a geo_id cannot be resolved, the pipeline fails the publish gate."
+  },
+  "required_output_flags": [
+    "slack_metric",
+    "slack_geo_source",
+    "slack_time_alignment"
+  ],
+  "required_qa_metadata": {
+    "slack_decision_object_required": true,
+    "fields_minimum": [
+      "geo_id",
+      "metric",
+      "dataset_id",
+      "series_id_or_rule",
+      "requested_period",
+      "slack_period_used",
+      "slack_time_alignment",
+      "rule_trace"
+    ]
+  },
+  "run_mode_support": {
+    "modes": [
+      "publish",
+      "research"
+    ],
+    "default": "publish",
+    "research_mode_constraints": [
+      "Outputs must be clearly labeled as exploratory and not published to the public release channel.",
+      "release_metadata.qa.status may still be PASS_WITH_WARNING, but publish gate must prevent promotion to public release if time alignment differs."
+    ]
+  }
+}

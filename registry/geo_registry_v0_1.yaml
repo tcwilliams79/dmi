@@ -1,0 +1,654 @@
+version: 0.1.1
+last_updated: '2025-12-16'
+geo_id_conventions:
+- US = national United States
+- US-<STATE_ABBR> = admin1 subdivision (ISO 3166-2 where applicable; e.g., US-NJ)
+- US-MSA-<CBSA_CODE> = metro area by CBSA code (e.g., US-MSA-35620) [future]
+- Admin1 subdivisions should align with ISO 3166-2 where applicable (e.g., US-NJ).
+geos:
+- geo_id: US
+  display_name: United States
+  geo_level: national
+  country_code: US
+  enabled_default: true
+  notes: v0.1 default geo.
+  source_geo_scheme: ISO3166-1
+  source_geo_code: US
+  iso3166_1: US
+- geo_id: US-AL
+  display_name: Alabama
+  geo_level: admin1
+  country_code: US
+  state_abbrev: AL
+  state_fips: '01'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-AL
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-AL
+- geo_id: US-AK
+  display_name: Alaska
+  geo_level: admin1
+  country_code: US
+  state_abbrev: AK
+  state_fips: '02'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-AK
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-AK
+- geo_id: US-AZ
+  display_name: Arizona
+  geo_level: admin1
+  country_code: US
+  state_abbrev: AZ
+  state_fips: '04'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-AZ
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-AZ
+- geo_id: US-AR
+  display_name: Arkansas
+  geo_level: admin1
+  country_code: US
+  state_abbrev: AR
+  state_fips: '05'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-AR
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-AR
+- geo_id: US-CA
+  display_name: California
+  geo_level: admin1
+  country_code: US
+  state_abbrev: CA
+  state_fips: '06'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-CA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-CA
+- geo_id: US-CO
+  display_name: Colorado
+  geo_level: admin1
+  country_code: US
+  state_abbrev: CO
+  state_fips: 08
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-CO
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-CO
+- geo_id: US-CT
+  display_name: Connecticut
+  geo_level: admin1
+  country_code: US
+  state_abbrev: CT
+  state_fips: 09
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-CT
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-CT
+- geo_id: US-DE
+  display_name: Delaware
+  geo_level: admin1
+  country_code: US
+  state_abbrev: DE
+  state_fips: '10'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-DE
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-DE
+- geo_id: US-DC
+  display_name: District of Columbia
+  geo_level: admin1
+  country_code: US
+  state_abbrev: DC
+  state_fips: '11'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-DC
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-DC
+- geo_id: US-FL
+  display_name: Florida
+  geo_level: admin1
+  country_code: US
+  state_abbrev: FL
+  state_fips: '12'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-FL
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-FL
+- geo_id: US-GA
+  display_name: Georgia
+  geo_level: admin1
+  country_code: US
+  state_abbrev: GA
+  state_fips: '13'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-GA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-GA
+- geo_id: US-HI
+  display_name: Hawaii
+  geo_level: admin1
+  country_code: US
+  state_abbrev: HI
+  state_fips: '15'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-HI
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-HI
+- geo_id: US-ID
+  display_name: Idaho
+  geo_level: admin1
+  country_code: US
+  state_abbrev: ID
+  state_fips: '16'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-ID
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-ID
+- geo_id: US-IL
+  display_name: Illinois
+  geo_level: admin1
+  country_code: US
+  state_abbrev: IL
+  state_fips: '17'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-IL
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-IL
+- geo_id: US-IN
+  display_name: Indiana
+  geo_level: admin1
+  country_code: US
+  state_abbrev: IN
+  state_fips: '18'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-IN
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-IN
+- geo_id: US-IA
+  display_name: Iowa
+  geo_level: admin1
+  country_code: US
+  state_abbrev: IA
+  state_fips: '19'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-IA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-IA
+- geo_id: US-KS
+  display_name: Kansas
+  geo_level: admin1
+  country_code: US
+  state_abbrev: KS
+  state_fips: '20'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-KS
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-KS
+- geo_id: US-KY
+  display_name: Kentucky
+  geo_level: admin1
+  country_code: US
+  state_abbrev: KY
+  state_fips: '21'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-KY
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-KY
+- geo_id: US-LA
+  display_name: Louisiana
+  geo_level: admin1
+  country_code: US
+  state_abbrev: LA
+  state_fips: '22'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-LA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-LA
+- geo_id: US-ME
+  display_name: Maine
+  geo_level: admin1
+  country_code: US
+  state_abbrev: ME
+  state_fips: '23'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-ME
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-ME
+- geo_id: US-MD
+  display_name: Maryland
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MD
+  state_fips: '24'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MD
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MD
+- geo_id: US-MA
+  display_name: Massachusetts
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MA
+  state_fips: '25'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MA
+- geo_id: US-MI
+  display_name: Michigan
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MI
+  state_fips: '26'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MI
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MI
+- geo_id: US-MN
+  display_name: Minnesota
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MN
+  state_fips: '27'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MN
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MN
+- geo_id: US-MS
+  display_name: Mississippi
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MS
+  state_fips: '28'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MS
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MS
+- geo_id: US-MO
+  display_name: Missouri
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MO
+  state_fips: '29'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MO
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MO
+- geo_id: US-MT
+  display_name: Montana
+  geo_level: admin1
+  country_code: US
+  state_abbrev: MT
+  state_fips: '30'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-MT
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-MT
+- geo_id: US-NE
+  display_name: Nebraska
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NE
+  state_fips: '31'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NE
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NE
+- geo_id: US-NV
+  display_name: Nevada
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NV
+  state_fips: '32'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NV
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NV
+- geo_id: US-NH
+  display_name: New Hampshire
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NH
+  state_fips: '33'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NH
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NH
+- geo_id: US-NJ
+  display_name: New Jersey
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NJ
+  state_fips: '34'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NJ
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NJ
+- geo_id: US-NM
+  display_name: New Mexico
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NM
+  state_fips: '35'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NM
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NM
+- geo_id: US-NY
+  display_name: New York
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NY
+  state_fips: '36'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NY
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NY
+- geo_id: US-NC
+  display_name: North Carolina
+  geo_level: admin1
+  country_code: US
+  state_abbrev: NC
+  state_fips: '37'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-NC
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-NC
+- geo_id: US-ND
+  display_name: North Dakota
+  geo_level: admin1
+  country_code: US
+  state_abbrev: ND
+  state_fips: '38'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-ND
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-ND
+- geo_id: US-OH
+  display_name: Ohio
+  geo_level: admin1
+  country_code: US
+  state_abbrev: OH
+  state_fips: '39'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-OH
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-OH
+- geo_id: US-OK
+  display_name: Oklahoma
+  geo_level: admin1
+  country_code: US
+  state_abbrev: OK
+  state_fips: '40'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-OK
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-OK
+- geo_id: US-OR
+  display_name: Oregon
+  geo_level: admin1
+  country_code: US
+  state_abbrev: OR
+  state_fips: '41'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-OR
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-OR
+- geo_id: US-PA
+  display_name: Pennsylvania
+  geo_level: admin1
+  country_code: US
+  state_abbrev: PA
+  state_fips: '42'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-PA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-PA
+- geo_id: US-RI
+  display_name: Rhode Island
+  geo_level: admin1
+  country_code: US
+  state_abbrev: RI
+  state_fips: '44'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-RI
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-RI
+- geo_id: US-SC
+  display_name: South Carolina
+  geo_level: admin1
+  country_code: US
+  state_abbrev: SC
+  state_fips: '45'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-SC
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-SC
+- geo_id: US-SD
+  display_name: South Dakota
+  geo_level: admin1
+  country_code: US
+  state_abbrev: SD
+  state_fips: '46'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-SD
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-SD
+- geo_id: US-TN
+  display_name: Tennessee
+  geo_level: admin1
+  country_code: US
+  state_abbrev: TN
+  state_fips: '47'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-TN
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-TN
+- geo_id: US-TX
+  display_name: Texas
+  geo_level: admin1
+  country_code: US
+  state_abbrev: TX
+  state_fips: '48'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-TX
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-TX
+- geo_id: US-UT
+  display_name: Utah
+  geo_level: admin1
+  country_code: US
+  state_abbrev: UT
+  state_fips: '49'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-UT
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-UT
+- geo_id: US-VT
+  display_name: Vermont
+  geo_level: admin1
+  country_code: US
+  state_abbrev: VT
+  state_fips: '50'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-VT
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-VT
+- geo_id: US-VA
+  display_name: Virginia
+  geo_level: admin1
+  country_code: US
+  state_abbrev: VA
+  state_fips: '51'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-VA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-VA
+- geo_id: US-WA
+  display_name: Washington
+  geo_level: admin1
+  country_code: US
+  state_abbrev: WA
+  state_fips: '53'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-WA
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-WA
+- geo_id: US-WV
+  display_name: West Virginia
+  geo_level: admin1
+  country_code: US
+  state_abbrev: WV
+  state_fips: '54'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-WV
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-WV
+- geo_id: US-WI
+  display_name: Wisconsin
+  geo_level: admin1
+  country_code: US
+  state_abbrev: WI
+  state_fips: '55'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-WI
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-WI
+- geo_id: US-WY
+  display_name: Wyoming
+  geo_level: admin1
+  country_code: US
+  state_abbrev: WY
+  state_fips: '56'
+  enabled_default: false
+  notes: Defined for future state expansion. v0.1 default publishes US only unless
+    enabled.
+  iso3166_2: US-WY
+  source_geo_scheme: ISO3166-2
+  source_geo_code: US-WY
+- geo_id: US-MSA-35620
+  display_name: New York-Newark-Jersey City, NY-NJ-PA
+  geo_level: msa
+  country_code: US
+  cbsa_code: '35620'
+  enabled_default: false
+  notes: Example MSA entry for future metro expansion.
+  source_geo_scheme: US-CBSA
+  source_geo_code: '35620'
+- geo_id: US-MSA-37980
+  display_name: Philadelphia-Camden-Wilmington, PA-NJ-DE-MD
+  geo_level: msa
+  country_code: US
+  cbsa_code: '37980'
+  enabled_default: false
+  notes: Example MSA entry for future metro expansion.
+  source_geo_scheme: US-CBSA
+  source_geo_code: '37980'
+principles:
+- geo_id is a stable string identifier with a namespace/prefix; it is never used as
+  a display label.
+- display_name is for UI/presentation and may change; geo_id must not.
+- geo_level is an enum intended to be stable across time and countries (e.g., national,
+  admin1, msa).
+- geo_registry is the authoritative dictionary for geo_id metadata.

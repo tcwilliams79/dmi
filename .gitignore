@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.log
+
+# Environment
+.env
+.env.local
+
+# Data (keep structure, ignore content for large files)
+data/raw/*.xlsx
+data/raw/*.csv
+data/staging/*.json
+data/outputs/*.json
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Git
+*.orig
+
+# Spec packages (already in repo, no need to track duplicates)
+dmi_v0.1_spec_package_v0.1.7/
+dmi_v0.1_spec_package_v0.1.8/

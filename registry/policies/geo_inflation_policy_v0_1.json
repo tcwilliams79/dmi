@@ -1,0 +1,167 @@
+{
+  "policy_id": "geo_inflation_policy",
+  "version": "0.1.4",
+  "last_updated": "2025-12-17",
+  "purpose": "Deterministic rules for selecting the CPI category series-set used to compute group-weighted inflation \u03c0(g,r,t) for a requested geo_id in DMI using an explicit computation category universe.",
+  "principles": [
+    "geo_id is a stable identifier validated against geo_registry; it must not be treated as a display label.",
+    "geo_id inputs should be validated against geo_registry (registry/geo_registry_v0_1.yaml) before applying inflation selection rules.",
+    "Strict separation: this policy only selects data inputs and records labels/flags; it does not alter the deterministic calculator.",
+    "No implicit modeling of missing CPI geographies in v0.1.",
+    "Default is conservative: prefer complete, official geo-specific CPI category series; otherwise use national CPI as an explicit proxy.",
+    "Avoid silent partial-coverage indices. Any fallback must be surfaced in QA metadata and in required output flags.",
+    "RPP is a price-level adjustment for cross-place comparability, not a substitute for 'state inflation'.",
+    "Coverage is evaluated against an explicit computation category universe (see category_registry and series_catalog)."
+  ],
+  "inputs": {
+    "geo_id": "DMI geo identifier (e.g., US, US-NJ, US-MSA-35620).",
+    "required_cpi_series_set_name": "Name of the CPI category universe to use (defaults to the national major-groups set in series_catalog).",
+    "horizon_months": 12,
+    "seasonal_adjustment_preference": "U (not seasonally adjusted) for maximal category coverage in v0.1.",
+    "geo_registry_ref": "registry/geo_registry_v0_1.yaml",
+    "computation_category_universe_id_default": "CPI_MAJOR_GROUPS_V0_1",
+    "category_registry_ref": "registry/category_registry_v0_1.json",
+    "category_reporting_views_ref": "registry/category_reporting_views_v0_1.json"
+  },
+  "coverage_policy": {
+    "required_category_universe_source": "category_registry_v0_1.json (universe_id) + series_catalog_v0_1.json (series_id bindings).",
+    "coverage_requirement": "FULL",
+    "missing_category_handling_default": "FALLBACK_TO_NATIONAL_ALL_CATEGORIES",
+    "experimental_modes": [
+      {
+        "mode": "HYBRID_GEO_PLUS_NATIONAL",
+        "enabled_by_default": false,
+        "description": "Use geo CPI for categories that exist and national CPI for missing categories; record proxied_weight_share in QA.",
+        "risks": [
+          "Mixed-source inflation complicates interpretation and audit; not enabled in v0.1."
+        ]
+      },
+      {
+        "mode": "EXCLUDE_MISSING_AND_RENORMALIZE",
+        "enabled_by_default": false,
+        "description": "Drop missing categories and renormalize remaining weights; record excluded_weight_share in QA.",
+        "risks": [
+          "Can materially change meaning if excluded share is large; avoid for public v0.1."
+        ]
+      }
+    ],
+    "coverage_requirement_operational_definition": "FULL means all category_ids in the computation universe are present for required months (t and t-horizon).",
+    "publish_gate_on_incomplete_coverage": "FAIL_PUBLISH"
+  },
+  "frequency_policy": {
+    "expected_frequency_default": "monthly",
+    "bimonthly_handling_default": "FALLBACK_TO_NATIONAL_FOR_MISSING_MONTHS",
+    "notes": [
+      "Many CPI 'area' series are bimonthly and/or have narrower category coverage.",
+      "v0.1 avoids interpolation. If geo CPI is bimonthly and a monthly DMI is required, national CPI is used as proxy for missing months."
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "R0_VALIDATE_GEO_ID",
+      "when": {
+        "geo_id_is_recognized": true
+      },
+      "then": {
+        "continue": true
+      },
+      "else": {
+        "error": "Unknown geo_id; must be declared in geo registry/manifest."
+      }
+    },
+    {
+      "rule_id": "R1_USE_GEO_CPI_SERIES_SET_IF_FULL_COVERAGE",
+      "when": {
+        "geo_specific_cpi_series_set_exists": true,
+        "geo_series_set_category_coverage": "FULL",
+        "geo_series_set_frequency_compatible": true
+      },
+      "then": {
+        "inflation_geo_source": "geo_specific_cpi",
+        "labeling": "Inflation uses official CPI category series for requested geo_id (full category coverage).",
+        "qa_record": {
+          "store_in": "qa_report.geo_inflation_decision",
+          "include_fields": [
+            "geo_id",
+            "series_set_name",
+            "missing_categories",
+            "rule_trace"
+          ]
+        }
+      }
+    },
+    {
+      "rule_id": "R2_FALLBACK_TO_NATIONAL_CPI_SERIES_SET",
+      "when": {
+        "geo_specific_cpi_series_set_exists": false,
+        "OR": [
+          {
+            "geo_series_set_category_coverage": "PARTIAL"
+          },
+          {
+            "geo_series_set_frequency_compatible": false
+          }
+        ]
+      },
+      "then": {
+        "inflation_geo_source": "national_cpi_proxy",
+        "labeling": "Inflation uses national CPI category series as an explicit proxy due to missing/partial/incompatible geo CPI.",
+        "qa_record": {
+          "store_in": "qa_report.geo_inflation_decision",
+          "include_fields": [
+            "geo_id",
+            "requested_series_set_name",
+            "used_series_set_name",
+            "coverage_summary",
+            "frequency_summary",
+            "missing_categories",
+            "rule_trace"
+          ]
+        }
+      }
+    }
+  ],
+  "optional_adjustments": [
+    {
+      "adjustment_id": "A1_RPP_PRICE_LEVEL",
+      "enabled_by_default": false,
+      "description": "Apply BEA Regional Price Parities (RPP) as a price-level normalization for cross-place comparisons (not an inflation adjustment).",
+      "constraints": [
+        "Must not be described as 'state inflation' or 'metro inflation'.",
+        "Outputs must include rpp_applied=true and record the BEA table/line and vintage in release metadata."
+      ]
+    }
+  ],
+  "required_output_flags": [
+    "inflation_geo_source",
+    "rpp_applied"
+  ],
+  "required_qa_metadata": {
+    "geo_inflation_decision_object_required": true,
+    "fields_minimum": [
+      "geo_id",
+      "inflation_geo_source",
+      "used_series_set_name",
+      "coverage_summary",
+      "frequency_summary",
+      "missing_categories",
+      "rule_trace"
+    ]
+  },
+  "category_coverage_validation": {
+    "hard_check_id": "category_coverage_completeness",
+    "universe_id_default": "CPI_MAJOR_GROUPS_V0_1",
+    "definition": "For a given geo_id and reference_period t, CPI level data must exist for every category_id in the computation universe for BOTH t and (t - horizon_months). Missing any category or required lag month is a hard FAIL for published releases.",
+    "expected_us_national_category_count_v0_1": 8,
+    "evaluation_steps": [
+      "Load category_registry and select categories where universe_memberships contains universe_id_default.",
+      "For each required category_id, verify CPI observations exist for (geo_id_used_for_inflation, t) and (geo_id_used_for_inflation, t - horizon_months).",
+      "If any are missing, produce missing_categories and missing_periods diagnostics and FAIL the hard check."
+    ],
+    "failure_behavior": {
+      "publish_gate": "FAIL_PUBLISH",
+      "qa_report_examples": "Include up to N missing (category_id, period) examples in qa_report.hard_checks[].examples."
+    },
+    "notes": "This makes 'FULL coverage' operational and prevents silent partial-category inflation computations."
+  }
+}

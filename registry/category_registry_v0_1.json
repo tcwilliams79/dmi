@@ -1,0 +1,137 @@
+{
+  "version": "0.1.0",
+  "last_updated": "2025-12-16",
+  "registry_id": "category_registry_v0_1",
+  "purpose": "Authoritative dictionary for category_id semantics (labels, hierarchy, and universe membership). Separates category meaning from series IDs.",
+  "levels": [
+    {
+      "level_id": "major_group",
+      "description": "Top-level CPI major groups used in v0.1."
+    },
+    {
+      "level_id": "eli",
+      "description": "CPI Expenditure Class (ELI) level categories (future v0.2+)."
+    }
+  ],
+  "universes": [
+    {
+      "universe_id": "CPI_MAJOR_GROUPS_V0_1",
+      "label": "CPI-U National \u2014 Major groups (v0.1 computation universe)",
+      "level": "major_group",
+      "notes": [
+        "This universe defines the computation categories for v0.1 group-weighted inflation.",
+        "The calculator is category-agnostic; changing universes is a data/registry operation."
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "category_id": "CPI_ALL_ITEMS",
+      "label": "All items",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [],
+      "display_order": 0,
+      "attributes": {
+        "role": "reference_only"
+      },
+      "notes": "Included for reference/validation; not part of the v0.1 group-weighted inflation category universe."
+    },
+    {
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "label": "Food and beverages",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 1,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_HOUSING",
+      "label": "Housing",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 2,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_APPAREL",
+      "label": "Apparel",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 3,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_TRANSPORTATION",
+      "label": "Transportation",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 4,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_MEDICAL_CARE",
+      "label": "Medical care",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 5,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_RECREATION",
+      "label": "Recreation",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 6,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_EDU_COMM",
+      "label": "Education and communication",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 7,
+      "attributes": {},
+      "notes": null
+    },
+    {
+      "category_id": "CPI_OTHER",
+      "label": "Other goods and services",
+      "level": "major_group",
+      "parent_category_id": null,
+      "universe_memberships": [
+        "CPI_MAJOR_GROUPS_V0_1"
+      ],
+      "display_order": 8,
+      "attributes": {},
+      "notes": null
+    }
+  ]
+}

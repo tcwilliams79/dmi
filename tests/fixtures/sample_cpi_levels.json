@@ -1,0 +1,272 @@
+{
+    "description": "Sample CPI-U index levels for 8 major groups (2023-01 to 2024-12)",
+    "geo_id": "US",
+    "seasonal_adjustment": "U",
+    "base_period": "1982-84=100",
+    "data": [
+        {
+            "period": "2023-01",
+            "CPI_FOOD_BEVERAGES": 308.2,
+            "CPI_HOUSING": 318.6,
+            "CPI_APPAREL": 126.4,
+            "CPI_TRANSPORTATION": 217.3,
+            "CPI_MEDICAL_CARE": 548.1,
+            "CPI_RECREATION": 118.9,
+            "CPI_EDU_COMM": 153.7,
+            "CPI_OTHER": 461.2
+        },
+        {
+            "period": "2023-02",
+            "CPI_FOOD_BEVERAGES": 309.1,
+            "CPI_HOUSING": 320.1,
+            "CPI_APPAREL": 127.2,
+            "CPI_TRANSPORTATION": 218.5,
+            "CPI_MEDICAL_CARE": 550.3,
+            "CPI_RECREATION": 119.2,
+            "CPI_EDU_COMM": 154.1,
+            "CPI_OTHER": 463.4
+        },
+        {
+            "period": "2023-03",
+            "CPI_FOOD_BEVERAGES": 310.5,
+            "CPI_HOUSING": 321.8,
+            "CPI_APPAREL": 127.8,
+            "CPI_TRANSPORTATION": 219.8,
+            "CPI_MEDICAL_CARE": 552.6,
+            "CPI_RECREATION": 119.6,
+            "CPI_EDU_COMM": 154.5,
+            "CPI_OTHER": 465.7
+        },
+        {
+            "period": "2023-04",
+            "CPI_FOOD_BEVERAGES": 311.9,
+            "CPI_HOUSING": 323.5,
+            "CPI_APPAREL": 128.1,
+            "CPI_TRANSPORTATION": 221.2,
+            "CPI_MEDICAL_CARE": 554.9,
+            "CPI_RECREATION": 120.1,
+            "CPI_EDU_COMM": 155.0,
+            "CPI_OTHER": 468.1
+        },
+        {
+            "period": "2023-05",
+            "CPI_FOOD_BEVERAGES": 313.2,
+            "CPI_HOUSING": 325.3,
+            "CPI_APPAREL": 128.5,
+            "CPI_TRANSPORTATION": 222.7,
+            "CPI_MEDICAL_CARE": 557.3,
+            "CPI_RECREATION": 120.5,
+            "CPI_EDU_COMM": 155.4,
+            "CPI_OTHER": 470.5
+        },
+        {
+            "period": "2023-06",
+            "CPI_FOOD_BEVERAGES": 314.7,
+            "CPI_HOUSING": 327.1,
+            "CPI_APPAREL": 129.0,
+            "CPI_TRANSPORTATION": 224.1,
+            "CPI_MEDICAL_CARE": 559.7,
+            "CPI_RECREATION": 121.0,
+            "CPI_EDU_COMM": 155.9,
+            "CPI_OTHER": 472.9
+        },
+        {
+            "period": "2023-07",
+            "CPI_FOOD_BEVERAGES": 316.1,
+            "CPI_HOUSING": 328.9,
+            "CPI_APPAREL": 129.3,
+            "CPI_TRANSPORTATION": 225.6,
+            "CPI_MEDICAL_CARE": 562.2,
+            "CPI_RECREATION": 121.4,
+            "CPI_EDU_COMM": 156.3,
+            "CPI_OTHER": 475.4
+        },
+        {
+            "period": "2023-08",
+            "CPI_FOOD_BEVERAGES": 317.6,
+            "CPI_HOUSING": 330.8,
+            "CPI_APPAREL": 129.8,
+            "CPI_TRANSPORTATION": 227.2,
+            "CPI_MEDICAL_CARE": 564.7,
+            "CPI_RECREATION": 121.9,
+            "CPI_EDU_COMM": 156.8,
+            "CPI_OTHER": 477.9
+        },
+        {
+            "period": "2023-09",
+            "CPI_FOOD_BEVERAGES": 319.0,
+            "CPI_HOUSING": 332.7,
+            "CPI_APPAREL": 130.2,
+            "CPI_TRANSPORTATION": 228.8,
+            "CPI_MEDICAL_CARE": 567.2,
+            "CPI_RECREATION": 122.4,
+            "C_EDU_COMM": 157.3,
+            "CPI_OTHER": 480.5
+        },
+        {
+            "period": "2023-10",
+            "CPI_FOOD_BEVERAGES": 320.5,
+            "CPI_HOUSING": 334.6,
+            "CPI_APPAREL": 130.6,
+            "CPI_TRANSPORTATION": 230.4,
+            "CPI_MEDICAL_CARE": 569.8,
+            "CPI_RECREATION": 122.9,
+            "CPI_EDU_COMM": 157.7,
+            "CPI_OTHER": 483.1
+        },
+        {
+            "period": "2023-11",
+            "CPI_FOOD_BEVERAGES": 322.0,
+            "CPI_HOUSING": 336.5,
+            "CPI_APPAREL": 131.1,
+            "CPI_TRANSPORTATION": 232.1,
+            "CPI_MEDICAL_CARE": 572.4,
+            "CPI_RECREATION": 123.4,
+            "CPI_EDU_COMM": 158.2,
+            "CPI_OTHER": 485.8
+        },
+        {
+            "period": "2023-12",
+            "CPI_FOOD_BEVERAGES": 323.5,
+            "CPI_HOUSING": 338.5,
+            "CPI_APPAREL": 131.5,
+            "CPI_TRANSPORTATION": 233.8,
+            "CPI_MEDICAL_CARE": 575.1,
+            "CPI_RECREATION": 123.9,
+            "CPI_EDU_COMM": 158.7,
+            "CPI_OTHER": 488.5
+        },
+        {
+            "period": "2024-01",
+            "CPI_FOOD_BEVERAGES": 325.1,
+            "CPI_HOUSING": 340.5,
+            "CPI_APPAREL": 132.0,
+            "CPI_TRANSPORTATION": 235.6,
+            "CPI_MEDICAL_CARE": 577.8,
+            "CPI_RECREATION": 124.4,
+            "CPI_EDU_COMM": 159.2,
+            "CPI_OTHER": 491.3
+        },
+        {
+            "period": "2024-02",
+            "CPI_FOOD_BEVERAGES": 326.7,
+            "CPI_HOUSING": 342.6,
+            "CPI_APPAREL": 132.5,
+            "CPI_TRANSPORTATION": 237.4,
+            "CPI_MEDICAL_CARE": 580.6,
+            "CPI_RECREATION": 124.9,
+            "CPI_EDU_COMM": 159.7,
+            "CPI_OTHER": 494.1
+        },
+        {
+            "period": "2024-03",
+            "CPI_FOOD_BEVERAGES": 328.3,
+            "CPI_HOUSING": 344.7,
+            "CPI_APPAREL": 133.0,
+            "CPI_TRANSPORTATION": 239.3,
+            "CPI_MEDICAL_CARE": 583.4,
+            "CPI_RECREATION": 125.5,
+            "CPI_EDU_COMM": 160.2,
+            "CPI_OTHER": 497.0
+        },
+        {
+            "period": "2024-04",
+            "CPI_FOOD_BEVERAGES": 330.0,
+            "CPI_HOUSING": 346.9,
+            "CPI_APPAREL": 133.5,
+            "CPI_TRANSPORTATION": 241.2,
+            "CPI_MEDICAL_CARE": 586.3,
+            "CPI_RECREATION": 126.0,
+            "CPI_EDU_COMM": 160.8,
+            "CPI_OTHER": 499.9
+        },
+        {
+            "period": "2024-05",
+            "CPI_FOOD_BEVERAGES": 331.7,
+            "CPI_HOUSING": 349.1,
+            "CPI_APPAREL": 134.1,
+            "CPI_TRANSPORTATION": 243.2,
+            "CPI_MEDICAL_CARE": 589.2,
+            "CPI_RECREATION": 126.6,
+            "CPI_EDU_COMM": 161.3,
+            "CPI_OTHER": 502.9
+        },
+        {
+            "period": "2024-06",
+            "CPI_FOOD_BEVERAGES": 333.4,
+            "CPI_HOUSING": 351.4,
+            "CPI_APPAREL": 134.6,
+            "CPI_TRANSPORTATION": 245.2,
+            "CPI_MEDICAL_CARE": 592.2,
+            "CPI_RECREATION": 127.2,
+            "CPI_EDU_COMM": 161.9,
+            "CPI_OTHER": 505.9
+        },
+        {
+            "period": "2024-07",
+            "CPI_FOOD_BEVERAGES": 335.2,
+            "CPI_HOUSING": 353.7,
+            "CPI_APPAREL": 135.2,
+            "CPI_TRANSPORTATION": 247.3,
+            "CPI_MEDICAL_CARE": 595.2,
+            "CPI_RECREATION": 127.8,
+            "CPI_EDU_COMM": 162.5,
+            "CPI_OTHER": 509.0
+        },
+        {
+            "period": "2024-08",
+            "CPI_FOOD_BEVERAGES": 337.0,
+            "CPI_HOUSING": 356.1,
+            "CPI_APPAREL": 135.7,
+            "CPI_TRANSPORTATION": 249.4,
+            "CPI_MEDICAL_CARE": 598.3,
+            "CPI_RECREATION": 128.4,
+            "CPI_EDU_COMM": 163.1,
+            "CPI_OTHER": 512.1
+        },
+        {
+            "period": "2024-09",
+            "CPI_FOOD_BEVERAGES": 338.8,
+            "CPI_HOUSING": 358.5,
+            "CPI_APPAREL": 136.3,
+            "CPI_TRANSPORTATION": 251.6,
+            "CPI_MEDICAL_CARE": 601.4,
+            "CPI_RECREATION": 129.0,
+            "CPI_EDU_COMM": 163.7,
+            "CPI_OTHER": 515.3
+        },
+        {
+            "period": "2024-10",
+            "CPI_FOOD_BEVERAGES": 340.7,
+            "CPI_HOUSING": 361.0,
+            "CPI_APPAREL": 136.9,
+            "CPI_TRANSPORTATION": 253.8,
+            "CPI_MEDICAL_CARE": 604.6,
+            "CPI_RECREATION": 129.6,
+            "CPI_EDU_COMM": 164.3,
+            "CPI_OTHER": 518.5
+        },
+        {
+            "period": "2024-11",
+            "CPI_FOOD_BEVERAGES": 342.6,
+            "CPI_HOUSING": 363.5,
+            "CPI_APPAREL": 137.5,
+            "CPI_TRANSPORTATION": 256.1,
+            "CPI_MEDICAL_CARE": 607.8,
+            "CPI_RECREATION": 130.3,
+            "CPI_EDU_COMM": 164.9,
+            "CPI_OTHER": 521.8
+        },
+        {
+            "period": "2024-12",
+            "CPI_FOOD_BEVERAGES": 344.5,
+            "CPI_HOUSING": 366.1,
+            "CPI_APPAREL": 138.1,
+            "CPI_TRANSPORTATION": 258.5,
+            "CPI_MEDICAL_CARE": 611.1,
+            "CPI_RECREATION": 130.9,
+            "CPI_EDU_COMM": 165.6,
+            "CPI_OTHER": 525.1
+        }
+    ]
+}

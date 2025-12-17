@@ -1,0 +1,61 @@
+{
+  "plan_id": "dmi_v0_1",
+  "title": "Distributional Misery Index (DMI) v0.1 Implementation Plan",
+  "status": "spec",
+  "last_updated": "2025-12-17",
+  "principles": [
+    "Strict separation between deterministic calculator and data operations",
+    "Pinned inputs and deterministic outputs",
+    "Nonpartisan, descriptive posture",
+    "Compute fine (optional), report coarse (default quintiles)"
+  ],
+  "deliverables": {
+    "docs": [
+      "docs/DMI_v0.1_Implementation_Spec.md",
+      "docs/DMI_v0.1_PDD.md",
+      "docs/CE_Weights_CPI_Decision_Rubric.md",
+      "docs/DMI_v0.1_Implementation_Checklist.md"
+    ],
+    "registry": [
+      "registry/dmi_data_manifest_v0_1.yaml",
+      "registry/dmi_data_manifest_v0_1.json",
+      "registry/sources_registry_v0_1.yaml",
+      "registry/series_catalog_v0_1.json",
+      "registry/geo_registry_v0_1.yaml",
+      "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json",
+      "registry/policies/geo_inflation_policy_v0_1.json",
+      "registry/policies/ce_weights_policy_v0_1.json",
+      "registry/policies/slack_policy_v0_1.json",
+      "registry/category_registry_v0_1.json",
+      "registry/category_reporting_views_v0_1.json",
+      "registry/output_contract_v0_1.json"
+    ],
+    "schemas": [
+      "schemas/observation.schema.json",
+      "schemas/geo_registry.schema.json",
+      "schemas/ce_table_to_cpi_mapping.schema.json",
+      "schemas/weights.schema.json",
+      "schemas/crosswalk.schema.json",
+      "schemas/dmi_output.schema.json",
+      "schemas/release_metadata.schema.json",
+      "schemas/category_registry.schema.json",
+      "schemas/category_reporting_views.schema.json",
+      "schemas/output_contract.schema.json",
+      "schemas/qa_report.schema.json",
+      "schemas/weights_vintage_review_packet.schema.json"
+    ]
+  },
+  "policy_versions": {
+    "ce_weights_policy": "0.1.5",
+    "geo_inflation_policy": "0.1.4",
+    "slack_policy": "0.1.1"
+  },
+  "registry_versions": {
+    "geo_registry": "0.1.1",
+    "category_registry": "0.1.0",
+    "category_reporting_views": "0.1.0",
+    "ce_table_to_cpi_mapping": "0.1.1",
+    "manifest": "0.1.5",
+    "output_contract": "0.1.2"
+  }
+}

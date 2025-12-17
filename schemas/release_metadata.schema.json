@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/release_metadata.schema.json",
+  "title": "DMI Release Metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "release_id": {
+      "type": "string",
+      "description": "Unique release identifier (may include run_id)."
+    },
+    "reference_period": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$",
+      "description": "Reference month for the published DMI values (YYYY-MM)."
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manifest_version": {
+          "type": "string"
+        },
+        "manifest_ref": {
+          "type": "string"
+        },
+        "sources_registry_ref": {
+          "type": "string"
+        },
+        "series_catalog_ref": {
+          "type": "string"
+        },
+        "geo_registry_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "policies": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "category_registry_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category_reporting_views_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ce_table_to_cpi_mapping_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category_registry_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category_reporting_views_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ce_table_to_cpi_mapping_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "run_mode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "publish",
+            "research",
+            null
+          ]
+        }
+      },
+      "required": [
+        "manifest_version",
+        "manifest_ref",
+        "sources_registry_ref",
+        "series_catalog_ref"
+      ]
+    },
+    "code": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repo_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "python_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "requirements_lock_checksum": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": []
+    },
+    "inputs": {
+      "type": "array",
+      "description": "Raw/source artifacts used in this release.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "dataset_id": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "retrieval_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "raw_checksum": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "dataset_id",
+          "source_url",
+          "retrieval_timestamp"
+        ]
+      }
+    },
+    "decisions": {
+      "type": "object",
+      "description": "Deterministic policy decision objects (inflation geo selection, slack selection, weights handling).",
+      "additionalProperties": true
+    },
+    "qa": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL",
+            "PASS_WITH_WARNING"
+          ]
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hard_checks_passed": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "parquet",
+              "json",
+              "md"
+            ]
+          },
+          "checksum": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "format"
+        ]
+      }
+    }
+  },
+  "required": [
+    "release_id",
+    "reference_period",
+    "run_id",
+    "created_at",
+    "manifest",
+    "inputs",
+    "qa",
+    "outputs"
+  ]
+}

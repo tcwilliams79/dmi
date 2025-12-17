@@ -1,0 +1,60 @@
+{
+  "version": "0.1.0",
+  "last_updated": "2025-12-16",
+  "artifact_id": "category_reporting_views_v0_1",
+  "purpose": "Defines reporting category views as a mapping from computation categories to reporting categories. Enables future finer CPI granularity while keeping v0.1 reporting stable.",
+  "views": [
+    {
+      "view_id": "REPORTING_MAJOR_GROUPS_V0_1",
+      "label": "Reporting view \u2014 CPI major groups (identity mapping, v0.1)",
+      "computation_universe_id": "CPI_MAJOR_GROUPS_V0_1",
+      "reporting_universe_id": "CPI_MAJOR_GROUPS_V0_1",
+      "mappings": [
+        {
+          "computation_category_id": "CPI_FOOD_BEVERAGES",
+          "reporting_category_id": "CPI_FOOD_BEVERAGES",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_HOUSING",
+          "reporting_category_id": "CPI_HOUSING",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_APPAREL",
+          "reporting_category_id": "CPI_APPAREL",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_TRANSPORTATION",
+          "reporting_category_id": "CPI_TRANSPORTATION",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_MEDICAL_CARE",
+          "reporting_category_id": "CPI_MEDICAL_CARE",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_RECREATION",
+          "reporting_category_id": "CPI_RECREATION",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_EDU_COMM",
+          "reporting_category_id": "CPI_EDU_COMM",
+          "weight": 1.0
+        },
+        {
+          "computation_category_id": "CPI_OTHER",
+          "reporting_category_id": "CPI_OTHER",
+          "weight": 1.0
+        }
+      ],
+      "notes": [
+        "Identity mapping: computation categories equal reporting categories in v0.1.",
+        "Future versions may compute at finer granularity (e.g., ELI) while reporting can remain at major groups via a many-to-one rollup mapping."
+      ]
+    }
+  ]
+}

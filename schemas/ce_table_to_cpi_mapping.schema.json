@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/ce_table_to_cpi_mapping.schema.json",
+  "title": "CE Table Label to CPI Category Mapping (v0.1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string"
+    },
+    "mapping_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "source_dataset_id": {
+      "type": "string"
+    },
+    "target_cpi_series_set_name": {
+      "type": "string"
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ce_item_label": {
+            "type": "string"
+          },
+          "cpi_category_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "include_in_inflation_universe": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "ce_item_label",
+          "include_in_inflation_universe"
+        ]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "build_run_id": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "build_run_id"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "last_updated",
+    "mapping_id",
+    "source_dataset_id",
+    "rows",
+    "metadata"
+  ]
+}

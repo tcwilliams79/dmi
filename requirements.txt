@@ -1,0 +1,26 @@
+# DMI v0.1 - Python Dependencies
+
+# Core Calculator
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Data Pipeline
+requests>=2.31.0
+pyyaml>=6.0
+pyarrow>=12.0.0       # Parquet support
+openpyxl>=3.1.0       # CE XLSX parsing
+
+# Schema Validation
+jsonschema>=4.19.0
+
+# Automation
+schedule>=1.2.0
+python-dotenv>=1.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Development
+ipython>=8.14.0
+black>=23.7.0

@@ -1,0 +1,235 @@
+{
+  "manifest_version": "0.1.5",
+  "project": {
+    "id": "dmi",
+    "name": "Distributional Misery Index",
+    "acronym": "DMI",
+    "framework": "Five Economies",
+    "methodology": "By Fifths analysis",
+    "status": "spec",
+    "last_updated": "2025-12-17"
+  },
+  "parameters": {
+    "alpha": 0.5,
+    "scale_factor": 2.0,
+    "inflation_horizon_months": 12,
+    "inflation_method": "log_change_weighted",
+    "compute_resolution": "decile",
+    "publish_resolution": "quintile",
+    "dispersion_metrics": [
+      "q5_minus_q1",
+      "coefficient_of_variation"
+    ],
+    "stress_metric": "max_quintile",
+    "weights_source_mode": "ce_tables"
+  },
+  "geographies": {
+    "default_geo_id": "US",
+    "supported_geo_ids_v0_1": [
+      "US"
+    ],
+    "pilot_geo_policy": {
+      "allowed": true,
+      "allowed_geo_types": [
+        "admin1",
+        "msa"
+      ],
+      "notes": "Pilot geographies allowed only if slack exists and geo inflation policy is followed; geo_level must be supported (e.g., admin1, msa)."
+    }
+  },
+  "datasets": [
+    {
+      "dataset_id": "BLS_CPI",
+      "description": "CPI-U category index levels (monthly), national and selected areas where available.",
+      "access": {
+        "method": "api",
+        "provider": "BLS Public Data API v2"
+      },
+      "cadence": "monthly"
+    },
+    {
+      "dataset_id": "BLS_CE_TABLES",
+      "description": "Consumer Expenditure Survey (CE) published calendar-year tables providing annual expenditure means and shares across all items by income quintile/decile (used for weights in DMI v0.1).",
+      "access": {
+        "method": "download",
+        "provider": "BLS CE tables (public)"
+      },
+      "cadence": "annual",
+      "notes": [
+        "Use mean-item-share tables (not aggregate-share tables) because DMI inflation weights require within-group budget shares.",
+        "Weights are updated annually and held constant across months until refreshed."
+      ]
+    },
+    {
+      "dataset_id": "BLS_CE_PUMD",
+      "description": "Consumer Expenditure Survey PUMD (Interview + Diary) microdata for spending shares by custom stratifications (v0.2+ optional).",
+      "access": {
+        "method": "download",
+        "provider": "BLS CE"
+      },
+      "cadence": "annual",
+      "optional": true,
+      "planned_version": "0.2"
+    },
+    {
+      "dataset_id": "BLS_CE_CPI_CONCORDANCE",
+      "description": "Official CE\u2194CPI concordance (UCC\u2192ELI) for mapping CE spending to CPI categories. (Planned v0.2+; not required for v0.1 when using CE published tables.)",
+      "access": {
+        "method": "download",
+        "provider": "BLS CPI"
+      },
+      "cadence": "as_updated",
+      "optional": true,
+      "planned_version": "0.2"
+    },
+    {
+      "dataset_id": "BLS_LAUS",
+      "description": "Local Area Unemployment Statistics (U-3) for states and metros (monthly).",
+      "access": {
+        "method": "download",
+        "provider": "BLS time series files"
+      },
+      "cadence": "monthly"
+    },
+    {
+      "dataset_id": "BLS_CPS",
+      "description": "Current Population Survey national unemployment series (U-3) and broader measures (U-6).",
+      "access": {
+        "method": "api",
+        "provider": "BLS Public Data API v2"
+      },
+      "cadence": "monthly"
+    },
+    {
+      "dataset_id": "BEA_RPP",
+      "description": "Regional Price Parities (RPP) for place-level price parity (optional).",
+      "access": {
+        "method": "api",
+        "provider": "BEA API"
+      },
+      "cadence": "annual",
+      "optional": true
+    }
+  ],
+  "series_catalog_refs": {
+    "path_json": "registry/series_catalog_v0_1.json"
+  },
+  "policies": {
+    "geo_inflation_policy_ref": "registry/policies/geo_inflation_policy_v0_1.json",
+    "ce_weights_policy_ref": "registry/policies/ce_weights_policy_v0_1.json",
+    "slack_policy_ref": "registry/policies/slack_policy_v0_1.json"
+  },
+  "artifacts": {
+    "weights": {
+      "source_dataset_id": "BLS_CE_TABLES",
+      "weights_year": "AUTO_LATEST_AVAILABLE",
+      "weights_source_mode": "ce_tables",
+      "weights_resolution_preference": [
+        "decile",
+        "quintile"
+      ],
+      "weights_table_type": "mean-item-share-average-standard-error",
+      "weights_policy_ref": "registry/policies/ce_weights_policy_v0_1.json",
+      "output_path": "data/curated/weights_by_group.parquet",
+      "notes": "v0.1 default: weights extracted from BLS published CE mean item share tables; record weights_year (table year) and raw XLSX checksum in release metadata. If weights_year changes vs prior published release, publish gate FAILs by default; pipeline may generate an internal backfill candidate + diff report for review. Excluded share is tracked and remaining weights are renormalized to sum to 1.0.",
+      "mapping_artifact_ref": "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json"
+    },
+    "crosswalk": {
+      "source_dataset_id": "BLS_CE_CPI_CONCORDANCE",
+      "crosswalk_version": "TBD_PIN_AT_RELEASE",
+      "output_path": "data/curated/ucc_to_cpi_crosswalk.parquet",
+      "optional": true,
+      "notes": "v0.2+ optional: UCC\u2192ELI\u2192CPI concordance-based crosswalk for PUMD weights; not required when using CE published tables at major-group level."
+    },
+    "ce_table_to_cpi_mapping": {
+      "source_dataset_id": "BLS_CE_TABLES",
+      "mapping_version": "0.1.1",
+      "output_path": "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json",
+      "notes": "Maps CE published table category labels to CPI major-group category_ids used by v0.1.",
+      "sha256": "7eec4eb01c5a3a68fa92d1fc48100c56e81861eab97f5c2e3d3305d26f9491ba"
+    },
+    "category_registry": {
+      "source": "registry",
+      "version": "0.1.0",
+      "output_path": "registry/category_registry_v0_1.json",
+      "sha256": "55fa5c7c1ccb88e44dd5c20427a322cc0a646b4b2393ac41fb17b05966341353",
+      "notes": "Authoritative category dictionary for v0.1 (major groups) and future expansions (e.g., ELI)."
+    },
+    "category_reporting_views": {
+      "source": "registry",
+      "version": "0.1.0",
+      "output_path": "registry/category_reporting_views_v0_1.json",
+      "sha256": "25b287e64b4b846396cfceb53b266a0694b05e27add664ada84f47a7579fe092",
+      "notes": "Reporting views mapping computation categories to reporting categories (identity mapping in v0.1)."
+    }
+  },
+  "qa": {
+    "hard_checks": [
+      "schema_validation_required_artifacts",
+      "category_coverage_completeness",
+      "contributions_sum_to_total_inflation",
+      "date_monotonic_within_series",
+      "excluded_share_tracked",
+      "no_duplicate_keys",
+      "required_series_present",
+      "weights_non_negative",
+      "weights_sum_to_one_tolerance"
+    ],
+    "soft_checks": [
+      "outlier_detection_zscore",
+      "revision_detection_hashdiff",
+      "footnote_flags"
+    ],
+    "weights_sum_tolerance": 0.001,
+    "zscore_window_months": 24,
+    "zscore_threshold": 4.0,
+    "invariant_checks": [
+      "weights_sum_to_one (per group, after exclusions/renormalization)",
+      "weights_non_negative",
+      "category_coverage_completeness (computation universe)",
+      "excluded_share explicitly tracked (even if zero)",
+      "inflation_contributions sum to total \u03c0(g,r,t) within tolerance"
+    ]
+  },
+  "release": {
+    "release_id_format": "{YYYY}-{MM}_run_{run_id}",
+    "run_id_format": "{YYYYMMDD_HHMMSS}_{gitsha}",
+    "outputs": {
+      "formats": [
+        "csv",
+        "parquet",
+        "json"
+      ],
+      "publish_path": "data/outputs/"
+    },
+    "metadata_required": [
+      "manifest_version",
+      "git_sha",
+      "retrieval_timestamps",
+      "raw_checksums",
+      "qa_status",
+      "release_metadata_json",
+      "qa_report_json",
+      "weights_snapshot"
+    ],
+    "manifest_version": "0.1.5",
+    "last_updated": "2025-12-17",
+    "release_metadata_schema_ref": "schemas/release_metadata.schema.json",
+    "output_contract_ref": "registry/output_contract_v0_1.json",
+    "qa_report_schema_ref": "schemas/qa_report.schema.json"
+  },
+  "geography": {
+    "geo_registry_ref": "registry/geo_registry_v0_1.yaml",
+    "default_geo_ids": [
+      "US"
+    ],
+    "notes": "v0.1 default publishes US-only. State/MSA geos exist in geo_registry for future expansion; enable explicitly in manifest overrides when ready."
+  },
+  "registry_refs": {
+    "series_catalog_ref": "registry/series_catalog_v0_1.json",
+    "sources_registry_ref": "registry/sources_registry_v0_1.yaml",
+    "geo_registry_ref": "registry/geo_registry_v0_1.yaml",
+    "category_registry_ref": "registry/category_registry_v0_1.json",
+    "category_reporting_views_ref": "registry/category_reporting_views_v0_1.json"
+  }
+}

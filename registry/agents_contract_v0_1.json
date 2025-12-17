@@ -1,0 +1,211 @@
+{
+  "version": "0.1.5",
+  "last_updated": "2025-12-17",
+  "governance": {
+    "approval_required_for": [
+      "registry changes (sources_registry, series_catalog)",
+      "crosswalk changes",
+      "weights methodology changes",
+      "QA threshold changes",
+      "calculator formula changes",
+      "geo_registry changes",
+      "slack policy changes",
+      "release metadata schema changes",
+      "CE table mapping changes",
+      "category registry changes",
+      "category reporting view changes",
+      "reporting category mapping changes",
+      "output contract changes",
+      "QA report schema changes"
+    ],
+    "principle": "Agents may automate; humans approve definition changes.",
+    "notes": "Agents may generate internal candidate backfills and diff reports, but publishing requires explicit approval when a pinned vintage or methodology-relevant artifact changes."
+  },
+  "agents": [
+    {
+      "agent_id": "source_scout",
+      "purpose": "Maintain registries for sources, series IDs, and release cadence.",
+      "inputs": [
+        "registry/sources_registry_v0_1.yaml",
+        "registry/series_catalog_v0_1.json",
+        "registry/geo_registry_v0_1.yaml",
+        "registry/policies/slack_policy_v0_1.json",
+        "registry/policies/ce_weights_policy_v0_1.json",
+        "registry/policies/geo_inflation_policy_v0_1.json",
+        "registry/category_registry_v0_1.json",
+        "registry/category_reporting_views_v0_1.json"
+      ],
+      "outputs": [
+        "registry/sources_registry_v0_1.yaml (diff proposal)",
+        "registry/series_catalog_v0_1.json (diff proposal)",
+        "registry/geo_registry_v0_1.yaml (diff proposal)",
+        "registry/category_registry_v0_1.json (diff proposal)",
+        "registry/category_reporting_views_v0_1.json (diff proposal)"
+      ],
+      "allowed_actions": [
+        "read_public_docs",
+        "propose_registry_diff",
+        "emit_citations_in_logs",
+        "validate_expected_ce_item_labels"
+      ],
+      "disallowed_actions": [
+        "modify_calculator_logic",
+        "change_series_without_diff"
+      ],
+      "notes": [
+        "Validate CE table parsing expectations by comparing discovered CE item labels against ce_weights_policy.expected_ce_item_labels; emit a clear diff proposal when labels change."
+      ]
+    },
+    {
+      "agent_id": "harvester",
+      "purpose": "Fetch raw source artifacts and store them with checksums.",
+      "inputs": [
+        "registry/sources_registry_v0_1.yaml",
+        "registry/series_catalog_v0_1.json"
+      ],
+      "outputs": [
+        "data/raw/*",
+        "data/raw/index.json (checksums + timestamps)"
+      ],
+      "allowed_actions": [
+        "api_calls",
+        "bulk_downloads",
+        "write_raw_artifacts"
+      ],
+      "disallowed_actions": [
+        "edit_values",
+        "scrape_fragile_html"
+      ]
+    },
+    {
+      "agent_id": "mapper",
+      "purpose": "Maintain category mappings used to align expenditure weights with CPI categories (CE tables mapping in v0.1; UCC\u2192ELI\u2192CPI crosswalk in v0.2+).",
+      "inputs": [
+        "data/raw/*concordance*",
+        "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json",
+        "registry/series_catalog_v0_1.json"
+      ],
+      "outputs": [
+        "data/curated/ucc_to_cpi_crosswalk.parquet",
+        "data/curated/ucc_to_cpi_crosswalk.metadata.json",
+        "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json (diff proposal)"
+      ],
+      "allowed_actions": [
+        "transform",
+        "validate_against_schema"
+      ],
+      "disallowed_actions": [
+        "claim_geo_cpi_coverage_without_registry",
+        "change_v0_1_weights_policy_without_approval",
+        "invent_mappings_without_source"
+      ]
+    },
+    {
+      "agent_id": "weights_builder",
+      "purpose": "Extract spending-share weights by income group from BLS published CE mean item share tables (v0.1 default).",
+      "inputs": [
+        "data/raw/*cu-income-deciles-before-taxes-*.xlsx",
+        "data/raw/*cu-income-quintiles-before-taxes-*.xlsx (fallback)",
+        "registry/policies/ce_weights_policy_v0_1.json",
+        "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json"
+      ],
+      "outputs": [
+        "data/curated/weights_by_group.parquet",
+        "data/curated/weights_by_group.metadata.json"
+      ],
+      "allowed_actions": [
+        "extract_table_weights",
+        "aggregate_decile_to_quintile",
+        "validate_weights",
+        "compute_excluded_share_and_renormalize",
+        "structural_validate_ce_xlsx",
+        "emit_parse_diagnostics_on_failure"
+      ],
+      "disallowed_actions": [
+        "silently_change_weight_year",
+        "invent_ce_item_labels",
+        "override_missing_shares_without_log"
+      ],
+      "constraints": [
+        "Must run CE XLSX structural validation (per ce_weights_policy.structural_validation) before extracting shares; on hard-fail, stop pipeline and emit diagnostics."
+      ]
+    },
+    {
+      "agent_id": "validator_janus",
+      "purpose": "Run QA gates and publish QA report.",
+      "inputs": [
+        "data/staging/*.parquet",
+        "data/curated/*.parquet",
+        "registry/dmi_data_manifest_v0_1.yaml",
+        "schemas/release_metadata.schema.json",
+        "registry/output_contract_v0_1.json",
+        "schemas/qa_report.schema.json"
+      ],
+      "outputs": [
+        "data/outputs/published/releases/{reference_period}/qa_report.json",
+        "data/outputs/published/releases/{reference_period}/release_metadata.json (validated)"
+      ],
+      "allowed_actions": [
+        "run_hard_checks",
+        "run_soft_checks",
+        "emit_fail_or_warn",
+        "generate_backfill_candidate_diff_report",
+        "run_schema_validation_smoke"
+      ],
+      "disallowed_actions": [
+        "modify_data_to_pass_checks"
+      ],
+      "constraints": [
+        "Any backfill candidate outputs are INTERNAL only and must not be promoted to the public release channel without explicit approval recorded in release metadata.",
+        "When weights_year changes and publish is blocked, generate weights_vintage_review_packet.json (and any referenced candidate/diff artifacts) under data/outputs/internal/review_packets/{run_id}/."
+      ]
+    },
+    {
+      "agent_id": "synthesizer",
+      "purpose": "Build curated matrices and call deterministic calculator.",
+      "inputs": [
+        "data/curated/*.parquet"
+      ],
+      "outputs": [
+        "data/outputs/dmi_release.*"
+      ],
+      "allowed_actions": [
+        "reshape",
+        "call_calculator"
+      ],
+      "disallowed_actions": [
+        "heuristic_fixes",
+        "LLM_numeric_decisions"
+      ]
+    },
+    {
+      "agent_id": "publisher",
+      "purpose": "Write outputs + metadata + release notes.",
+      "inputs": [
+        "data/outputs/dmi_release.*",
+        "data/outputs/qa_report.json",
+        "schemas/release_metadata.schema.json",
+        "registry/output_contract_v0_1.json"
+      ],
+      "outputs": [
+        "data/outputs/published/releases/{reference_period}/* (per output contract)",
+        "data/outputs/published/latest/* (aliases per output contract)",
+        "data/outputs/internal/review_packets/{run_id}/* (if triggered by gates)"
+      ],
+      "allowed_actions": [
+        "write_files",
+        "draft_narrative_from_contributions",
+        "prevalidate_output_contract_compliance",
+        "validate_against_json_schemas",
+        "write_release_metadata_with_checksums",
+        "create_latest_aliases_atomically"
+      ],
+      "disallowed_actions": [
+        "edit_computed_values"
+      ],
+      "constraints": [
+        "Before writing to data/outputs/published, prevalidate that all required artifacts can be produced (per output contract) and that schema-bound JSON artifacts validate; avoid partially-written releases."
+      ]
+    }
+  ]
+}

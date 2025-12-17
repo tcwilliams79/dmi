@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/category_reporting_views.schema.json",
+  "title": "DMI Category Reporting Views",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string"
+    },
+    "artifact_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "views": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "view_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "computation_universe_id": {
+            "type": "string"
+          },
+          "reporting_universe_id": {
+            "type": "string"
+          },
+          "mappings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "computation_category_id": {
+                  "type": "string"
+                },
+                "reporting_category_id": {
+                  "type": "string"
+                },
+                "weight": {
+                  "type": "number",
+                  "minimum": 0.0
+                }
+              },
+              "required": [
+                "computation_category_id",
+                "reporting_category_id",
+                "weight"
+              ]
+            }
+          },
+          "notes": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "view_id",
+          "label",
+          "computation_universe_id",
+          "reporting_universe_id",
+          "mappings"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "last_updated",
+    "artifact_id",
+    "purpose",
+    "views"
+  ]
+}

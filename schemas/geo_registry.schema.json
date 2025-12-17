@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/geo_registry.schema.json",
+  "title": "DMI Geo Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string"
+    },
+    "principles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "geo_id_conventions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "geos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "geo_id": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "geo_level": {
+            "type": "string",
+            "enum": [
+              "national",
+              "admin1",
+              "admin2",
+              "msa",
+              "city",
+              "region",
+              "other"
+            ]
+          },
+          "country_code": {
+            "type": "string"
+          },
+          "enabled_default": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state_abbrev": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state_fips": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "cbsa_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "iso3166_1": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "iso3166_2": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_geo_scheme": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_geo_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "geo_id",
+          "display_name",
+          "geo_level",
+          "country_code",
+          "enabled_default"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "last_updated",
+    "geo_id_conventions",
+    "geos"
+  ]
+}

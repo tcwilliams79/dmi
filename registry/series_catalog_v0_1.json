@@ -1,0 +1,94 @@
+{
+  "version": "0.1.0",
+  "last_updated": "2025-12-16",
+  "cpi": {
+    "dataset_id": "BLS_CPI",
+    "series_sets": [
+      {
+        "name": "CPI-U National \u2014 Major groups (index levels)",
+        "geo_id": "US",
+        "seasonal_adjustment": "U",
+        "categories": [
+          {
+            "category_id": "CPI_ALL_ITEMS",
+            "label": "All items",
+            "series_id": "CUUR0000SA0"
+          },
+          {
+            "category_id": "CPI_FOOD_BEVERAGES",
+            "label": "Food and beverages",
+            "series_id": "CUUR0000SAF"
+          },
+          {
+            "category_id": "CPI_HOUSING",
+            "label": "Housing",
+            "series_id": "CUUR0000SAH"
+          },
+          {
+            "category_id": "CPI_APPAREL",
+            "label": "Apparel",
+            "series_id": "CUUR0000SAA"
+          },
+          {
+            "category_id": "CPI_TRANSPORTATION",
+            "label": "Transportation",
+            "series_id": "CUUR0000SAT"
+          },
+          {
+            "category_id": "CPI_MEDICAL_CARE",
+            "label": "Medical care",
+            "series_id": "CUUR0000SAM"
+          },
+          {
+            "category_id": "CPI_RECREATION",
+            "label": "Recreation",
+            "series_id": "CUUR0000SAR"
+          },
+          {
+            "category_id": "CPI_EDU_COMM",
+            "label": "Education and communication",
+            "series_id": "CUUR0000SAE"
+          },
+          {
+            "category_id": "CPI_OTHER",
+            "label": "Other goods and services",
+            "series_id": "CUUR0000SA0"
+          }
+        ],
+        "notes": [
+          "These are CPI-U national series IDs for top-level groups; validate against BLS CPI series ID documentation during SourceScout run.",
+          "v0.1 uses these as the default CPI category universe; can be expanded later."
+        ]
+      }
+    ]
+  },
+  "slack": {
+    "dataset_id_national": "BLS_CPS",
+    "dataset_id_subnational": "BLS_LAUS",
+    "national_series": [
+      {
+        "metric": "U3",
+        "label": "Unemployment rate (U-3), national",
+        "series_id": "LNS14000000",
+        "unit": "percent"
+      },
+      {
+        "metric": "U6",
+        "label": "Unemployment + underemployment (U-6), national",
+        "series_id": "LNS13327709",
+        "unit": "percent",
+        "optional": true
+      }
+    ],
+    "laus_patterns": {
+      "state_u3_series_id_rule": "Resolve via la.series mapping; do not hardcode 50 IDs in v0.1 spec.",
+      "msa_u3_series_id_rule": "Resolve via la.series mapping for metro areas."
+    }
+  },
+  "bea_rpp": {
+    "dataset_id": "BEA_RPP",
+    "notes": [
+      "RPP parameters vary; SourceScout should pin the exact BEA API request used (table, line codes, geo codes)."
+    ]
+  }
+}

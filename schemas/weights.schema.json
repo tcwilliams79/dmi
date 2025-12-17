@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/weights.schema.json",
+  "title": "DMI Group Weights (curated)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "weights_year": {
+      "type": "integer"
+    },
+    "grouping": {
+      "type": "string",
+      "enum": [
+        "decile",
+        "quintile"
+      ]
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "group_id": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "required": [
+          "group_id",
+          "category_id",
+          "weight"
+        ]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source_dataset_id": {
+          "type": "string"
+        },
+        "source_release_id": {
+          "type": "string"
+        },
+        "crosswalk_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build_run_id": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "source_dataset_id",
+        "source_release_id",
+        "build_run_id",
+        "created_at"
+      ]
+    }
+  },
+  "required": [
+    "weights_year",
+    "grouping",
+    "rows",
+    "metadata"
+  ]
+}

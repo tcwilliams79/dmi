@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/category_registry.schema.json",
+  "title": "DMI Category Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string"
+    },
+    "registry_id": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "level_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "level_id",
+          "description"
+        ]
+      }
+    },
+    "universes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "universe_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "universe_id",
+          "label",
+          "level"
+        ]
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "category_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "parent_category_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "universe_memberships": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "display_order": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "category_id",
+          "label",
+          "level",
+          "parent_category_id",
+          "universe_memberships"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "last_updated",
+    "registry_id",
+    "purpose",
+    "levels",
+    "universes",
+    "categories"
+  ]
+}

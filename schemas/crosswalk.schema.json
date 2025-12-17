@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/crosswalk.schema.json",
+  "title": "CE\u2194CPI Crosswalk (UCC\u2192ELI\u2192CPI category)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "crosswalk_version": {
+      "type": "string"
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ucc_code": {
+            "type": "string"
+          },
+          "eli_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cpi_category_id": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "ucc_code",
+          "cpi_category_id"
+        ]
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source_dataset_id": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "raw_checksum": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "build_run_id": {
+          "type": "string"
+        },
+        "git_sha": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "source_dataset_id",
+        "source_url",
+        "build_run_id",
+        "created_at"
+      ]
+    }
+  },
+  "required": [
+    "crosswalk_version",
+    "rows",
+    "metadata"
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dmianalysis.org/schemas/qa_report.schema.json",
+  "title": "DMI QA Report",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Schema version for the QA report payload."
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "reference_period": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "PASS_WITH_WARNING"
+      ]
+    },
+    "hard_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "WARN",
+              "SKIP"
+            ]
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional short examples (e.g., series_id/date pairs) to aid debugging."
+          }
+        },
+        "required": [
+          "check_id",
+          "status"
+        ]
+      }
+    },
+    "soft_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "WARN",
+              "SKIP"
+            ]
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "check_id",
+          "status"
+        ]
+      }
+    },
+    "policy_gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gate_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "WARN"
+            ]
+          },
+          "policy_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "decision": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "gate_id",
+          "status"
+        ]
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hard_fail_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "soft_warn_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "policy_fail_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "schema_version",
+    "run_id",
+    "reference_period",
+    "created_at",
+    "status",
+    "hard_checks",
+    "soft_checks",
+    "policy_gates",
+    "warnings",
+    "errors"
+  ]
+}

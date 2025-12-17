@@ -1,0 +1,278 @@
+{
+  "version": "0.1.5",
+  "last_updated": "2025-12-17",
+  "weights_source_mode": "ce_tables",
+  "income_definition": "income before taxes (BLS CE definition in published tables)",
+  "table_family": "https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/",
+  "resolution_preference": [
+    "decile",
+    "quintile"
+  ],
+  "year_policy": {
+    "mode": "latest_available",
+    "fallback": {
+      "if_decile_table_missing": "use_quintile_table"
+    },
+    "pinning_rule": "Every release must record the exact CE table year used (weights_year) and checksum the raw XLSX. If weights_year differs from the previous published release, apply vintage_change_policy gating."
+  },
+  "table_url_templates": {
+    "decile": "https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/cu-income-deciles-before-taxes-{year}.xlsx",
+    "quintile": "https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/cu-income-quintiles-before-taxes-{year}.xlsx"
+  },
+  "extract_rule": {
+    "sheet_selection": "first_sheet",
+    "row_selection": {
+      "pattern": "For each CE item label row, take the row immediately following the 'Mean' row where column A == 'Share'.",
+      "share_row_label": "Share"
+    }
+  },
+  "excluded_items_out_of_scope": [
+    {
+      "ce_item": "Cash contributions",
+      "reason": "Not priced in CPI; treat as out-of-scope for CPI-weighted inflation in v0.1."
+    },
+    {
+      "ce_item": "Personal insurance and pensions",
+      "reason": "Contains pensions/social security and other non-CPI items; excluded in v0.1 table-based weights."
+    }
+  ],
+  "cpi_category_weights_recipe": [
+    {
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "label": "Food and beverages",
+      "include_ce_items": [
+        "Food"
+      ]
+    },
+    {
+      "category_id": "CPI_HOUSING",
+      "label": "Housing (ex telephone services)",
+      "include_ce_items": [
+        "Housing"
+      ],
+      "exclude_ce_items": [
+        "Telephone services"
+      ],
+      "notes": "Telephone services are treated as communication (CPI_EDU_COMM) in v0.1 to reduce CPI/CE taxonomy mismatch."
+    },
+    {
+      "category_id": "CPI_APPAREL",
+      "label": "Apparel",
+      "include_ce_items": [
+        "Apparel and services"
+      ]
+    },
+    {
+      "category_id": "CPI_TRANSPORTATION",
+      "label": "Transportation",
+      "include_ce_items": [
+        "Transportation"
+      ]
+    },
+    {
+      "category_id": "CPI_MEDICAL_CARE",
+      "label": "Medical care",
+      "include_ce_items": [
+        "Healthcare"
+      ]
+    },
+    {
+      "category_id": "CPI_RECREATION",
+      "label": "Recreation",
+      "include_ce_items": [
+        "Entertainment",
+        "Reading"
+      ],
+      "notes": "Includes CE 'Reading' to align with CPI publication practice where 'recreational reading materials' are under Recreation."
+    },
+    {
+      "category_id": "CPI_EDU_COMM",
+      "label": "Education and communication",
+      "include_ce_items": [
+        "Education",
+        "Telephone services"
+      ],
+      "notes": "Maps CE 'Telephone services' to CPI Education & communication (communication component)."
+    },
+    {
+      "category_id": "CPI_OTHER",
+      "label": "Other goods and services",
+      "include_ce_items": [
+        "Personal care products and services",
+        "Tobacco products and smoking supplies",
+        "Miscellaneous"
+      ]
+    }
+  ],
+  "post_processing": {
+    "renormalize_to_sum_to_one": true,
+    "qa_expectations": [
+      "All weights must be non-negative after renormalization.",
+      "Weights must sum to 1.0 \u00b1 tolerance for each group and geo (US only in v0.1)."
+    ]
+  },
+  "known_limitations": [
+    "CE item taxonomy and CPI category taxonomy differ; this v0.1 mapping is a transparent approximation intended for an MVP.",
+    "CE tables are annual; weights are held constant across months within a year.",
+    "Future v0.2+ can replace this with UCC\u2192ELI mapping using CE PUMD for improved category alignment.",
+    "This v0.1 policy intentionally uses only top-level CE table item labels (e.g., 'Food', 'Housing') rather than full UCC\u2192ELI mapping; this is faster but less precise.",
+    "CE 'Reading' is mapped to CPI 'Recreation' based on CPI publication structure; remaining taxonomy mismatches may persist."
+  ],
+  "bls_table_numbers": {
+    "quintile": 1101,
+    "decile": 1110
+  },
+  "bls_table_urls": {
+    "quintile_example": "https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/cu-income-quintiles-before-taxes-2023.xlsx",
+    "decile_example": "https://www.bls.gov/cex/tables/calendar-year/mean-item-share-average-standard-error/cu-income-deciles-before-taxes-2023.xlsx",
+    "notes": "Use the URL templates with {year} substitution; SourceScout may update year, but each run must pin weights_year + checksum the XLSX."
+  },
+  "mapping_exceptions": [
+    {
+      "rule_id": "CE_READING_TO_CPI_RECREATION",
+      "description": "Map CE 'Reading' to CPI major group 'Recreation' (CPI includes 'recreational reading materials' under Recreation in standard CPI tables).",
+      "source_hint": "BLS CPI news release detailed tables include 'Recreational reading materials' as part of Recreation."
+    },
+    {
+      "rule_id": "CE_TELEPHONE_SERVICES_OUT_OF_HOUSING",
+      "description": "Exclude CE 'Telephone services' from CE 'Housing' and include it in CPI major group 'Education and communication' (communication).",
+      "source_hint": "CE places telephone services within Housing; CPI treats communication separately; v0.1 reclassifies to reduce mismatch."
+    }
+  ],
+  "expected_ce_item_labels": [
+    "Food",
+    "Housing",
+    "Apparel and services",
+    "Transportation",
+    "Healthcare",
+    "Entertainment",
+    "Reading",
+    "Education",
+    "Telephone services",
+    "Personal care products and services",
+    "Tobacco products and smoking supplies",
+    "Miscellaneous",
+    "Cash contributions",
+    "Personal insurance and pensions"
+  ],
+  "excluded_share_policy": {
+    "behavior": "renormalize_included_categories",
+    "report_excluded_share": true,
+    "excluded_share_field_name": "excluded_share",
+    "notes": "Any CE share not mapped into the CPI category universe (or explicitly excluded as out-of-scope) is tracked as excluded_share, then the remaining weights are renormalized to sum to 1.0."
+  },
+  "mapping_artifact_ref": "registry/artifacts/ce_table_to_cpi_mapping_v0_1.json",
+  "vintage_change_policy": {
+    "detect_on_every_run": true,
+    "comparison_basis": "previous_release_metadata (most recent published release)",
+    "on_weights_year_change": "FAIL_PUBLISH_BY_DEFAULT",
+    "override_mechanisms": [
+      "Set artifacts.weights.weights_year in manifest to the new year (explicit pin)",
+      "Explicit pipeline override flag (e.g., --approve-weights-update) that is recorded in release metadata"
+    ],
+    "notes": "Annual CE table updates can cause discontinuities. v0.1 default is conservative: do not silently change weights_year across releases.",
+    "internal_assist": {
+      "enabled": true,
+      "generate_backfill_candidate": true,
+      "generate_diff_report": true,
+      "auto_apply_backfill": false,
+      "publish_gate_behavior": "FAIL_PUBLISH_UNTIL_EXPLICIT_APPROVAL",
+      "candidate_definition": "Recompute the affected release period(s) using the new weights_year while holding all other inputs constant; produce side-by-side diffs for DMI, inflation, contributions, and dispersion metrics.",
+      "diff_report_minimum_fields": [
+        "weights_year_old",
+        "weights_year_new",
+        "reference_periods_examined",
+        "delta_dmi_by_group",
+        "delta_inflation_by_group",
+        "delta_dispersion_metrics",
+        "notes_on_discontinuities"
+      ],
+      "notes": "This step reduces administrative burden by preparing a reviewable candidate backfill + diff report, but does not change published outputs automatically.",
+      "review_packet_output_path_template": "data/outputs/internal/review_packets/{run_id}/weights_vintage_review_packet.json",
+      "candidate_periods_policy": {
+        "mode_default": "previous_published_reference_period_only",
+        "allowed_modes": [
+          "previous_published_reference_period_only",
+          "rolling_window_months",
+          "explicit_period_list"
+        ],
+        "rolling_window_months_default": 12,
+        "notes": "v0.1 default minimizes admin burden: recompute the previous published reference period using the new weights_year to isolate the weights effect. A rolling window or explicit list can be enabled for deeper review, but remains internal-only."
+      },
+      "generation_algorithm": {
+        "step_1_detect": "Compare new weights_year (from extracted CE table year) to prior published release_metadata.decisions.weights.weights_year (or release bundle metadata.weights_year).",
+        "step_2_gate": "If changed and on_weights_year_change == FAIL_PUBLISH_BY_DEFAULT, set policy gate to FAIL_PUBLISH and proceed to internal packet generation.",
+        "step_3_select_periods": "Select candidate_periods per candidate_periods_policy (default: previous_published_reference_period_only).",
+        "step_4_recompute_candidate": "For each candidate_period, recompute DMI outputs using the NEW weights (weights_year_new) while holding CPI levels and slack series selections constant for that period.",
+        "step_5_diff": "Run a deterministic diff utility: compare old published release bundle vs candidate bundle on aligned keys. Produce delta tables for dmi, inflation, and summary_metrics. (Slack deltas should be ~0 by construction.)",
+        "step_6_write_internal": "Write weights_vintage_review_packet.json to internal_review_dir_template and reference any candidate/diff artifacts inside candidate_backfill and diff_summary fields.",
+        "step_7_never_autopublish": "Do not publish candidate outputs automatically. Publishing requires explicit approval recorded in release_metadata."
+      },
+      "diff_calculator_spec": {
+        "inputs": [
+          "old_release_bundle_json (dmi_release.json from prior published release)",
+          "candidate_release_bundle_json (dmi_release.json computed with new weights_year for same period)"
+        ],
+        "join_keys": [
+          "geo_id",
+          "period",
+          "grouping",
+          "group_id"
+        ],
+        "outputs_minimum": [
+          "delta_dmi_by_group (candidate.dmi - old.dmi)",
+          "delta_inflation_by_group (candidate.inflation - old.inflation)",
+          "delta_dispersion_metrics (median/stress/Q5-Q1 deltas)"
+        ],
+        "notes": "The diff utility should be pure and deterministic. Store outputs inside weights_vintage_review_packet.diff_summary or as referenced internal artifacts."
+      }
+    }
+  },
+  "structural_validation": {
+    "enabled": true,
+    "checks": [
+      {
+        "check_id": "CE_XLSX_EXPECTED_ITEM_LABELS_PRESENT",
+        "severity": "HARD_FAIL",
+        "rule": "All expected_ce_item_labels must be discoverable as item-label rows in the sheet (case/whitespace normalized). Extra labels are allowed.",
+        "allow_extra_labels": true,
+        "max_missing_labels": 0
+      },
+      {
+        "check_id": "CE_XLSX_MEAN_SHARE_ROW_PAIRING",
+        "severity": "HARD_FAIL",
+        "rule": "For each CE item label row, locate the corresponding 'Mean' row, then require the immediately following row to have column A == 'Share' (the share row used for extraction)."
+      },
+      {
+        "check_id": "CE_XLSX_GROUP_COLUMN_COUNT",
+        "severity": "HARD_FAIL",
+        "rule": "Validate the number of income-group columns matches the table type (decile=10 or quintile=5). Ignore a possible 'All consumer units' column when counting group columns.",
+        "expected_group_counts": {
+          "decile": 10,
+          "quintile": 5
+        }
+      },
+      {
+        "check_id": "CE_XLSX_SHARE_RANGE_SANITY",
+        "severity": "SOFT_WARN",
+        "rule": "Extracted share values should be in a sane numeric range (typically 0..100 for percent shares). Out-of-range values indicate parse misalignment.",
+        "expected_min": 0.0,
+        "expected_max": 100.0
+      }
+    ],
+    "failure_behavior": {
+      "on_hard_fail": "FAIL_PIPELINE",
+      "emit_parse_diagnostics": true,
+      "diagnostics": {
+        "max_rows": 40,
+        "max_cols": 16,
+        "write_internal_artifact_suggested_path": "data/outputs/internal/review_packets/{run_id}/ce_table_parse_diagnostics.json",
+        "include_sheet_name": true,
+        "include_detected_headers": true,
+        "include_first_rows_as_values": true
+      },
+      "error_message_guidance": "Raise a clear exception that names the failed check_id and includes a short sheet snippet (or a pointer to the diagnostics artifact) so a human can quickly see what changed."
+    },
+    "notes": "BLS CE XLSX layouts can change year-to-year. Structural validation reduces fragility and prevents silent mis-extraction."
+  }
+}

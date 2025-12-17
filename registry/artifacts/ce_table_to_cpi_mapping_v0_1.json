@@ -1,0 +1,99 @@
+{
+  "version": "0.1.1",
+  "last_updated": "2025-12-16",
+  "mapping_id": "ce_table_to_cpi_major_groups",
+  "purpose": "Maps BLS Consumer Expenditure (CE) published table category labels to CPI major-group category_ids used by the v0.1 DMI inflation universe.",
+  "source_dataset_id": "BLS_CE_TABLES",
+  "target_cpi_series_set_name": "CPI-U National \u2014 Major groups (index levels)",
+  "rows": [
+    {
+      "ce_item_label": "Food",
+      "cpi_category_id": "CPI_FOOD_BEVERAGES",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Housing",
+      "cpi_category_id": "CPI_HOUSING",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Apparel and services",
+      "cpi_category_id": "CPI_APPAREL",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Transportation",
+      "cpi_category_id": "CPI_TRANSPORTATION",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Healthcare",
+      "cpi_category_id": "CPI_MEDICAL_CARE",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 label is 'Healthcare', maps to CPI 'Medical care'"
+    },
+    {
+      "ce_item_label": "Entertainment",
+      "cpi_category_id": "CPI_RECREATION",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 label is 'Entertainment', maps to CPI 'Recreation'"
+    },
+    {
+      "ce_item_label": "Reading",
+      "cpi_category_id": "CPI_RECREATION",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match). Maps to CPI Recreation per policy."
+    },
+    {
+      "ce_item_label": "Education",
+      "cpi_category_id": "CPI_EDU_COMM",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Telephone services",
+      "cpi_category_id": "CPI_EDU_COMM",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Personal care products and services",
+      "cpi_category_id": "CPI_OTHER",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Tobacco products and smoking supplies",
+      "cpi_category_id": "CPI_OTHER",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label (exact match)"
+    },
+    {
+      "ce_item_label": "Miscellaneous",
+      "cpi_category_id": "CPI_OTHER",
+      "include_in_inflation_universe": true,
+      "notes": "BLS 2023 CE table label - catch-all category"
+    },
+    {
+      "ce_item_label": "Cash contributions",
+      "cpi_category_id": null,
+      "include_in_inflation_universe": false,
+      "notes": "BLS 2023 CE table label (exact match). Out of scope: not priced in CPI."
+    },
+    {
+      "ce_item_label": "Personal insurance and pensions",
+      "cpi_category_id": null,
+      "include_in_inflation_universe": false,
+      "notes": "BLS 2023 CE table label (exact match). Out of scope: not priced in CPI."
+    }
+  ],
+  "metadata": {
+    "build_run_id": "SPEC_BUILD_2025-12-16_v0.1.1",
+    "git_sha": null,
+    "created_at": "2025-12-16T13:21:00Z"
+  }
+}

@@ -1,0 +1,214 @@
+{
+    "weights_year": 2023,
+    "grouping": "quintile",
+    "description": "Sample expenditure weights for 5 income quintiles across 8 CPI major groups (based on CE Table 1101 structure)",
+    "rows": [
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_FOOD_BEVERAGES",
+            "weight": 0.17
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_HOUSING",
+            "weight": 0.42
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_APPAREL",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_TRANSPORTATION",
+            "weight": 0.15
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_MEDICAL_CARE",
+            "weight": 0.12
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_RECREATION",
+            "weight": 0.04
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_EDU_COMM",
+            "weight": 0.04
+        },
+        {
+            "group_id": "Q1",
+            "category_id": "CPI_OTHER",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_FOOD_BEVERAGES",
+            "weight": 0.15
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_HOUSING",
+            "weight": 0.38
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_APPAREL",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_TRANSPORTATION",
+            "weight": 0.18
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_MEDICAL_CARE",
+            "weight": 0.13
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_RECREATION",
+            "weight": 0.05
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_EDU_COMM",
+            "weight": 0.05
+        },
+        {
+            "group_id": "Q2",
+            "category_id": "CPI_OTHER",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_FOOD_BEVERAGES",
+            "weight": 0.14
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_HOUSING",
+            "weight": 0.34
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_APPAREL",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_TRANSPORTATION",
+            "weight": 0.19
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_MEDICAL_CARE",
+            "weight": 0.13
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_RECREATION",
+            "weight": 0.06
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_EDU_COMM",
+            "weight": 0.06
+        },
+        {
+            "group_id": "Q3",
+            "category_id": "CPI_OTHER",
+            "weight": 0.05
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_FOOD_BEVERAGES",
+            "weight": 0.13
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_HOUSING",
+            "weight": 0.31
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_APPAREL",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_TRANSPORTATION",
+            "weight": 0.19
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_MEDICAL_CARE",
+            "weight": 0.13
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_RECREATION",
+            "weight": 0.07
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_EDU_COMM",
+            "weight": 0.07
+        },
+        {
+            "group_id": "Q4",
+            "category_id": "CPI_OTHER",
+            "weight": 0.07
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_FOOD_BEVERAGES",
+            "weight": 0.11
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_HOUSING",
+            "weight": 0.27
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_APPAREL",
+            "weight": 0.03
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_TRANSPORTATION",
+            "weight": 0.17
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_MEDICAL_CARE",
+            "weight": 0.13
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_RECREATION",
+            "weight": 0.09
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_EDU_COMM",
+            "weight": 0.10
+        },
+        {
+            "group_id": "Q5",
+            "category_id": "CPI_OTHER",
+            "weight": 0.10
+        }
+    ],
+    "excluded_share": 0.0,
+    "metadata": {
+        "source_dataset_id": "BLS_CE_TABLES",
+        "source_release_id": "CE_2023",
+        "created_at": "2025-12-16T00:00:00Z",
+        "notes": "Weights reflect lower-income groups spending more on housing/food, higher-income groups spending more on recreation/education."
+    }
+}
