@@ -439,8 +439,9 @@
                     'July', 'August', 'September', 'October', 'November', 'December'];
                 const formattedPeriod = `${monthNames[parseInt(month) - 1]} ${year}`;
 
-                // Format published date
-                const publishedDate = new Date(health.last_updated);
+                // Format published date (parse as local date to avoid timezone issues)
+                const [pubYear, pubMonth, pubDay] = health.last_updated.split('-');
+                const publishedDate = new Date(pubYear, pubMonth - 1, pubDay);
                 const formattedPublished = publishedDate.toLocaleDateString('en-US', {
                     year: 'numeric', month: 'short', day: 'numeric'
                 });
