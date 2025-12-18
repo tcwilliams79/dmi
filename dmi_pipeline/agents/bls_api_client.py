@@ -134,6 +134,10 @@ def fetch_cpi_data(
         for series in data.get("Results", {}).get("series", []):
             series_id = series["seriesID"]
             for obs in series.get("data", []):
+                # Skip observations with missing values (BLS returns '-')
+                if obs["value"] == '-' or not obs["value"]:
+                    continue
+                    
                 records.append({
                     "series_id": series_id,
                     "year": int(obs["year"]),

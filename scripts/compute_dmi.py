@@ -161,8 +161,8 @@ def main():
     
     # Paths
     weights_path = Path("data/curated/weights_by_group_2023.json")
-    cpi_path = Path("data/staging/cpi_levels_2023_2024.json")
-    slack_path = Path("data/staging/slack_u3_2023_2024.json")
+    cpi_path = Path("data/staging/cpi_levels_2024_2025.json")
+    slack_path = Path("data/staging/slack_u3_2024_2025.json")
     
     # Load data
     print("\nLoading data...")
@@ -175,9 +175,9 @@ def main():
     slack_df = load_slack_data(slack_path)
     print(f"  ✓ Slack data: {len(slack_df)} periods")
     
-    # Compute DMI for November 2024
+    # Compute DMI for September 2025 (latest available with complete CPI data)
     print("\n" + "=" * 80)
-    reference_period = "2024-11"
+    reference_period = "2025-09"
     
     results = compute_dmi_for_period(
         cpi_df=cpi_df,

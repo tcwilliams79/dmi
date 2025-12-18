@@ -405,7 +405,11 @@
         </div>
 
         <div class="footer">
-            <p>DMI v0.1.11 | Data as of <span id="data-date">2024-11</span></p>
+            <p>
+                Distributional Misery Index (DMI) — v0.1.11<br>
+                Data through: <span id="footer-period">Loading...</span> • Published: <span
+                    id="footer-published">Loading...</span>
+            </p>
         </div>
     </div>
 
@@ -461,6 +465,10 @@
                 } else {
                     statusEl.textContent = '✅ Current';
                 }
+
+                // Update footer with same formatted values
+                document.getElementById('footer-period').textContent = `${monthNames[parseInt(month) - 1]} ${year}`;
+                document.getElementById('footer-published').textContent = formattedPublished;
             } catch (error) {
                 console.error('Error loading health data:', error);
             }
