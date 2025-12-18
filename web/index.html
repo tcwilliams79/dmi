@@ -571,11 +571,11 @@
                 const latestPeriod = health.latest_period;
 
                 // Load latest DMI release using the period from health.json
-                const latestResponse = await fetch(`../data/outputs/dmi_release_${latestPeriod}.json`);
+                const latestResponse = await fetch(`./data/outputs/dmi_release_${latestPeriod}.json`);
                 const latestData = await latestResponse.json();
 
                 // Load historical time series
-                const timeseriesResponse = await fetch('../data/outputs/published/dmi_timeseries_2010_2024.json');
+                const timeseriesResponse = await fetch('./data/outputs/published/dmi_timeseries_2010_2024.json');
                 const timeseriesData = await timeseriesResponse.json();
 
                 // Store data globally
