@@ -335,10 +335,7 @@
             </div>
         </div>
 
-        <div class="grid" id="summary-cards">
-
-            <!-- Cards will be populated by JavaScript -->
-        </div>
+        <!-- Cards populated by JavaScript in the grid above -->
 
         <!-- Historical Context Panel -->
         <div class="chart-container" id="historical-context" style="display:none;">
@@ -599,7 +596,6 @@
         function displayData(data, timeseriesData) {
             // Update period
             document.getElementById('period').textContent = `Reference Period: ${data.reference_period}`;
-            document.getElementById('data-date').textContent = data.reference_period;
 
             // Create summary cards
             const summaryHTML = `
