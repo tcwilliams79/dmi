@@ -567,8 +567,13 @@
         // Load DMI data (latest + time series)
         async function loadData() {
             try {
-                // Load latest DMI release
-                const latestResponse = await fetch('../data/outputs/dmi_release_2024-11.json');
+                // First, load health.json to get the latest period
+                const healthResponse = await fetch('health.json');
+                const health = await healthResponse.json();
+                const latestPeriod = health.latest_period;
+
+                // Load latest DMI release using the period from health.json
+                const latestResponse = await fetch(`../data/outputs/dmi_release_${latestPeriod}.json`);
                 const latestData = await latestResponse.json();
 
                 // Load historical time series
