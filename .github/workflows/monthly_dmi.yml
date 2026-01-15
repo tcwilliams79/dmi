@@ -16,6 +16,10 @@ on:
 env:
   PYTHON_VERSION: '3.9'
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   compute-dmi:
     runs-on: ubuntu-latest
