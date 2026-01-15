@@ -35,8 +35,7 @@ htmlcov/
 # Data (keep structure, ignore content for large files)
 data/raw/*.xlsx
 data/raw/*.csv
-data/staging/*.json
-data/outputs/*.json
+# Note: staging/ and outputs/ are tracked for GitHub Actions automation
 
 # OS
 .DS_Store
