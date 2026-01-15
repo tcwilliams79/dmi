@@ -36,6 +36,7 @@ def main():
     
     # Determine year range based on current date
     # Data files span Oct-Nov of year N to Sep-Oct of year N+1
+    # We need 2 years of data for the 12-month lookback calculation
     now = datetime.now()
     if now.month >= 11:
         start_year = now.year
@@ -44,10 +45,10 @@ def main():
         start_year = now.year - 1
         end_year = now.year
     
-    # Fetch CPI data
+    # Fetch CPI data (include extra lookback year for 12-month inflation calc)
     cpi_df = fetch_cpi_data(
         series_ids=cpi_series_ids,
-        start_year=start_year,
+        start_year=start_year - 1,  # Extra year for lookback
         end_year=end_year
     )
     
@@ -72,7 +73,7 @@ def main():
     
     slack_df = fetch_slack_data(
         series_id=u3_series_id,
-        start_year=start_year,
+        start_year=start_year - 1,  # Match CPI lookback
         end_year=end_year
     )
     

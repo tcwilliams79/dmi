@@ -187,9 +187,12 @@ def main():
     slack_df = load_slack_data(slack_path)
     print(f"  ✓ Slack data: {len(slack_df)} periods")
     
-    # Compute DMI for September 2025 (latest available with complete CPI data)
+    # Determine reference period dynamically from CPI data
+    # Use the most recent complete month available in the data
     print("\n" + "=" * 80)
-    reference_period = "2025-09"
+    available_periods = sorted(cpi_df['period'].unique())
+    reference_period = available_periods[-1]  # Latest available period
+    print(f"Using reference period: {reference_period} (latest in data)")
     
     results = compute_dmi_for_period(
         cpi_df=cpi_df,
