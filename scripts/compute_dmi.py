@@ -159,10 +159,22 @@ def main():
     print("DMI v0.1.8 - Full Integration Test")
     print("=" * 80)
     
+    # Determine the year range for data files based on current date
+    # Data files span Oct-Nov of year N to Sep-Oct of year N+1
+    # e.g., cpi_levels_2024_2025.json covers late 2024 through most of 2025
+    now = datetime.now()
+    # If we're in the later months (Nov-Dec), we need the current_year to next_year file
+    if now.month >= 11:
+        start_year = now.year
+        end_year = now.year + 1
+    else:
+        start_year = now.year - 1
+        end_year = now.year
+    
     # Paths
     weights_path = Path("data/curated/weights_by_group_2023.json")
-    cpi_path = Path("data/staging/cpi_levels_2024_2025.json")
-    slack_path = Path("data/staging/slack_u3_2024_2025.json")
+    cpi_path = Path(f"data/staging/cpi_levels_{start_year}_{end_year}.json")
+    slack_path = Path(f"data/staging/slack_u3_{start_year}_{end_year}.json")
     
     # Load data
     print("\nLoading data...")

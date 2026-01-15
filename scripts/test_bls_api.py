@@ -6,6 +6,7 @@ Test BLS API client with real CPI and slack data fetch.
 import sys
 import json
 from pathlib import Path
+from datetime import datetime
 
 from dmi_pipeline.agents.bls_api_client import (
  fetch_cpi_data,
@@ -33,11 +34,21 @@ def main():
     print(f"\n[1/4] Fetching CPI data for 8 major groups...")
     print(f"Categories: {[cat['category_id'] for cat in cpi_categories if cat['category_id'] != 'CPI_ALL_ITEMS']}")
     
-    # Fetch CPI data (2023-2024)
+    # Determine year range based on current date
+    # Data files span Oct-Nov of year N to Sep-Oct of year N+1
+    now = datetime.now()
+    if now.month >= 11:
+        start_year = now.year
+        end_year = now.year + 1
+    else:
+        start_year = now.year - 1
+        end_year = now.year
+    
+    # Fetch CPI data
     cpi_df = fetch_cpi_data(
         series_ids=cpi_series_ids,
-        start_year=2023,
-        end_year=2024
+        start_year=start_year,
+        end_year=end_year
     )
     
     # Convert to YYYY-MM format
@@ -61,8 +72,8 @@ def main():
     
     slack_df = fetch_slack_data(
         series_id=u3_series_id,
-        start_year=2023,
-        end_year=2024
+        start_year=start_year,
+        end_year=end_year
     )
     
     slack_df = convert_to_monthly_format(slack_df)
@@ -76,10 +87,12 @@ def main():
     print(f"\n[4/4] Validating category coverage...")
     required_cats = [cat["category_id"] for cat in cpi_categories if cat["category_id"] != "CPI_ALL_ITEMS"]
     
+    # Use a reference period in the middle of the date range for validation
+    validation_period = f"{end_year}-11" if now.month >= 11 else f"{end_year - 1}-11"
     validation = validate_category_coverage(
         cpi_df=cpi_wide,
         required_categories=required_cats,
-        reference_period="2024-11",
+        reference_period=validation_period,
         lookback_months=12
     )
     
@@ -95,11 +108,11 @@ def main():
     print(f"\nSaving data...")
     save_cpi_data(
         cpi_wide,
-        Path("data/staging/cpi_levels_2023_2024.json"),
+        Path(f"data/staging/cpi_levels_{start_year}_{end_year}.json"),
         metadata={"dataset": "BLS CPI-U", "series_count": len(cpi_series_ids)}
     )
     
-    slack_output = Path("data/staging/slack_u3_2023_2024.json")
+    slack_output = Path(f"data/staging/slack_u3_{start_year}_{end_year}.json")
     slack_output.parent.mkdir(parents=True, exist_ok=True)
     slack_df[['period_yyyymm', 'value']].rename(columns={'period_yyyymm': 'period'}).to_json(
         slack_output, orient='records', indent=2
