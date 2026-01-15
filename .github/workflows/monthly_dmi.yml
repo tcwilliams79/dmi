@@ -7,7 +7,7 @@ on:
       reference_period:
         description: 'Reference period (YYYY-MM)'
         required: true
-        default: '2024-11'
+        default: '2025-12'
   
   # Scheduled: 15th of each month at 10am UTC (after BLS CPI release)
   schedule:
