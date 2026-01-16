@@ -130,16 +130,19 @@ jobs:
           echo "📁 Deployment package contents:"
           find deploy -type f | head -20
           
-      - name: Deploy to iFastNet via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          server: ${{ secrets.IFASTNET_SSH_HOST }}
-          port: 1394
-          username: ${{ secrets.IFASTNET_SSH_USER }}
-          ssh_private_key: ${{ secrets.IFASTNET_SSH_KEY }}
-          local_path: ./deploy/*
-          remote_path: /home/agiraces/dmianalysis/
-          sftpArgs: '-o StrictHostKeyChecking=no'
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.IFASTNET_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 1394 ${{ secrets.IFASTNET_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          
+      - name: Deploy to iFastNet via rsync
+        run: |
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+            ./deploy/ \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/
           
       - name: Deployment summary
         run: |
