@@ -101,9 +101,6 @@ jobs:
           # Create deploy directory structure
           mkdir -p deploy/data/outputs/published
           
-          # Copy dashboard (rename index.html to dashboard.html for production)
-          cp web/index.html deploy/dashboard.html
-          
           # Update health.json with new period and timestamp
           python3 << 'EOF'
           import json
@@ -140,7 +137,7 @@ jobs:
           username: ${{ secrets.IFASTNET_FTP_USER }}
           password: ${{ secrets.IFASTNET_FTP_PASS }}
           local-dir: ./deploy/
-          server-dir: /htdocs/
+          server-dir: /
           log-level: standard
           
       - name: Deployment summary
@@ -181,9 +178,9 @@ jobs:
             ### Next Steps
             1. Review DMI values for reasonableness
             2. Check QA report for any warnings
-            3. Approve and merge to update the repository
+            3. Approve and merge to update repository
             
-            > ✅ **Note**: The website (dmianalysis.org) has already been automatically updated via FTP deployment.
+            > ✅ **Website automatically updated**: dmianalysis.org now shows data for ${{ steps.period.outputs.period }}
             
             ---
             *This PR was automatically created by the Monthly DMI workflow*
