@@ -134,6 +134,7 @@ jobs:
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.IFASTNET_SSH_HOST }}
+          port: 1394
           username: ${{ secrets.IFASTNET_SSH_USER }}
           ssh_private_key: ${{ secrets.IFASTNET_SSH_KEY }}
           local_path: ./deploy/*
