@@ -90,6 +90,66 @@ jobs:
           
           echo "✅ QA validation: $QA_STATUS"
       
+      # =========================================
+      # FTP DEPLOYMENT TO IFASTNET
+      # =========================================
+      
+      - name: Prepare deployment package
+        run: |
+          echo "📦 Preparing deployment package..."
+          
+          # Create deploy directory structure
+          mkdir -p deploy/data/outputs/published
+          
+          # Copy dashboard (rename index.html to dashboard.html for production)
+          cp web/index.html deploy/dashboard.html
+          
+          # Update health.json with new period and timestamp
+          python3 << 'EOF'
+          import json
+          from datetime import datetime
+          
+          with open('web/health.json', 'r') as f:
+              health = json.load(f)
+          
+          health['latest_period'] = '${{ steps.period.outputs.period }}'
+          health['last_updated'] = datetime.now().strftime('%Y-%m-%d')
+          health['endpoints']['latest'] = '/data/outputs/dmi_release_${{ steps.period.outputs.period }}.json'
+          
+          with open('deploy/health.json', 'w') as f:
+              json.dump(health, f, indent=2)
+          
+          print(f"✅ Updated health.json: latest_period={health['latest_period']}")
+          EOF
+          
+          # Copy data files
+          cp data/outputs/dmi_release_${{ steps.period.outputs.period }}.json deploy/data/outputs/
+          cp data/outputs/qa_report_${{ steps.period.outputs.period }}.json deploy/data/outputs/
+          
+          # Copy published timeseries data
+          cp data/outputs/published/*.json deploy/data/outputs/published/
+          
+          # List deployment contents
+          echo "📁 Deployment package contents:"
+          find deploy -type f | head -20
+          
+      - name: Deploy to iFastNet via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.IFASTNET_FTP_SERVER }}
+          username: ${{ secrets.IFASTNET_FTP_USER }}
+          password: ${{ secrets.IFASTNET_FTP_PASS }}
+          local-dir: ./deploy/
+          server-dir: /htdocs/
+          log-level: standard
+          
+      - name: Deployment summary
+        run: |
+          echo "🚀 Deployment complete!"
+          echo "   Dashboard: https://dmianalysis.org/dashboard.html"
+          echo "   Health:    https://dmianalysis.org/health.json"
+          echo "   Data:      https://dmianalysis.org/data/outputs/dmi_release_${{ steps.period.outputs.period }}.json"
+      
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
@@ -121,8 +181,9 @@ jobs:
             ### Next Steps
             1. Review DMI values for reasonableness
             2. Check QA report for any warnings
-            3. Approve and merge to publish
-            4. Vercel will auto-deploy web dashboard
+            3. Approve and merge to update the repository
+            
+            > ✅ **Note**: The website (dmianalysis.org) has already been automatically updated via FTP deployment.
             
             ---
             *This PR was automatically created by the Monthly DMI workflow*
