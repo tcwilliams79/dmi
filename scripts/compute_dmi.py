@@ -297,14 +297,16 @@ def update_releases_json(
         if isinstance(existing, dict) and 'releases' in existing:
             # Already in new format, get the releases array and filter to new schema only
             for release in existing.get('releases', []):
-                # Only keep releases that have the new schema structure
+                # Only keep releases that have the new schema structure AND are not the current release_id
                 if 'data_through_label' in release and 'urls' in release:
-                    releases.append(release)
+                    if release.get('release_id') != reference_period:
+                        releases.append(release)
         elif isinstance(existing, list):
             # Old format - filter and migrate to new schema
             for release in existing:
                 if 'data_through_label' in release and 'urls' in release:
-                    releases.append(release)
+                    if release.get('release_id') != reference_period:
+                        releases.append(release)
     
     # Convert reference period to data_through_label format
     year, month = reference_period.split('-')
@@ -334,7 +336,7 @@ def update_releases_json(
         }
     }
     
-    # Mark any existing current releases as superseded
+    # Mark any other current releases as superseded
     for release in releases:
         if release.get('status') == 'current':
             release['status'] = 'superseded'
