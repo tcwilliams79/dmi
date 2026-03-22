@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Backfill releases.json and latest.json from existing DMI release files.
+Backfill releases.json from existing DMI release files.
+Only includes publicly distributed releases (2025-12 and later).
 """
 
 import sys
@@ -8,8 +9,26 @@ import json
 from pathlib import Path
 from datetime import datetime
 
+def parse_release_id(filename: str) -> tuple:
+    """Parse release_id from filename. Returns (year, month) or None if invalid."""
+    # Format: dmi_release_2026-02.json
+    try:
+        release_id = filename.replace("dmi_release_", "").replace(".json", "")
+        year, month = release_id.split('-')
+        return (int(year), int(month))
+    except:
+        return None
+
+def is_public_release(year: int, month: int) -> bool:
+    """Check if release is publicly distributed (2025-12 and later)."""
+    if year < 2025:
+        return False
+    if year == 2025 and month < 12:
+        return False
+    return True
+
 def backfill_releases(output_dir: str = "data/outputs"):
-    """Backfill releases.json from existing dmi_release_*.json files."""
+    """Backfill releases.json from existing dmi_release_*.json files (public releases only)."""
     output_path = Path(output_dir)
     
     # Find all dmi_release_*.json files
@@ -19,7 +38,7 @@ def backfill_releases(output_dir: str = "data/outputs"):
         print("No release files found to backfill")
         return
     
-    print(f"Found {len(release_files)} release files")
+    print(f"Found {len(release_files)} release files, filtering for public releases (2025-12+)")
     
     releases = []
     latest_release = None
@@ -27,7 +46,17 @@ def backfill_releases(output_dir: str = "data/outputs"):
     # Process each release file
     for release_file in release_files:
         # Extract release_id from filename (e.g., dmi_release_2026-02.json -> 2026-02)
-        release_id = release_file.stem.replace("dmi_release_", "")
+        parsed = parse_release_id(release_file.name)
+        if not parsed:
+            continue
+        
+        year, month = parsed
+        release_id = f"{year:04d}-{month:02d}"
+        
+        # Skip non-public releases
+        if not is_public_release(year, month):
+            print(f"  ⊘ {release_id}: Not in public distribution (pre-2025-12)")
+            continue
         
         try:
             with open(release_file, 'r') as f:
@@ -37,10 +66,9 @@ def backfill_releases(output_dir: str = "data/outputs"):
             summary_metrics = data.get('summary_metrics', {})
             
             # Convert release_id to data_through_label
-            year, month = release_id.split('-')
             months = ['January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October', 'November', 'December']
-            month_name = months[int(month) - 1]
+            month_name = months[month - 1]
             data_through_label = f"{month_name} {year}"
             
             # Get first quintile's slack for unemployment rate
@@ -88,7 +116,7 @@ def backfill_releases(output_dir: str = "data/outputs"):
             print(f"  ✗ Error processing {release_id}: {e}")
     
     if not releases:
-        print("No valid releases to save")
+        print("No public releases found to save")
         return
     
     # Mark the latest as current
@@ -114,7 +142,7 @@ def backfill_releases(output_dir: str = "data/outputs"):
     with open(releases_path, 'w') as f:
         json.dump(releases_manifest, f, indent=2)
     
-    print(f"\n✓ Saved {len(releases)} releases to {releases_path}")
+    print(f"\n✓ Saved {len(releases)} public releases to {releases_path}")
     
     # Build latest.json with only the current release
     latest_manifest = {
