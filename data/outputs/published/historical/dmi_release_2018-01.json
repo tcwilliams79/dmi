@@ -34,7 +34,7 @@
   "summary_metrics": {
     "dmi_median": 6.095868164145953,
     "dmi_stress": 6.1027918500984955,
-    "dmi_dispersion_q5_q1": -0.014569603894321048
+    "dmi_income_pressure_gap": 0.014569603894321048
   },
   "contributions": [
     {

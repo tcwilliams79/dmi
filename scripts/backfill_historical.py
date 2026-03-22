@@ -228,7 +228,7 @@ def main():
     
     # Save consolidated time series
     print(f"\n💾 Saving time series dataset...")
-    time_series_file = data_dir / "outputs" / "published" / "dmi_timeseries_2010_2024.json"
+    time_series_file = data_dir / "outputs" / "published" / "dmi_timeseries.json"
     time_series_output = {
         "series_id": "DMI_NATIONAL_QUINTILE",
         "start_period": START_PERIOD,

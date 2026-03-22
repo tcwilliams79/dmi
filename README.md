@@ -238,7 +238,7 @@ See `prepare_deployment.sh` to generate production-ready files:
 
 ## Implementation Status
 
-**Version**: v0.1.9 (December 2024)
+**Version**: v0.1.9 (December 2025)
 
 ### ✅ Phase A: Automation & Historical Backfill
 - [x] Enhanced BLS API client (retry logic, rate limiting, logging)
@@ -310,7 +310,7 @@ This is a measurement tool under active development. Contributions should:
 
 **Suggested Format**:
 
-> Williams, T.C. (2024). Distributional Misery Index: Measuring Economic Pressure Across Income Groups. Methodology Note v0.1.9.
+> Williams, T.C. (2025). Distributional Misery Index: Measuring Economic Pressure Across Income Groups. Methodology Note v0.1.9.
 
 **BibTeX**:
 ```bibtex
@@ -351,4 +351,4 @@ Special thanks to the open-source community for tools that made this possible: p
 
 ---
 
-**Last Updated**: December 2024
+**Last Updated**: December 2025

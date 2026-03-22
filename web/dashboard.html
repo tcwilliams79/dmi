@@ -322,6 +322,16 @@
             <!-- Cards will be populated by JavaScript -->
         </div>
 
+        <!-- Explainer Tile -->
+        <div class="chart-container" style="margin-top: 2rem;">
+            <h3 style="font-size: 1.1rem; color: #333; margin-bottom: 1rem; font-weight: 600;">How to read these metrics</h3>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 0.75rem;"><strong>DMI Median</strong> shows the typical level of pressure.</li>
+                <li style="margin-bottom: 0.75rem;"><strong>DMI Stress</strong> shows the highest level of pressure.</li>
+                <li><strong>Income Pressure Gap</strong> shows how much more pressure the bottom fifth faces than the top fifth.</li>
+            </ul>
+        </div>
+
         <!-- Top Contributors Panel -->
         <div class="contributors-section" style="display:none;" id="contributors-section">
             <h2>What's Driving Inflation? (Top 5 Contributors)</h2>
@@ -619,20 +629,20 @@
 
             // Create summary cards
             const summaryHTML = `
-                <div class="card">
-                    <div class="card-title">Median DMI</div>
+                <div class="card" title="The middle DMI value across the published income fifths. This is a simple read on the typical level of combined inflation and labor-market pressure.">
+                    <div class="card-title">DMI Median</div>
                     <div class="card-value">${data.summary_metrics.dmi_median.toFixed(2)}</div>
-                    <div class="card-detail">Middle quintile (Q3)</div>
+                    <div class="card-detail">Typical pressure across income fifths<p style="font-size: 0.8rem; margin: 0.25rem 0;">Middle published DMI value</p><p>A snapshot of the typical level of economic pressure in the current release.</p></div>
                 </div>
-                <div class="card">
-                    <div class="card-title">Stress (Max)</div>
+                <div class="card" title="The highest DMI value among the published income fifths. It shows where economic pressure is currently most intense.">
+                    <div class="card-title">DMI Stress</div>
                     <div class="card-value">${data.summary_metrics.dmi_stress.toFixed(2)}</div>
-                    <div class="card-detail">Q1 (Lowest income)</div>
+                    <div class="card-detail">Highest pressure across income fifths<p style="font-size: 0.8rem; margin: 0.25rem 0;">Peak published DMI value</p><p>Shows the highest level of economic pressure recorded among the published income groups in the current release.</p></div>
                 </div>
-                <div class="card">
-                    <div class="card-title">Dispersion</div>
-                    <div class="card-value">${data.summary_metrics.dmi_dispersion_q5_q1.toFixed(2)}</div>
-                    <div class="card-detail">Q5 - Q1 difference</div>
+                <div class="card" title="Difference between the lowest- and highest-income fifths on DMI. A higher value means current inflation and labor-market conditions are falling more heavily on lower-income households.">
+                    <div class="card-title">Income Pressure Gap</div>
+                    <div class="card-value">${data.summary_metrics.dmi_income_pressure_gap.toFixed(2)}</div>
+                    <div class="card-detail">Bottom fifth vs top fifth<p style="font-size: 0.8rem; margin: 0.25rem 0;">Q1 DMI - Q5 DMI</p><p>Higher values mean lower-income households are facing more economic pressure than higher-income households.</p></div>
                 </div>
                 <div class="card">
                     <div class="card-title">Unemployment</div>

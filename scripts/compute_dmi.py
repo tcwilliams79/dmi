@@ -121,7 +121,7 @@ def compute_dmi_for_period(
     print(f"    ✓ Summary metrics:")
     print(f"      Median DMI: {metrics['dmi_median']:.2f}")
     print(f"      Stress (max): {metrics['dmi_stress']:.2f}")
-    print(f"      Dispersion (Q5-Q1): {metrics['dmi_dispersion_q5_q1']:.2f}")
+    print(f"      Income Pressure Gap (Q1-Q5): {metrics['dmi_income_pressure_gap']:.2f}")
     
     # Compile results
     results = {
@@ -235,7 +235,7 @@ def main():
     print(f"\nSummary Metrics:")
     print(f"  Median DMI: {results['summary_metrics']['dmi_median']:.2f}")
     print(f"  Stress (Q1): {results['summary_metrics']['dmi_stress']:.2f}")
-    print(f"  Dispersion (Q5-Q1): {results['summary_metrics']['dmi_dispersion_q5_q1']:.2f}")
+    print(f"  Income Pressure Gap (Q1-Q5): {results['summary_metrics']['dmi_income_pressure_gap']:.2f}")
     
     print("\n" + "=" * 80)
     print("✓ Full DMI integration test completed successfully!")

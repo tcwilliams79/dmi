@@ -246,11 +246,11 @@ def compute_summary_metrics(
         'dmi_stress': float(np.max(dmi_values))
     }
     
-    # Dispersion (Q5 - Q1) if quintiles present
+    # Income Pressure Gap (Q1 - Q5) if quintiles present
     if 'Q5' in sorted_groups['group_id'].values and 'Q1' in sorted_groups['group_id'].values:
         q5_dmi = float(sorted_groups[sorted_groups['group_id'] == 'Q5']['dmi'].values[0])
         q1_dmi = float(sorted_groups[sorted_groups['group_id'] == 'Q1']['dmi'].values[0])
-        metrics['dmi_dispersion_q5_q1'] = q5_dmi - q1_dmi
+        metrics['dmi_income_pressure_gap'] = q1_dmi - q5_dmi
     
     return metrics
 
