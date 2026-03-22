@@ -33,13 +33,13 @@ mkdir -p "$DEPLOY_DIR"
 echo "📋 Copying web files..."
 cp -r "$WEB_DIR"/* "$DEPLOY_DIR/"
 
-# Remove symlink if exists
-if [ -L "$DEPLOY_DIR/data" ]; then
-    echo "🔗 Removing symlink..."
-    rm "$DEPLOY_DIR/data"
+# Remove existing data dir or symlink
+if [ -L "$DEPLOY_DIR/data" ] || [ -d "$DEPLOY_DIR/data" ]; then
+    echo "🔗 Removing existing data directory..."
+    rm -rf "$DEPLOY_DIR/data"
 fi
 
-# Copy actual data files (not symlink)
+# Copy actual data files
 echo "📊 Copying data files..."
 cp -r "$DATA_DIR" "$DEPLOY_DIR/data"
 
@@ -49,14 +49,14 @@ GIT_SHA=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Find latest period from time series
-if [ -f "$DEPLOY_DIR/data/outputs/published/dmi_timeseries_2010_2024.json" ]; then
+if [ -f "$DEPLOY_DIR/data/outputs/published/dmi_timeseries.json" ]; then
     # Use jq if available, otherwise parse with grep/sed
     if command -v jq &> /dev/null; then
-        LATEST_PERIOD=$(jq -r '.end_period' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries_2010_2024.json")
-        OBS_COUNT=$(jq -r '.observations_count' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries_2010_2024.json")
+        LATEST_PERIOD=$(jq -r '.end_period' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries.json")
+        OBS_COUNT=$(jq -r '.observations_count' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries.json")
     else
-        LATEST_PERIOD=$(grep -o '"end_period": *"[^"]*"' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries_2010_2024.json" | sed 's/.*"\([^"]*\)"/\1/')
-        OBS_COUNT=$(grep -o '"observations_count": *[0-9]*' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries_2010_2024.json" | sed 's/.*: *//')
+        LATEST_PERIOD=$(grep -o '"end_period": *"[^"]*"' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries.json" | sed 's/.*"\([^"]*\)"/\1/')
+        OBS_COUNT=$(grep -o '"observations_count": *[0-9]*' "$DEPLOY_DIR/data/outputs/published/dmi_timeseries.json" | sed 's/.*: *//')
     fi
 else
     LATEST_PERIOD="2024-11"
@@ -75,7 +75,7 @@ cat > "$DEPLOY_DIR/health.json" << EOF
   "last_updated": "$(date -u +"%Y-%m-%d")",
   "endpoints": {
     "dashboard": "/",
-    "timeseries": "/data/outputs/published/dmi_timeseries_2010_2024.json",
+    "timeseries": "/data/outputs/published/dmi_timeseries.json",
     "latest": "/data/outputs/dmi_release_$LATEST_PERIOD.json",
     "latest_with_ci": "/data/outputs/dmi_release_${LATEST_PERIOD}_with_ci.json",
     "latest_u6": "/data/outputs/dmi_release_${LATEST_PERIOD}_u6.json",
@@ -103,7 +103,7 @@ cat > "$DEPLOY_DIR/metadata.json" << EOF
     "income_groups": 5
   },
   "files": {
-    "timeseries": "/data/outputs/published/dmi_timeseries_2010_2024.json",
+    "timeseries": "/data/outputs/published/dmi_timeseries.json",
     "latest": "/data/outputs/dmi_release_$LATEST_PERIOD.json",
     "schema": "/schemas/dmi_output_schema.json",
     "health": "/health.json"

@@ -361,7 +361,7 @@
 
         <!-- DMI Time Series Chart -->
         <div class="chart-container" id="timeseries-container" style="display:none;">
-            <h2 class="chart-title">DMI Over Time (2011-2024)</h2>
+            <h2 class="chart-title" id="timeseries-title">DMI Over Time</h2>
             <canvas id="dmi-timeseries" style="max-height: 400px;"></canvas>
         </div>
 
@@ -716,6 +716,11 @@
             // Group data by quintile
             const quintiles = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'];
             const periods = [...new Set(timeseriesData.observations.map(obs => obs.period))].sort();
+
+            // Set dynamic title from data range
+            const startYear = periods[0].split('-')[0];
+            const endYear = periods[periods.length - 1].split('-')[0];
+            document.getElementById('timeseries-title').textContent = `DMI Over Time (${startYear}-${endYear})`;
 
             const datasets = quintiles.map((q, index) => {
                 const qData = timeseriesData.observations.filter(obs => obs.group_id === q);

@@ -76,6 +76,11 @@ jobs:
           echo "Computing DMI for ${{ steps.period.outputs.period }}..."
           python -m scripts.compute_dmi
       
+      - name: Update timeseries
+        run: |
+          echo "Appending ${{ steps.period.outputs.period }} to timeseries..."
+          python -m scripts.update_timeseries ${{ steps.period.outputs.period }}
+
       - name: Run QA validation
         run: |
           echo "QA validation completed (integrated in compute_dmi.py)"
@@ -152,6 +157,7 @@ jobs:
           echo "   Data:      https://dmianalysis.org/data/outputs/dmi_release_${{ steps.period.outputs.period }}.json"
       
       - name: Create Pull Request
+        id: create-pr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -193,4 +199,11 @@ jobs:
             release
           add-paths: |
             data/outputs/
+            data/outputs/published/
             data/staging/
+
+      - name: Auto-merge release PR
+        if: steps.create-pr.outputs.pull-request-number
+        run: gh pr merge ${{ steps.create-pr.outputs.pull-request-number }} --merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
