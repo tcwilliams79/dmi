@@ -252,6 +252,17 @@
       "CPI_OTHER": 588.451,
       "CPI_RECREATION": 142.505,
       "CPI_TRANSPORTATION": 268.63
+    },
+    {
+      "period": "2026-01",
+      "CPI_APPAREL": 130.685,
+      "CPI_EDU_COMM": 146.883,
+      "CPI_FOOD_BEVERAGES": 342.096,
+      "CPI_HOUSING": 352.54,
+      "CPI_MEDICAL_CARE": 590.169,
+      "CPI_OTHER": 597.39,
+      "CPI_RECREATION": 143.627,
+      "CPI_TRANSPORTATION": 267.521
     }
   ],
   "metadata": {
