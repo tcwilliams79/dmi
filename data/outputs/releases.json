@@ -1,0 +1,19 @@
+[
+  {
+    "release_id": "2026-02",
+    "data_through": "February 2026",
+    "published_at": "2026-03-22",
+    "status": "current",
+    "methodology_version": "v0.1.11",
+    "csv_url": "/wp-content/uploads/dmi/dmi-2026-02.csv",
+    "parquet_url": "/wp-content/uploads/dmi/dmi-2026-02.parquet",
+    "release_note_url": "/wp-content/uploads/dmi/releases/2026-02.html",
+    "metrics": {
+      "dmi_median": 6.8540624815102555,
+      "dmi_stress": 7.009919860204779,
+      "income_pressure_gap": 0.2779924571955972,
+      "unemployment": 4.4
+    },
+    "summary": "Full release data available in the accompanying CSV and Parquet files."
+  }
+]

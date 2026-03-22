@@ -154,6 +154,228 @@ def save_dmi_output(results: dict, output_path: Path):
     print(f"\n✓ Saved DMI output to {output_path}")
 
 
+def export_csv_parquet(results: dict, reference_period: str):
+    """Export DMI results to CSV and Parquet files."""
+    dmi_df = pd.DataFrame(results['dmi_by_group'])
+    
+    # CSV export
+    csv_path = Path(f"data/outputs/dmi-{reference_period}.csv")
+    dmi_df.to_csv(csv_path, index=False)
+    print(f"✓ Saved CSV to {csv_path}")
+    
+    # Parquet export
+    parquet_path = Path(f"data/outputs/dmi-{reference_period}.parquet")
+    dmi_df.to_parquet(parquet_path, index=False)
+    print(f"✓ Saved Parquet to {parquet_path}")
+    
+    return csv_path, parquet_path
+
+
+def generate_release_note_html(
+    reference_period: str,
+    metrics: dict,
+    summary: str = ""
+) -> str:
+    """Generate HTML release note for the current release."""
+    # Parse reference period to human-readable format
+    year, month = reference_period.split('-')
+    months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December']
+    month_name = months[int(month) - 1]
+    data_through = f"{month_name} {year}"
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMI Release {reference_period}</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            color: #333;
+        }}
+        h1 {{
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }}
+        .metrics {{
+            background: #f5f7fa;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }}
+        .metric-row {{
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }}
+        .metric-label {{
+            font-weight: 600;
+        }}
+        .metric-value {{
+            color: #667eea;
+            font-weight: 700;
+        }}
+        .summary {{
+            background: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }}
+    </style>
+</head>
+<body>
+    <h1>DMI Release: {reference_period}</h1>
+    <p><strong>Data Through:</strong> {data_through}</p>
+    <p><strong>Published:</strong> {datetime.now().strftime('%Y-%m-%d')}</p>
+    
+    <h2>Key Metrics</h2>
+    <div class="metrics">
+        <div class="metric-row">
+            <span class="metric-label">DMI Median:</span>
+            <span class="metric-value">{metrics.get('dmi_median', 0):.2f}</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">DMI Stress:</span>
+            <span class="metric-value">{metrics.get('dmi_stress', 0):.2f}</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Income Pressure Gap:</span>
+            <span class="metric-value">{metrics.get('income_pressure_gap', 0):.2f}</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Unemployment (U-3):</span>
+            <span class="metric-value">{metrics.get('unemployment', 0):.1f}%</span>
+        </div>
+    </div>
+    
+    <h2>Summary</h2>
+    <div class="summary">
+        <p>{summary if summary else 'Full release data available in the accompanying CSV and Parquet files.'}</p>
+    </div>
+</body>
+</html>"""
+    
+    return html
+
+
+def save_release_note(html_content: str, reference_period: str):
+    """Save release note HTML file."""
+    release_dir = Path("data/outputs/releases")
+    release_dir.mkdir(parents=True, exist_ok=True)
+    
+    release_path = release_dir / f"{reference_period}.html"
+    with open(release_path, 'w') as f:
+        f.write(html_content)
+    
+    print(f"✓ Saved release note to {release_path}")
+    return release_path
+
+
+def update_releases_json(
+    reference_period: str,
+    metrics: dict,
+    summary: str = "",
+    methodology_version: str = "v0.1.11"
+):
+    """Update releases.json with the new release metadata."""
+    releases_path = Path("data/outputs/releases.json")
+    
+    # Load existing releases or create new list
+    if releases_path.exists():
+        with open(releases_path, 'r') as f:
+            releases = json.load(f)
+    else:
+        releases = []
+    
+    # Convert reference period to data_through format
+    year, month = reference_period.split('-')
+    months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December']
+    month_name = months[int(month) - 1]
+    data_through = f"{month_name} {year}"
+    
+    # Create new release entry
+    new_release = {
+        "release_id": reference_period,
+        "data_through": data_through,
+        "published_at": datetime.now().strftime('%Y-%m-%d'),
+        "status": "current",
+        "methodology_version": methodology_version,
+        "csv_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
+        "parquet_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
+        "release_note_url": f"/wp-content/uploads/dmi/releases/{reference_period}.html",
+        "metrics": {
+            "dmi_median": metrics.get('dmi_median', 0),
+            "dmi_stress": metrics.get('dmi_stress', 0),
+            "income_pressure_gap": metrics.get('income_pressure_gap', 0),
+            "unemployment": metrics.get('unemployment', 0)
+        },
+        "summary": summary
+    }
+    
+    # Remove "current" status from any existing releases and add new one at top
+    for release in releases:
+        if release.get('status') == 'current':
+            release['status'] = 'archived'
+    
+    releases.insert(0, new_release)
+    
+    # Save updated releases.json
+    with open(releases_path, 'w') as f:
+        json.dump(releases, f, indent=2)
+    
+    print(f"✓ Updated releases.json with new release {reference_period}")
+    return releases_path
+
+
+def update_latest_json(
+    reference_period: str,
+    metrics: dict,
+    summary: str = "",
+    methodology_version: str = "v0.1.11"
+):
+    """Update latest.json with the most recent release metadata."""
+    latest_path = Path("data/outputs/latest.json")
+    
+    # Convert reference period to data_through format
+    year, month = reference_period.split('-')
+    months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December']
+    month_name = months[int(month) - 1]
+    data_through = f"{month_name} {year}"
+    
+    latest = {
+        "release_id": reference_period,
+        "data_through": data_through,
+        "published_at": datetime.now().strftime('%Y-%m-%d'),
+        "status": "current",
+        "methodology_version": methodology_version,
+        "csv_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
+        "parquet_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
+        "release_note_url": f"/wp-content/uploads/dmi/releases/{reference_period}.html",
+        "metrics": {
+            "dmi_median": metrics.get('dmi_median', 0),
+            "dmi_stress": metrics.get('dmi_stress', 0),
+            "income_pressure_gap": metrics.get('income_pressure_gap', 0),
+            "unemployment": metrics.get('unemployment', 0)
+        },
+        "summary": summary
+    }
+    
+    with open(latest_path, 'w') as f:
+        json.dump(latest, f, indent=2)
+    
+    print(f"✓ Updated latest.json with release {reference_period}")
+    return latest_path
+
+
 def main():
     print("=" * 80)
     print("DMI v0.1.8 - Full Integration Test")
@@ -221,6 +443,59 @@ def main():
     )
     
     print_qa_summary(qa_report)
+    
+    # Create CSV and Parquet files
+    print("\n" + "=" * 80)
+    print("Creating CSV and Parquet files...")
+    print("=" * 80)
+    
+    csv_path, parquet_path = export_csv_parquet(results, reference_period)
+    
+    # Generate release note HTML
+    print("\n" + "=" * 80)
+    print("Generating release note HTML...")
+    print("=" * 80)
+    
+    summary = "Full release data available in the accompanying CSV and Parquet files."
+    release_html = generate_release_note_html(
+        reference_period=reference_period,
+        metrics={
+            'dmi_median': results['summary_metrics']['dmi_median'],
+            'dmi_stress': results['summary_metrics']['dmi_stress'],
+            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
+            'unemployment': results['dmi_by_group'][0]['slack']  # U-3 rate from Q1
+        },
+        summary=summary
+    )
+    save_release_note(release_html, reference_period)
+    
+    # Update releases.json
+    print("\n" + "=" * 80)
+    print("Updating releases.json and latest.json...")
+    print("=" * 80)
+    
+    update_releases_json(
+        reference_period=reference_period,
+        metrics={
+            'dmi_median': results['summary_metrics']['dmi_median'],
+            'dmi_stress': results['summary_metrics']['dmi_stress'],
+            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
+            'unemployment': results['dmi_by_group'][0]['slack']
+        },
+        summary=summary
+    )
+    
+    # Update latest.json
+    update_latest_json(
+        reference_period=reference_period,
+        metrics={
+            'dmi_median': results['summary_metrics']['dmi_median'],
+            'dmi_stress': results['summary_metrics']['dmi_stress'],
+            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
+            'unemployment': results['dmi_by_group'][0]['slack']
+        },
+        summary=summary
+    )
     
     # Print summary
     print("\n" + "=" * 80)
