@@ -1,0 +1,252 @@
+{
+  "reference_period": "2025-12",
+  "parameters": {
+    "alpha": 0.5,
+    "scale_factor": 2.0,
+    "weights_year": 2023
+  },
+  "dmi_by_group": [
+    {
+      "group_id": "Q1",
+      "dmi": 7.182520631286057,
+      "inflation": 2.782520631286056,
+      "slack": 4.4
+    },
+    {
+      "group_id": "Q2",
+      "dmi": 7.15442499576406,
+      "inflation": 2.75442499576406,
+      "slack": 4.4
+    },
+    {
+      "group_id": "Q3",
+      "dmi": 7.060246136848632,
+      "inflation": 2.660246136848632,
+      "slack": 4.4
+    },
+    {
+      "group_id": "Q4",
+      "dmi": 7.033687365172755,
+      "inflation": 2.6336873651727544,
+      "slack": 4.4
+    },
+    {
+      "group_id": "Q5",
+      "dmi": 6.966200778890826,
+      "inflation": 2.566200778890826,
+      "slack": 4.4
+    }
+  ],
+  "summary_metrics": {
+    "dmi_median": 7.060246136848632,
+    "dmi_stress": 7.182520631286057,
+    "dmi_dispersion_q5_q1": -0.21631985239523033
+  },
+  "inflation_contributions": [
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_APPAREL",
+      "contribution": 0.01385361141766678
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_EDU_COMM",
+      "contribution": 0.018040423494847937
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "contribution": 0.9356765238856306
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_HOUSING",
+      "contribution": 1.2009781324025433
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_MEDICAL_CARE",
+      "contribution": 0.26836090371104154
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_OTHER",
+      "contribution": 0.17705814990377297
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_RECREATION",
+      "contribution": 0.11952291211416471
+    },
+    {
+      "group_id": "Q1",
+      "category_id": "CPI_TRANSPORTATION",
+      "contribution": 0.049029974356388256
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_APPAREL",
+      "contribution": 0.013056452569433141
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_EDU_COMM",
+      "contribution": 0.014488958121982401
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "contribution": 0.907715682750617
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_HOUSING",
+      "contribution": 1.1694731088848043
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_MEDICAL_CARE",
+      "contribution": 0.267082453682754
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_OTHER",
+      "contribution": 0.20486494439944175
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_RECREATION",
+      "contribution": 0.1210133155711457
+    },
+    {
+      "group_id": "Q2",
+      "category_id": "CPI_TRANSPORTATION",
+      "contribution": 0.05673007978388176
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_APPAREL",
+      "contribution": 0.013525634841429346
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_EDU_COMM",
+      "contribution": 0.01629615596129671
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "contribution": 0.8895776681132933
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_HOUSING",
+      "contribution": 1.100205536472807
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_MEDICAL_CARE",
+      "contribution": 0.2459378080160499
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_OTHER",
+      "contribution": 0.19733364006627577
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_RECREATION",
+      "contribution": 0.1306964661838509
+    },
+    {
+      "group_id": "Q3",
+      "category_id": "CPI_TRANSPORTATION",
+      "contribution": 0.06667322719362881
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_APPAREL",
+      "contribution": 0.015924586772466404
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_EDU_COMM",
+      "contribution": 0.014425937446958966
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "contribution": 0.8873995651870982
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_HOUSING",
+      "contribution": 1.0629610178611235
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_MEDICAL_CARE",
+      "contribution": 0.2350309756382083
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_OTHER",
+      "contribution": 0.19961258744456373
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_RECREATION",
+      "contribution": 0.14860592498886402
+    },
+    {
+      "group_id": "Q4",
+      "category_id": "CPI_TRANSPORTATION",
+      "contribution": 0.06972676983347062
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_APPAREL",
+      "contribution": 0.015959447197769563
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_EDU_COMM",
+      "contribution": 0.021894797663410147
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_FOOD_BEVERAGES",
+      "contribution": 0.8122716186550084
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_HOUSING",
+      "contribution": 1.0534342280189042
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_MEDICAL_CARE",
+      "contribution": 0.20293149102505592
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_OTHER",
+      "contribution": 0.19009234042964926
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_RECREATION",
+      "contribution": 0.19670163430424095
+    },
+    {
+      "group_id": "Q5",
+      "category_id": "CPI_TRANSPORTATION",
+      "contribution": 0.0729152215967873
+    }
+  ],
+  "metadata": {
+    "computed_at": "2026-01-16T07:20:39.161340Z",
+    "num_groups": 5,
+    "num_categories": 8
+  }
+}
