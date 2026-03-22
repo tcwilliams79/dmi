@@ -284,52 +284,75 @@ def update_releases_json(
     summary: str = "",
     methodology_version: str = "v0.1.11"
 ):
-    """Update releases.json with the new release metadata."""
+    """Update releases.json with the new release metadata conforming to schema."""
     releases_path = Path("data/outputs/releases.json")
     
-    # Load existing releases or create new list
+    # Load existing releases or create new structure
+    releases = []
     if releases_path.exists():
         with open(releases_path, 'r') as f:
-            releases = json.load(f)
-    else:
-        releases = []
+            existing = json.load(f)
+        
+        # Handle both old format (array) and new format (manifest object)
+        if isinstance(existing, dict) and 'releases' in existing:
+            # Already in new format, get the releases array and filter to new schema only
+            for release in existing.get('releases', []):
+                # Only keep releases that have the new schema structure
+                if 'data_through_label' in release and 'urls' in release:
+                    releases.append(release)
+        elif isinstance(existing, list):
+            # Old format - filter and migrate to new schema
+            for release in existing:
+                if 'data_through_label' in release and 'urls' in release:
+                    releases.append(release)
     
-    # Convert reference period to data_through format
+    # Convert reference period to data_through_label format
     year, month = reference_period.split('-')
     months = ['January', 'February', 'March', 'April', 'May', 'June',
               'July', 'August', 'September', 'October', 'November', 'December']
     month_name = months[int(month) - 1]
-    data_through = f"{month_name} {year}"
+    data_through_label = f"{month_name} {year}"
     
     # Create new release entry
     new_release = {
         "release_id": reference_period,
-        "data_through": data_through,
+        "data_through_label": data_through_label,
         "published_at": datetime.now().strftime('%Y-%m-%d'),
         "status": "current",
         "methodology_version": methodology_version,
-        "csv_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
-        "parquet_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
-        "release_note_url": f"/wp-content/uploads/dmi/releases/{reference_period}.html",
+        "summary": summary,
+        "urls": {
+            "csv": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
+            "parquet": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
+            "release_note": f"/wp-content/uploads/dmi/releases/{reference_period}.html"
+        },
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
             "income_pressure_gap": metrics.get('income_pressure_gap', 0),
             "unemployment": metrics.get('unemployment', 0)
-        },
-        "summary": summary
+        }
     }
     
-    # Remove "current" status from any existing releases and add new one at top
+    # Mark any existing current releases as superseded
     for release in releases:
         if release.get('status') == 'current':
-            release['status'] = 'archived'
+            release['status'] = 'superseded'
     
+    # Add new release at top
     releases.insert(0, new_release)
+    
+    # Build the releases.json structure
+    releases_manifest = {
+        "schema_version": "1.0.0",
+        "generated_at": datetime.now().isoformat() + "Z",
+        "current_release_id": reference_period,
+        "releases": releases
+    }
     
     # Save updated releases.json
     with open(releases_path, 'w') as f:
-        json.dump(releases, f, indent=2)
+        json.dump(releases_manifest, f, indent=2)
     
     print(f"✓ Updated releases.json with new release {reference_period}")
     return releases_path
@@ -341,36 +364,46 @@ def update_latest_json(
     summary: str = "",
     methodology_version: str = "v0.1.11"
 ):
-    """Update latest.json with the most recent release metadata."""
+    """Update latest.json with the most recent release metadata conforming to schema."""
     latest_path = Path("data/outputs/latest.json")
     
-    # Convert reference period to data_through format
+    # Convert reference period to data_through_label format
     year, month = reference_period.split('-')
     months = ['January', 'February', 'March', 'April', 'May', 'June',
               'July', 'August', 'September', 'October', 'November', 'December']
     month_name = months[int(month) - 1]
-    data_through = f"{month_name} {year}"
+    data_through_label = f"{month_name} {year}"
     
-    latest = {
+    latest_release = {
         "release_id": reference_period,
-        "data_through": data_through,
+        "data_through_label": data_through_label,
         "published_at": datetime.now().strftime('%Y-%m-%d'),
         "status": "current",
         "methodology_version": methodology_version,
-        "csv_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
-        "parquet_url": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
-        "release_note_url": f"/wp-content/uploads/dmi/releases/{reference_period}.html",
+        "summary": summary,
+        "urls": {
+            "csv": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
+            "parquet": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
+            "release_note": f"/wp-content/uploads/dmi/releases/{reference_period}.html"
+        },
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
             "income_pressure_gap": metrics.get('income_pressure_gap', 0),
             "unemployment": metrics.get('unemployment', 0)
-        },
-        "summary": summary
+        }
+    }
+    
+    # Build the latest.json structure following the same schema as releases.json
+    latest_manifest = {
+        "schema_version": "1.0.0",
+        "generated_at": datetime.now().isoformat() + "Z",
+        "current_release_id": reference_period,
+        "releases": [latest_release]
     }
     
     with open(latest_path, 'w') as f:
-        json.dump(latest, f, indent=2)
+        json.dump(latest_manifest, f, indent=2)
     
     print(f"✓ Updated latest.json with release {reference_period}")
     return latest_path
