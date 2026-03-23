@@ -1,0 +1,272 @@
+{
+  "data": [
+    {
+      "period": "2023-01",
+      "CPI_APPAREL": 127.875,
+      "CPI_EDU_COMM": 145.336,
+      "CPI_FOOD_BEVERAGES": 316.705,
+      "CPI_HOUSING": 313.747,
+      "CPI_MEDICAL_CARE": 551.422,
+      "CPI_OTHER": 299.17,
+      "CPI_RECREATION": 134.077,
+      "CPI_TRANSPORTATION": 257.874
+    },
+    {
+      "period": "2023-02",
+      "CPI_APPAREL": 132.039,
+      "CPI_EDU_COMM": 145.407,
+      "CPI_FOOD_BEVERAGES": 318.05,
+      "CPI_HOUSING": 315.431,
+      "CPI_MEDICAL_CARE": 549.487,
+      "CPI_OTHER": 300.84,
+      "CPI_RECREATION": 135.519,
+      "CPI_TRANSPORTATION": 259.712
+    },
+    {
+      "period": "2023-03",
+      "CPI_APPAREL": 133.112,
+      "CPI_EDU_COMM": 145.481,
+      "CPI_FOOD_BEVERAGES": 318.338,
+      "CPI_HOUSING": 316.514,
+      "CPI_MEDICAL_CARE": 547.805,
+      "CPI_OTHER": 301.836,
+      "CPI_RECREATION": 135.693,
+      "CPI_TRANSPORTATION": 261.969
+    },
+    {
+      "period": "2023-04",
+      "CPI_APPAREL": 131.762,
+      "CPI_EDU_COMM": 145.449,
+      "CPI_FOOD_BEVERAGES": 319.085,
+      "CPI_HOUSING": 317.278,
+      "CPI_MEDICAL_CARE": 547.219,
+      "CPI_OTHER": 303.363,
+      "CPI_RECREATION": 136.375,
+      "CPI_TRANSPORTATION": 267.402
+    },
+    {
+      "period": "2023-05",
+      "CPI_APPAREL": 131.382,
+      "CPI_EDU_COMM": 145.205,
+      "CPI_FOOD_BEVERAGES": 319.811,
+      "CPI_HOUSING": 318.205,
+      "CPI_MEDICAL_CARE": 547.42,
+      "CPI_OTHER": 304.127,
+      "CPI_RECREATION": 136.28,
+      "CPI_TRANSPORTATION": 268.862
+    },
+    {
+      "period": "2023-06",
+      "CPI_APPAREL": 130.51,
+      "CPI_EDU_COMM": 144.9,
+      "CPI_FOOD_BEVERAGES": 320.12,
+      "CPI_HOUSING": 320.002,
+      "CPI_MEDICAL_CARE": 547.432,
+      "CPI_OTHER": 305.109,
+      "CPI_RECREATION": 136.3,
+      "CPI_TRANSPORTATION": 270.146
+    },
+    {
+      "period": "2023-07",
+      "CPI_APPAREL": 129.172,
+      "CPI_EDU_COMM": 144.919,
+      "CPI_FOOD_BEVERAGES": 321.02,
+      "CPI_HOUSING": 321.087,
+      "CPI_MEDICAL_CARE": 546.698,
+      "CPI_OTHER": 305.691,
+      "CPI_RECREATION": 136.401,
+      "CPI_TRANSPORTATION": 270.602
+    },
+    {
+      "period": "2023-08",
+      "CPI_APPAREL": 131.262,
+      "CPI_EDU_COMM": 145.174,
+      "CPI_FOOD_BEVERAGES": 321.578,
+      "CPI_HOUSING": 321.894,
+      "CPI_MEDICAL_CARE": 548.082,
+      "CPI_OTHER": 307.026,
+      "CPI_RECREATION": 136.102,
+      "CPI_TRANSPORTATION": 274.22
+    },
+    {
+      "period": "2023-09",
+      "CPI_APPAREL": 133.157,
+      "CPI_EDU_COMM": 145.598,
+      "CPI_FOOD_BEVERAGES": 322.249,
+      "CPI_HOUSING": 323.563,
+      "CPI_MEDICAL_CARE": 548.431,
+      "CPI_OTHER": 307.789,
+      "CPI_RECREATION": 136.687,
+      "CPI_TRANSPORTATION": 272.517
+    },
+    {
+      "period": "2023-10",
+      "CPI_APPAREL": 132.786,
+      "CPI_EDU_COMM": 145.295,
+      "CPI_FOOD_BEVERAGES": 323.262,
+      "CPI_HOUSING": 323.964,
+      "CPI_MEDICAL_CARE": 549.762,
+      "CPI_OTHER": 307.671,
+      "CPI_RECREATION": 136.726,
+      "CPI_TRANSPORTATION": 270.027
+    },
+    {
+      "period": "2023-11",
+      "CPI_APPAREL": 128.093,
+      "CPI_EDU_COMM": 144.743,
+      "CPI_FOOD_BEVERAGES": 322.703,
+      "CPI_HOUSING": 324.735,
+      "CPI_MEDICAL_CARE": 551.769,
+      "CPI_OTHER": 307.051,
+      "CPI_RECREATION": 136.292,
+      "CPI_TRANSPORTATION": 267.035
+    },
+    {
+      "period": "2023-12",
+      "CPI_APPAREL": 125.794,
+      "CPI_EDU_COMM": 144.806,
+      "CPI_FOOD_BEVERAGES": 322.933,
+      "CPI_HOUSING": 325.64,
+      "CPI_MEDICAL_CARE": 553.485,
+      "CPI_OTHER": 306.746,
+      "CPI_RECREATION": 136.811,
+      "CPI_TRANSPORTATION": 263.375
+    },
+    {
+      "period": "2024-01",
+      "CPI_APPAREL": 127.946,
+      "CPI_EDU_COMM": 145.37,
+      "CPI_FOOD_BEVERAGES": 324.782,
+      "CPI_HOUSING": 328.222,
+      "CPI_MEDICAL_CARE": 557.215,
+      "CPI_OTHER": 308.417,
+      "CPI_RECREATION": 137.8,
+      "CPI_TRANSPORTATION": 262.11
+    },
+    {
+      "period": "2024-02",
+      "CPI_APPAREL": 131.985,
+      "CPI_EDU_COMM": 145.966,
+      "CPI_FOOD_BEVERAGES": 325.19,
+      "CPI_HOUSING": 329.704,
+      "CPI_MEDICAL_CARE": 557.236,
+      "CPI_OTHER": 310.326,
+      "CPI_RECREATION": 138.322,
+      "CPI_TRANSPORTATION": 266.638
+    },
+    {
+      "period": "2024-03",
+      "CPI_APPAREL": 133.64,
+      "CPI_EDU_COMM": 145.822,
+      "CPI_FOOD_BEVERAGES": 325.491,
+      "CPI_HOUSING": 331.247,
+      "CPI_MEDICAL_CARE": 559.935,
+      "CPI_OTHER": 312.332,
+      "CPI_RECREATION": 138.183,
+      "CPI_TRANSPORTATION": 272.485
+    },
+    {
+      "period": "2024-04",
+      "CPI_APPAREL": 133.502,
+      "CPI_EDU_COMM": 146.04,
+      "CPI_FOOD_BEVERAGES": 326.107,
+      "CPI_HOUSING": 331.688,
+      "CPI_MEDICAL_CARE": 561.612,
+      "CPI_OTHER": 313.548,
+      "CPI_RECREATION": 138.412,
+      "CPI_TRANSPORTATION": 276.687
+    },
+    {
+      "period": "2024-05",
+      "CPI_APPAREL": 132.433,
+      "CPI_EDU_COMM": 145.955,
+      "CPI_FOOD_BEVERAGES": 326.545,
+      "CPI_HOUSING": 332.777,
+      "CPI_MEDICAL_CARE": 564.249,
+      "CPI_OTHER": 314.069,
+      "CPI_RECREATION": 138.118,
+      "CPI_TRANSPORTATION": 276.623
+    },
+    {
+      "period": "2024-06",
+      "CPI_APPAREL": 131.525,
+      "CPI_EDU_COMM": 145.902,
+      "CPI_FOOD_BEVERAGES": 327.144,
+      "CPI_HOUSING": 334.087,
+      "CPI_MEDICAL_CARE": 565.301,
+      "CPI_OTHER": 314.175,
+      "CPI_RECREATION": 138.115,
+      "CPI_TRANSPORTATION": 273.579
+    },
+    {
+      "period": "2024-07",
+      "CPI_APPAREL": 129.466,
+      "CPI_EDU_COMM": 146.189,
+      "CPI_FOOD_BEVERAGES": 327.956,
+      "CPI_HOUSING": 335.056,
+      "CPI_MEDICAL_CARE": 564.039,
+      "CPI_OTHER": 314.54,
+      "CPI_RECREATION": 138.277,
+      "CPI_TRANSPORTATION": 273.326
+    },
+    {
+      "period": "2024-08",
+      "CPI_APPAREL": 131.683,
+      "CPI_EDU_COMM": 146.643,
+      "CPI_FOOD_BEVERAGES": 328.156,
+      "CPI_HOUSING": 335.931,
+      "CPI_MEDICAL_CARE": 564.407,
+      "CPI_OTHER": 314.796,
+      "CPI_RECREATION": 138.214,
+      "CPI_TRANSPORTATION": 271.391
+    },
+    {
+      "period": "2024-09",
+      "CPI_APPAREL": 135.537,
+      "CPI_EDU_COMM": 146.928,
+      "CPI_FOOD_BEVERAGES": 329.417,
+      "CPI_HOUSING": 336.776,
+      "CPI_MEDICAL_CARE": 566.266,
+      "CPI_OTHER": 315.301,
+      "CPI_RECREATION": 137.651,
+      "CPI_TRANSPORTATION": 269.604
+    },
+    {
+      "period": "2024-10",
+      "CPI_APPAREL": 133.179,
+      "CPI_EDU_COMM": 146.451,
+      "CPI_FOOD_BEVERAGES": 330.051,
+      "CPI_HOUSING": 337.47,
+      "CPI_MEDICAL_CARE": 567.87,
+      "CPI_OTHER": 315.664,
+      "CPI_RECREATION": 138.12,
+      "CPI_TRANSPORTATION": 269.724
+    },
+    {
+      "period": "2024-11",
+      "CPI_APPAREL": 129.542,
+      "CPI_EDU_COMM": 145.79,
+      "CPI_FOOD_BEVERAGES": 330.26,
+      "CPI_HOUSING": 338.048,
+      "CPI_MEDICAL_CARE": 568.773,
+      "CPI_OTHER": 315.493,
+      "CPI_RECREATION": 138.341,
+      "CPI_TRANSPORTATION": 268.45
+    },
+    {
+      "period": "2024-12",
+      "CPI_APPAREL": 127.354,
+      "CPI_EDU_COMM": 145.696,
+      "CPI_FOOD_BEVERAGES": 330.812,
+      "CPI_HOUSING": 338.883,
+      "CPI_MEDICAL_CARE": 569.189,
+      "CPI_OTHER": 315.605,
+      "CPI_RECREATION": 138.343,
+      "CPI_TRANSPORTATION": 267.606
+    }
+  ],
+  "metadata": {
+    "dataset": "BLS CPI-U",
+    "series_count": 8
+  }
+}

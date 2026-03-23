@@ -40,7 +40,7 @@
   "summary_metrics": {
     "dmi_median": 6.8540624815102555,
     "dmi_stress": 7.009919860204779,
-    "dmi_dispersion_q5_q1": -0.2779924571955972
+    "dmi_income_pressure_gap": 0.2779924571955972
   },
   "inflation_contributions": [
     {
@@ -245,7 +245,7 @@
     }
   ],
   "metadata": {
-    "computed_at": "2026-03-15T10:26:43.364318Z",
+    "computed_at": "2026-03-22T22:33:02.460226Z",
     "num_groups": 5,
     "num_categories": 8
   }

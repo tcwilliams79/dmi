@@ -95,9 +95,9 @@ def backfill_releases(output_dir: str = "data/outputs"):
                 "methodology_version": "v0.1.11",
                 "summary": "Full release data available in the accompanying CSV and Parquet files.",
                 "urls": {
-                    "csv": f"/wp-content/uploads/dmi/dmi-{release_id}.csv",
-                    "parquet": f"/wp-content/uploads/dmi/dmi-{release_id}.parquet",
-                    "release_note": f"/wp-content/uploads/dmi/releases/{release_id}.html"
+                    "csv": f"/data/outputs/dmi-{release_id}.csv",
+                    "parquet": f"/data/outputs/dmi-{release_id}.parquet",
+                    "release_note": f"/data/outputs/releases/{release_id}.html"
                 },
                 "metrics": {
                     "dmi_median": summary_metrics.get('dmi_median', 0),

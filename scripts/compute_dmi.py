@@ -324,9 +324,9 @@ def update_releases_json(
         "methodology_version": methodology_version,
         "summary": summary,
         "urls": {
-            "csv": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
-            "parquet": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
-            "release_note": f"/wp-content/uploads/dmi/releases/{reference_period}.html"
+            "csv": f"/data/outputs/dmi-{reference_period}.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
+            "release_note": f"/data/outputs/releases/{reference_period}.html"
         },
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
@@ -384,9 +384,9 @@ def update_latest_json(
         "methodology_version": methodology_version,
         "summary": summary,
         "urls": {
-            "csv": f"/wp-content/uploads/dmi/dmi-{reference_period}.csv",
-            "parquet": f"/wp-content/uploads/dmi/dmi-{reference_period}.parquet",
-            "release_note": f"/wp-content/uploads/dmi/releases/{reference_period}.html"
+            "csv": f"/data/outputs/dmi-{reference_period}.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
+            "release_note": f"/data/outputs/releases/{reference_period}.html"
         },
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
