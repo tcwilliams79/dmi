@@ -1,6 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-03-22T19:41:59.363849Z",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-03-22T20:56:58.614127Z",
   "current_release_id": "2026-02",
   "releases": [
     {
@@ -9,7 +9,7 @@
       "published_at": "2026-03-22",
       "status": "current",
       "methodology_version": "v0.1.11",
-      "summary": "Full release data available in the accompanying CSV and Parquet files.",
+      "summary": "Economic pressure rose modestly in February 2026. Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap narrowed slightly from the prior month. The labor-market backdrop also softened slightly, with unemployment edging up to 4.4%.",
       "urls": {
         "csv": "/data/outputs/dmi-2026-02.csv",
         "parquet": "/data/outputs/dmi-2026-02.parquet",
@@ -20,6 +20,17 @@
         "dmi_stress": 7.009919860204779,
         "income_pressure_gap": 0.2779924571955972,
         "unemployment": 4.4
+      },
+      "summary_facts": {
+        "lower_income_more_pressure": true,
+        "higher_income_more_pressure": false,
+        "pressure_similar_across_bottom_top": false,
+        "median_delta_mom": 0.17096627861884528,
+        "stress_delta_mom": 0.14980681985498112,
+        "gap_delta_mom": -0.01779117124347529,
+        "unemployment_delta_mom": 0.10000000000000053,
+        "overall_direction": "rose_modestly",
+        "gap_direction": "gap_narrowed_slightly"
       }
     }
   ]

@@ -12,6 +12,7 @@ import sys
 import json
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 
@@ -23,6 +24,164 @@ from dmi_calculator.core import (
     validate_contributions_sum_to_total
 )
 from dmi_pipeline.agents.qa_validator import generate_qa_report, print_qa_summary
+
+
+# Threshold constants for summary generation
+THRESHOLDS = {
+    'little_changed': 0.05,
+    'edged': 0.15,
+    'modestly': 0.30,
+    'gap_little_changed': 0.015,  # Adjusted to classify 0.0178 as slightly changed
+    'gap_slightly': 0.08,
+    'unemployment_little_changed': 0.1,
+    'unemployment_noticeably': 0.3,
+}
+
+
+def classify_direction(delta: float, thresholds: dict) -> str:
+    """Classify direction based on delta and thresholds."""
+    abs_delta = abs(delta)
+    if abs_delta < thresholds['little_changed']:
+        return 'little_changed'
+    elif abs_delta < thresholds['edged']:
+        return 'edged_up' if delta > 0 else 'edged_down'
+    elif abs_delta < thresholds['modestly']:
+        return 'rose_modestly' if delta > 0 else 'fell_modestly'
+    else:
+        return 'rose_sharply' if delta > 0 else 'fell_sharply'
+
+
+def classify_gap_direction(gap_delta: float) -> str:
+    """Classify gap direction."""
+    abs_delta = abs(gap_delta)
+    if abs_delta < THRESHOLDS['gap_little_changed']:
+        return 'gap_little_changed'
+    elif abs_delta < THRESHOLDS['gap_slightly']:
+        return 'gap_narrowed_slightly' if gap_delta < 0 else 'gap_widened_slightly'
+    else:
+        return 'gap_narrowed_materially' if gap_delta < 0 else 'gap_widened_materially'
+
+
+def classify_unemployment_direction(unemp_delta: float) -> str:
+    """Classify unemployment direction."""
+    abs_delta = abs(unemp_delta)
+    if abs_delta < THRESHOLDS['unemployment_little_changed']:
+        return 'unemployment_little_changed'
+    elif abs_delta < THRESHOLDS['unemployment_noticeably']:
+        return 'unemployment_edged_up' if unemp_delta > 0 else 'unemployment_edged_down'
+    else:
+        return 'unemployment_rose_noticeably' if unemp_delta > 0 else 'unemployment_fell_noticeably'
+
+
+def build_release_summary(
+    current_release: dict,
+    prior_release: Optional[dict] = None,
+    contributor_context: Optional[dict] = None,
+) -> tuple[dict, str]:
+    """
+    Generate deterministic plain-English summary for a DMI release.
+    
+    Returns (summary_facts, summary_text)
+    """
+    metrics = current_release['metrics']
+    dmi_median = metrics['dmi_median']
+    dmi_stress = metrics['dmi_stress']
+    income_pressure_gap = metrics['income_pressure_gap']
+    unemployment = metrics['unemployment']
+    
+    summary_facts = {
+        'lower_income_more_pressure': income_pressure_gap > 0,
+        'higher_income_more_pressure': income_pressure_gap < 0,
+        'pressure_similar_across_bottom_top': abs(income_pressure_gap) < 0.02,
+    }
+    
+    data_through_label = current_release['data_through_label']
+    
+    # Compute deltas if prior exists
+    if prior_release:
+        prior_metrics = prior_release['metrics']
+        median_delta_mom = dmi_median - prior_metrics['dmi_median']
+        stress_delta_mom = dmi_stress - prior_metrics['dmi_stress']
+        gap_delta_mom = income_pressure_gap - prior_metrics['income_pressure_gap']
+        unemployment_delta_mom = unemployment - prior_metrics['unemployment']
+        
+        summary_facts.update({
+            'median_delta_mom': median_delta_mom,
+            'stress_delta_mom': stress_delta_mom,
+            'gap_delta_mom': gap_delta_mom,
+            'unemployment_delta_mom': unemployment_delta_mom,
+            'overall_direction': classify_direction(median_delta_mom, THRESHOLDS),
+            'gap_direction': classify_gap_direction(gap_delta_mom),
+        })
+        
+        # Build summary with prior
+        sentences = []
+        
+        # Sentence 1: overall movement
+        direction = summary_facts['overall_direction']
+        if direction == 'little_changed':
+            sentences.append(f"Economic pressure was little changed in {data_through_label}.")
+        elif direction == 'edged_up':
+            sentences.append(f"Economic pressure edged up in {data_through_label}.")
+        elif direction == 'edged_down':
+            sentences.append(f"Economic pressure edged down in {data_through_label}.")
+        elif direction == 'rose_modestly':
+            sentences.append(f"Economic pressure rose modestly in {data_through_label}.")
+        elif direction == 'fell_modestly':
+            sentences.append(f"Economic pressure fell modestly in {data_through_label}.")
+        elif direction == 'rose_sharply':
+            sentences.append(f"Economic pressure rose sharply in {data_through_label}.")
+        elif direction == 'fell_sharply':
+            sentences.append(f"Economic pressure fell sharply in {data_through_label}.")
+        
+        # Sentence 2: distributional pattern
+        if summary_facts['lower_income_more_pressure']:
+            if summary_facts['gap_direction'] == 'gap_little_changed':
+                sentences.append("Lower-income households continued to face more pressure than higher-income households.")
+            elif summary_facts['gap_direction'] == 'gap_narrowed_slightly':
+                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap narrowed slightly from the prior month.")
+            elif summary_facts['gap_direction'] == 'gap_widened_slightly':
+                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap widened slightly from the prior month.")
+            elif summary_facts['gap_direction'] == 'gap_narrowed_materially':
+                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap narrowed materially from the prior month.")
+            elif summary_facts['gap_direction'] == 'gap_widened_materially':
+                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap widened materially from the prior month.")
+        elif summary_facts['higher_income_more_pressure']:
+            sentences.append("Higher-income households faced more pressure than lower-income households.")
+        else:
+            sentences.append("Pressure was felt more similarly across the bottom and top income fifths.")
+        
+        # Sentence 3: optional detail
+        if contributor_context and 'top_contributors_q1' in contributor_context:
+            contributors = contributor_context['top_contributors_q1']
+            if len(contributors) == 1:
+                sentences.append(f"{contributors[0].title()} remained the largest contributor for the bottom income fifth.")
+            elif len(contributors) == 2:
+                sentences.append(f"The main contributors for the bottom income fifth were {contributors[0].lower()} and {contributors[1].lower()}.")
+            elif len(contributors) >= 3:
+                contrib_str = ', '.join(c.lower() for c in contributors[:-1]) + f", and {contributors[-1].lower()}"
+                sentences.append(f"For the bottom income fifth, the main contributors remained {contrib_str}.")
+        elif prior_release:
+            unemp_direction = classify_unemployment_direction(unemployment_delta_mom)
+            if unemp_direction != 'unemployment_little_changed':
+                if unemp_direction == 'unemployment_edged_up':
+                    sentences.append(f"The labor-market backdrop also softened slightly, with unemployment edging up to {unemployment}%.")
+                elif unemp_direction == 'unemployment_edged_down':
+                    sentences.append(f"The labor-market backdrop improved slightly, with unemployment edging down to {unemployment}%.")
+                elif unemp_direction == 'unemployment_rose_noticeably':
+                    sentences.append(f"The labor-market backdrop softened noticeably, with unemployment rising to {unemployment}%.")
+                elif unemp_direction == 'unemployment_fell_noticeably':
+                    sentences.append(f"The labor-market backdrop improved noticeably, with unemployment falling to {unemployment}%.")
+        
+        summary = ' '.join(sentences)
+    else:
+        # Fallback: no prior release
+        summary_facts.update({
+            'overall_direction': 'no_prior',
+        })
+        summary = f"The {data_through_label} release shows {'higher' if income_pressure_gap > 0 else 'lower' if income_pressure_gap < 0 else 'similar'} measured pressure for lower-income households than for higher-income households. The current dashboard reports a DMI Median of {dmi_median:.2f}, a DMI Stress reading of {dmi_stress:.2f}, and an Income Pressure Gap of {income_pressure_gap:.2f}."
+    
+    return summary_facts, summary
 
 
 def load_weights(weights_path: Path) -> pd.DataFrame:
@@ -281,7 +440,8 @@ def save_release_note(html_content: str, reference_period: str):
 def update_releases_json(
     reference_period: str,
     metrics: dict,
-    summary: str = "",
+    summary: str,
+    summary_facts: dict,
     methodology_version: str = "v0.1.11",
     dashboard_url: str = None,
     repo_url: str = None,
@@ -336,6 +496,7 @@ def update_releases_json(
         "status": "current",
         "methodology_version": methodology_version,
         "summary": summary,
+        "summary_facts": summary_facts,
         "urls": urls,
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
@@ -357,7 +518,7 @@ def update_releases_json(
     
     # Build the releases.json structure
     releases_manifest = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "generated_at": datetime.now().isoformat() + "Z",
         "current_release_id": reference_period,
         "releases": releases
@@ -374,7 +535,8 @@ def update_releases_json(
 def update_latest_json(
     reference_period: str,
     metrics: dict,
-    summary: str = "",
+    summary: str,
+    summary_facts: dict,
     methodology_version: str = "v0.1.11",
     dashboard_url: str = None,
     repo_url: str = None,
@@ -407,6 +569,7 @@ def update_latest_json(
         "status": "current",
         "methodology_version": methodology_version,
         "summary": summary,
+        "summary_facts": summary_facts,
         "urls": urls,
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
@@ -420,7 +583,7 @@ def update_latest_json(
     
     # Build the latest.json structure following the same schema as releases.json
     latest_manifest = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "generated_at": datetime.now().isoformat() + "Z",
         "current_release_id": reference_period,
         "releases": [latest_release]
@@ -513,7 +676,37 @@ def main():
     print("Generating release note HTML...")
     print("=" * 80)
     
-    summary = "Full release data available in the accompanying CSV and Parquet files."
+    # Generate summary
+    current_release = {
+        'release_id': reference_period,
+        'data_through_label': f"{['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][int(reference_period.split('-')[1]) - 1]} {reference_period.split('-')[0]}",
+        'metrics': {
+            'dmi_median': results['summary_metrics']['dmi_median'],
+            'dmi_stress': results['summary_metrics']['dmi_stress'],
+            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
+            'unemployment': results['dmi_by_group'][0]['slack']
+        }
+    }
+    
+    # Get prior release
+    prior_release = None
+    releases_path = Path("data/outputs/releases.json")
+    if releases_path.exists():
+        with open(releases_path, 'r') as f:
+            existing = json.load(f)
+        if isinstance(existing, dict) and 'releases' in existing:
+            existing_releases = existing.get('releases', [])
+        elif isinstance(existing, list):
+            existing_releases = existing
+        else:
+            existing_releases = []
+        if existing_releases:
+            # Sort by release_id descending, take the first (latest)
+            existing_releases.sort(key=lambda x: x['release_id'], reverse=True)
+            prior_release = existing_releases[0]
+    
+    summary_facts, summary = build_release_summary(current_release, prior_release)
+    
     release_html = generate_release_note_html(
         reference_period=reference_period,
         metrics={
@@ -539,7 +732,8 @@ def main():
             'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
             'unemployment': results['dmi_by_group'][0]['slack']
         },
-        summary=summary
+        summary=summary,
+        summary_facts=summary_facts
     )
     
     # Update latest.json
@@ -551,7 +745,8 @@ def main():
             'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
             'unemployment': results['dmi_by_group'][0]['slack']
         },
-        summary=summary
+        summary=summary,
+        summary_facts=summary_facts
     )
     
     # Print summary

@@ -1,4 +1,3 @@
-{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DMI Releases Manifest",
   "type": "object",
@@ -35,6 +34,7 @@
           "status",
           "methodology_version",
           "summary",
+          "summary_facts",
           "urls",
           "metrics"
         ],
@@ -60,16 +60,64 @@
           "summary": {
             "type": "string"
           },
+          "summary_facts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "overall_direction": {
+                "type": "string"
+              },
+              "median_delta_mom": {
+                "type": "number"
+              },
+              "stress_delta_mom": {
+                "type": "number"
+              },
+              "gap_delta_mom": {
+                "type": "number"
+              },
+              "unemployment_delta_mom": {
+                "type": "number"
+              },
+              "gap_direction": {
+                "type": "string"
+              },
+              "lower_income_more_pressure": {
+                "type": "boolean"
+              },
+              "higher_income_more_pressure": {
+                "type": "boolean"
+              },
+              "pressure_similar_across_bottom_top": {
+                "type": "boolean"
+              }
+            }
+          },
           "urls": {
             "type": "object",
             "additionalProperties": false,
             "required": ["csv", "parquet", "release_note"],
             "properties": {
-              "csv": { "type": "string", "format": "uri-reference" },
-              "parquet": { "type": "string", "format": "uri-reference" },
-              "release_note": { "type": "string", "format": "uri-reference" },
-              "dashboard": { "type": "string", "format": "uri-reference" },
-              "repo": { "type": "string", "format": "uri-reference" }
+              "csv": {
+                "type": "string",
+                "format": "uri-reference"
+              },
+              "parquet": {
+                "type": "string",
+                "format": "uri-reference"
+              },
+              "release_note": {
+                "type": "string",
+                "format": "uri-reference"
+              },
+              "dashboard": {
+                "type": "string",
+                "format": "uri-reference"
+              },
+              "repo": {
+                "type": "string",
+                "format": "uri-reference"
+              }
             }
           },
           "metrics": {
@@ -82,15 +130,25 @@
               "unemployment"
             ],
             "properties": {
-              "dmi_median": { "type": "number" },
-              "dmi_stress": { "type": "number" },
-              "income_pressure_gap": { "type": "number" },
-              "unemployment": { "type": "number" }
+              "dmi_median": {
+                "type": "number"
+              },
+              "dmi_stress": {
+                "type": "number"
+              },
+              "income_pressure_gap": {
+                "type": "number"
+              },
+              "unemployment": {
+                "type": "number"
+              }
             }
           },
           "notes": {
             "type": "array",
-            "items": { "type": "string" }
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
