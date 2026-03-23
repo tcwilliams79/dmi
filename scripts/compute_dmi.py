@@ -282,7 +282,10 @@ def update_releases_json(
     reference_period: str,
     metrics: dict,
     summary: str = "",
-    methodology_version: str = "v0.1.11"
+    methodology_version: str = "v0.1.11",
+    dashboard_url: str = None,
+    repo_url: str = None,
+    notes: list = None
 ):
     """Update releases.json with the new release metadata conforming to schema."""
     releases_path = Path("data/outputs/releases.json")
@@ -316,6 +319,16 @@ def update_releases_json(
     data_through_label = f"{month_name} {year}"
     
     # Create new release entry
+    urls = {
+        "csv": f"/data/outputs/dmi-{reference_period}.csv",
+        "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
+        "release_note": f"/data/outputs/releases/{reference_period}.html"
+    }
+    if dashboard_url:
+        urls["dashboard"] = dashboard_url
+    if repo_url:
+        urls["repo"] = repo_url
+    
     new_release = {
         "release_id": reference_period,
         "data_through_label": data_through_label,
@@ -323,11 +336,7 @@ def update_releases_json(
         "status": "current",
         "methodology_version": methodology_version,
         "summary": summary,
-        "urls": {
-            "csv": f"/data/outputs/dmi-{reference_period}.csv",
-            "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
-            "release_note": f"/data/outputs/releases/{reference_period}.html"
-        },
+        "urls": urls,
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
@@ -335,6 +344,8 @@ def update_releases_json(
             "unemployment": metrics.get('unemployment', 0)
         }
     }
+    if notes:
+        new_release["notes"] = notes
     
     # Mark any other current releases as superseded
     for release in releases:
@@ -364,7 +375,10 @@ def update_latest_json(
     reference_period: str,
     metrics: dict,
     summary: str = "",
-    methodology_version: str = "v0.1.11"
+    methodology_version: str = "v0.1.11",
+    dashboard_url: str = None,
+    repo_url: str = None,
+    notes: list = None
 ):
     """Update latest.json with the most recent release metadata conforming to schema."""
     latest_path = Path("data/outputs/latest.json")
@@ -376,6 +390,16 @@ def update_latest_json(
     month_name = months[int(month) - 1]
     data_through_label = f"{month_name} {year}"
     
+    urls = {
+        "csv": f"/data/outputs/dmi-{reference_period}.csv",
+        "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
+        "release_note": f"/data/outputs/releases/{reference_period}.html"
+    }
+    if dashboard_url:
+        urls["dashboard"] = dashboard_url
+    if repo_url:
+        urls["repo"] = repo_url
+    
     latest_release = {
         "release_id": reference_period,
         "data_through_label": data_through_label,
@@ -383,11 +407,7 @@ def update_latest_json(
         "status": "current",
         "methodology_version": methodology_version,
         "summary": summary,
-        "urls": {
-            "csv": f"/data/outputs/dmi-{reference_period}.csv",
-            "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
-            "release_note": f"/data/outputs/releases/{reference_period}.html"
-        },
+        "urls": urls,
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
@@ -395,6 +415,8 @@ def update_latest_json(
             "unemployment": metrics.get('unemployment', 0)
         }
     }
+    if notes:
+        latest_release["notes"] = notes
     
     # Build the latest.json structure following the same schema as releases.json
     latest_manifest = {
