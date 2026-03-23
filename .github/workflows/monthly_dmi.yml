@@ -131,6 +131,14 @@ jobs:
           # Copy published timeseries data
           cp data/outputs/published/*.json deploy/data/outputs/published/
           
+          # Check if dashboard.html has been changed in the recent commits and copy if so
+          if git log --oneline -5 --name-only | grep -q "^dashboard\.html$"; then
+            echo "📊 Dashboard has been modified recently, including in deployment..."
+            cp dashboard.html deploy/
+          else
+            echo "📊 Dashboard not recently modified, skipping deployment"
+          fi
+          
           # List deployment contents
           echo "📁 Deployment package contents:"
           find deploy -type f | head -20
