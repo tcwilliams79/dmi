@@ -1,18 +1,18 @@
 {
   "status": "healthy",
-  "version": "0.1.10",
-  "build_timestamp": "2026-03-23T00:06:26Z",
-  "git_sha": "7797a7f",
-  "latest_period": "2025-12",
+  "version": "0.1.11",
+  "build_timestamp": "2026-03-23T11:32:30Z",
+  "git_sha": "21007bb",
+  "latest_period": "2026-02",
   "data_vintage": "2023",
   "observations_count": 895,
   "last_updated": "2026-03-23",
   "endpoints": {
     "dashboard": "/",
     "timeseries": "/data/outputs/published/dmi_timeseries.json",
-    "latest": "/data/outputs/dmi_release_2025-12.json",
-    "latest_with_ci": "/data/outputs/dmi_release_2025-12_with_ci.json",
-    "latest_u6": "/data/outputs/dmi_release_2025-12_u6.json",
-    "latest_core": "/data/outputs/dmi_release_2025-12_core.json"
+    "latest": "/data/outputs/dmi_release_2026-02.json",
+    "latest_with_ci": "/data/outputs/dmi_release_2024-11_with_ci.json",
+    "latest_u6": "/data/outputs/dmi_release_2024-11_u6.json",
+    "latest_core": "/data/outputs/dmi_release_2024-11_core.json"
   }
 }
