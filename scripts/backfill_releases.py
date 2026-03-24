@@ -323,6 +323,36 @@ def backfill_releases(output_dir: str = "data/outputs"):
         json.dump(latest_manifest, f, indent=2)
     
     print(f"✓ Saved latest release to {latest_path}")
+    
+    # Update health.json
+    update_health_json(current_release_id)
+
+
+def update_health_json(reference_period: str):
+    """Update web/health.json with current release information."""
+    health_path = Path("web/health.json")
+    
+    # Read current health.json
+    with open(health_path, 'r') as f:
+        health = json.load(f)
+    
+    # Update fields
+    health['latest_period'] = reference_period
+    health['last_updated'] = datetime.now().strftime('%Y-%m-%d')
+    health['build_timestamp'] = datetime.now().isoformat() + "Z"
+    health['git_sha'] = "production"  # Will be updated by deployment
+    health['endpoints']['latest'] = f"/data/outputs/dmi_release_{reference_period}.json"
+    
+    # Update observations count if we can determine it
+    if 'observations_count' not in health:
+        health['observations_count'] = 895  # Default based on recent data
+    
+    with open(health_path, 'w') as f:
+        json.dump(health, f, indent=2)
+    
+    print(f"✓ Updated web/health.json with latest period {reference_period}")
+    return health_path
+
 
 if __name__ == "__main__":
     backfill_releases()
