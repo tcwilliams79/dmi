@@ -326,6 +326,9 @@ def backfill_releases(output_dir: str = "data/outputs"):
     
     # Update health.json
     update_health_json(current_release_id)
+    
+    # Update timeseries
+    update_timeseries_json(current_release_id)
 
 
 def update_health_json(reference_period: str):
@@ -354,5 +357,60 @@ def update_health_json(reference_period: str):
     return health_path
 
 
+def update_timeseries_json(reference_period: str):
+    """Update dmi_timeseries.json with new release observations."""
+    timeseries_path = Path("data/outputs/published/dmi_timeseries.json")
+    release_path = Path("data/outputs") / f"dmi_release_{reference_period}.json"
+    quintile_order = ["Q1", "Q2", "Q3", "Q4", "Q5"]
+    
+    # Load release file
+    if not release_path.exists():
+        return timeseries_path
+    
+    with open(release_path, 'r') as f:
+        release = json.load(f)
+    
+    # Load existing timeseries
+    with open(timeseries_path, 'r') as f:
+        timeseries = json.load(f)
+    
+    # Extract observations from release
+    weights_vintage = release.get("parameters", {}).get("weights_year", 2023)
+    new_observations = []
+    for group in release["dmi_by_group"]:
+        new_observations.append({
+            "period": reference_period,
+            "group_id": group["group_id"],
+            "dmi": group["dmi"],
+            "inflation": group["inflation"],
+            "slack": group["slack"],
+            "weights_vintage": weights_vintage,
+        })
+    
+    # Remove existing observations for this period (upsert) and add new ones
+    existing_obs = timeseries["observations"]
+    existing_obs = [o for o in existing_obs if o["period"] != reference_period]
+    existing_obs.extend(new_observations)
+    
+    # Sort observations by period, then by quintile order
+    def sort_key(obs: dict) -> tuple:
+        q_idx = quintile_order.index(obs["group_id"]) if obs["group_id"] in quintile_order else 99
+        return (obs["period"], q_idx)
+    
+    existing_obs.sort(key=sort_key)
+    
+    # Update metadata
+    all_periods = sorted(set(o["period"] for o in existing_obs))
+    timeseries["observations"] = existing_obs
+    timeseries["observations_count"] = len(existing_obs)
+    timeseries["start_period"] = all_periods[0]
+    timeseries["end_period"] = all_periods[-1]
+    
+    # Save updated timeseries
+    with open(timeseries_path, 'w') as f:
+        json.dump(timeseries, f, indent=2)
+    
+    return timeseries_path
+
+
 if __name__ == "__main__":
-    backfill_releases()
