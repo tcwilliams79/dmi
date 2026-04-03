@@ -127,6 +127,8 @@ jobs:
           # Copy data files
           cp data/outputs/dmi_release_${{ steps.period.outputs.period }}.json deploy/data/outputs/
           cp data/outputs/qa_report_${{ steps.period.outputs.period }}.json deploy/data/outputs/
+          cp data/outputs/dmi-${{ steps.period.outputs.period }}.csv deploy/data/outputs/
+          cp data/outputs/dmi-${{ steps.period.outputs.period }}.parquet deploy/data/outputs/
           
           # Copy published timeseries data
           cp data/outputs/published/*.json deploy/data/outputs/published/
