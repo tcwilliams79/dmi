@@ -406,7 +406,7 @@ def generate_release_note_html(
         </div>
         <div class="metric-row">
             <span class="metric-label">Income Pressure Gap:</span>
-            <span class="metric-value">{metrics.get('income_pressure_gap', 0):.2f}</span>
+            <span class="metric-value">{metrics.get('dmi_income_pressure_gap', 0):.2f}</span>
         </div>
         <div class="metric-row">
             <span class="metric-label">Unemployment (U-3):</span>
