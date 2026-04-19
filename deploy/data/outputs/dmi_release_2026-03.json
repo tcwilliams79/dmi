@@ -3,7 +3,10 @@
   "parameters": {
     "alpha": 0.5,
     "scale_factor": 2.0,
-    "weights_year": 2023
+    "weights_year": 2023,
+    "spec_id": "baseline",
+    "slack_measure": "U3",
+    "inflation_measure": "HEADLINE_CPI"
   },
   "dmi_by_group": [
     {
@@ -245,8 +248,10 @@
     }
   ],
   "metadata": {
-    "computed_at": "2026-04-19T15:32:53.582656Z",
+    "computed_at": "2026-04-19T23:50:46.020031Z",
     "num_groups": 5,
     "num_categories": 8
-  }
+  },
+  "specification": "baseline",
+  "description": "Headline DMI using current inflation inputs and U-3 unemployment."
 }
