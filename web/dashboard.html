@@ -601,6 +601,27 @@
             });
         }
 
+        function renderSpecifications(specsData) {
+            const container = document.getElementById('specifications-container');
+            const grid = document.getElementById('specifications-grid');
+            const note = document.getElementById('specifications-note');
+        
+            const cards = specsData.specifications.map(spec => `
+                <div class="card">
+                    <div class="card-title">${spec.label}</div>
+                    <div class="card-value">${spec.metrics.dmi_median.toFixed(2)}</div>
+                    <div class="card-detail">
+                        Median DMI • Stress ${spec.metrics.dmi_stress.toFixed(2)} • Gap ${spec.metrics.income_pressure_gap.toFixed(2)}
+                        <p style="margin-top: 0.5rem;">${spec.summary}</p>
+                    </div>
+                </div>
+            `).join('');
+        
+            grid.innerHTML = cards;
+            note.textContent = specsData.robustness_assessment.notes.join(' ');
+            container.style.display = 'block';
+        }
+        
         // Load DMI data (latest + time series)
         async function loadData() {
             try {
@@ -626,11 +647,18 @@
 
                 displayData(latestData, timeseriesData);
 
-                // Show and render contributors panel
+                // Show and render specifications panel
+                if (specsData) {
+                    document.getElementById('specifications-container').style.display = 'block';
+                    renderSpecifications(specsData);
+                }
+
+                // Show and render specifications
                 if (latestData.inflation_contributions) {
                     document.getElementById('contributors-section').style.display = 'block';
                     renderContributorsChart(latestData, 'Q1');
                 }
+
             } catch (error) {
                 console.error('Error loading DMI data:', error);
                 document.getElementById('period').textContent = 'Error loading data';
