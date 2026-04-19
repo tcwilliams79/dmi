@@ -1,25 +1,36 @@
 {
-  "schema_version": "1.0.0",
-  "generated_at": "2026-03-22T19:41:59.363849Z",
-  "current_release_id": "2026-02",
+  "schema_version": "1.1.0",
+  "generated_at": "2026-04-19T15:32:53.602303Z",
+  "current_release_id": "2026-03",
   "releases": [
     {
-      "release_id": "2026-02",
-      "data_through_label": "February 2026",
-      "published_at": "2026-03-22",
+      "release_id": "2026-03",
+      "data_through_label": "March 2026",
+      "published_at": "2026-04-19",
       "status": "current",
       "methodology_version": "v0.1.11",
-      "summary": "Full release data available in the accompanying CSV and Parquet files.",
+      "summary": "Economic pressure rose sharply in March 2026. Higher-income households faced more pressure than lower-income households. The labor-market backdrop improved slightly, with unemployment edging down to 4.3%.",
+      "summary_facts": {
+        "lower_income_more_pressure": false,
+        "higher_income_more_pressure": true,
+        "pressure_similar_across_bottom_top": false,
+        "median_delta_mom": 0.677922055066948,
+        "stress_delta_mom": 0.558608320051734,
+        "gap_delta_mom": -0.35694367783469794,
+        "unemployment_delta_mom": -0.10000000000000053,
+        "overall_direction": "rose_sharply",
+        "gap_direction": "gap_narrowed_materially"
+      },
       "urls": {
-        "csv": "/data/outputs/dmi-2026-02.csv",
-        "parquet": "/data/outputs/dmi-2026-02.parquet",
-        "release_note": "/data/outputs/releases/2026-02.html"
+        "csv": "/data/outputs/dmi-2026-03.csv",
+        "parquet": "/data/outputs/dmi-2026-03.parquet",
+        "release_note": "/data/outputs/releases/2026-03.html"
       },
       "metrics": {
-        "dmi_median": 6.8540624815102555,
-        "dmi_stress": 7.009919860204779,
-        "income_pressure_gap": 0.2779924571955972,
-        "unemployment": 4.4
+        "dmi_median": 7.531984536577204,
+        "dmi_stress": 7.568528180256513,
+        "income_pressure_gap": -0.07895122063910076,
+        "unemployment": 4.3
       }
     }
   ]
