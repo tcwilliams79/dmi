@@ -73,8 +73,13 @@ jobs:
         env:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
         run: |
-          echo "Computing DMI for ${{ steps.period.outputs.period }}..."
-          python -m scripts.compute_dmi
+          echo "Computing DMI for explicit reference period ${{ steps.period.outputs.period }}..."
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }}
+          
+          # Verify the expected release artifacts were generated for the requested period
+          test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}.json
+          test -f data/outputs/latest.json
+          test -f data/outputs/releases.json
       
       - name: Update timeseries
         run: |
@@ -83,7 +88,7 @@ jobs:
 
       - name: Run QA validation
         run: |
-          echo "QA validation completed (integrated in compute_dmi.py)"
+          echo "QA validation completed (integrated in compute_dmi_release.py)"
           
           # Check if QA report exists and passed
           QA_STATUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}.json'))['status'])")
@@ -105,49 +110,30 @@ jobs:
           
           # Create deploy directory structure
           mkdir -p deploy/data/outputs/published
-          
-          # Update health.json with new period and timestamp
-          python3 << 'EOF'
-          import json
-          from datetime import datetime
-          
-          with open('web/health.json', 'r') as f:
-              health = json.load(f)
-          
-          health['latest_period'] = '${{ steps.period.outputs.period }}'
-          health['last_updated'] = datetime.now().strftime('%Y-%m-%d')
-          health['endpoints']['latest'] = '/data/outputs/dmi_release_${{ steps.period.outputs.period }}.json'
-          
-          with open('deploy/health.json', 'w') as f:
-              json.dump(health, f, indent=2)
-          
-          print(f"✅ Updated health.json: latest_period={health['latest_period']}")
-          EOF
-          
-          # Copy data files
-          cp data/outputs/dmi_release_${{ steps.period.outputs.period }}.json deploy/data/outputs/
-          cp data/outputs/qa_report_${{ steps.period.outputs.period }}.json deploy/data/outputs/
-          cp data/outputs/dmi-${{ steps.period.outputs.period }}.csv deploy/data/outputs/
-          cp data/outputs/dmi-${{ steps.period.outputs.period }}.parquet deploy/data/outputs/
-
-          # Copy release note
           mkdir -p deploy/data/outputs/releases
-          cp data/outputs/releases/${{ steps.period.outputs.period }}.html deploy/data/outputs/releases/
+          
+          # Refresh the health endpoint from the just-generated workspace copy
+          cp web/health.json deploy/health.json
+          
+          # Refresh release manifests used by the site and by manual deployments
+          cp data/outputs/latest.json deploy/data/outputs/
+          cp data/outputs/releases.json deploy/data/outputs/
+          
+          # Copy release data files retained in data/outputs/
+          cp data/outputs/dmi_release_*.json deploy/data/outputs/
+          cp data/outputs/qa_report_*.json deploy/data/outputs/
+          cp data/outputs/dmi-*.csv deploy/data/outputs/
+          cp data/outputs/dmi-*.parquet deploy/data/outputs/
+
+          # Copy release notes
+          cp data/outputs/releases/*.html deploy/data/outputs/releases/
 
           # Copy published timeseries data
           cp data/outputs/published/*.json deploy/data/outputs/published/
           
-          # Check if dashboard.html has been changed in the recent commits and copy if so
-          if git log --oneline -5 --name-only | grep -q "^dashboard\.html$"; then
-            echo "📊 Dashboard has been modified recently, including in deployment..."
-            cp dashboard.html deploy/
-          else
-            echo "📊 Dashboard not recently modified, skipping deployment"
-          fi
-          
           # List deployment contents
           echo "📁 Deployment package contents:"
-          find deploy -type f | head -20
+          find deploy -type f | head -40
           
       - name: Setup SSH key
         run: |
@@ -215,6 +201,8 @@ jobs:
             data/outputs/
             data/outputs/published/
             data/staging/
+            web/health.json
+            deploy/
 
       - name: Auto-merge release PR
         if: steps.create-pr.outputs.pull-request-number
