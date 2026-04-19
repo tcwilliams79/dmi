@@ -1,4 +1,4 @@
-# Distributional Misery Index (DMI) v0.1.9
+# Distributional Misery Index (DMI) v0.1.11
 
 ![Status](https://img.shields.io/badge/status-production--ready-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.9+-blue)
