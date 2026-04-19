@@ -4,9 +4,12 @@
     "alpha": 0.5,
     "scale_factor": 2.0,
     "weights_year": 2023,
-    "spec_id": "baseline",
+    "spec_id": "core",
     "slack_measure": "U3",
-    "inflation_measure": "HEADLINE_CPI"
+    "inflation_measure": "CORE_CPI",
+    "excluded_categories": [
+      "CPI_FOOD_BEVERAGES"
+    ]
   },
   "dmi_by_group": [
     {
@@ -248,10 +251,10 @@
     }
   ],
   "metadata": {
-    "computed_at": "2026-04-19T23:50:46.020031Z",
+    "computed_at": "2026-04-19T23:50:48.265083Z",
     "num_groups": 5,
     "num_categories": 8
   },
-  "specification": "baseline",
-  "description": "Headline DMI using current inflation inputs and U-3 unemployment."
+  "specification": "core",
+  "description": "Companion DMI using core inflation inputs."
 }

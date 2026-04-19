@@ -4,46 +4,46 @@
     "alpha": 0.5,
     "scale_factor": 2.0,
     "weights_year": 2023,
-    "spec_id": "baseline",
-    "slack_measure": "U3",
+    "spec_id": "slack_plus",
+    "slack_measure": "U6",
     "inflation_measure": "HEADLINE_CPI"
   },
   "dmi_by_group": [
     {
       "group_id": "Q1",
-      "dmi": 7.453033315938103,
+      "dmi": 11.153033315938103,
       "inflation": 3.153033315938103,
-      "slack": 4.3
+      "slack": 8.0
     },
     {
       "group_id": "Q2",
-      "dmi": 7.518253439275331,
+      "dmi": 11.218253439275331,
       "inflation": 3.2182534392753315,
-      "slack": 4.3
+      "slack": 8.0
     },
     {
       "group_id": "Q3",
-      "dmi": 7.548009867181056,
+      "dmi": 11.248009867181057,
       "inflation": 3.2480098671810564,
-      "slack": 4.3
+      "slack": 8.0
     },
     {
       "group_id": "Q4",
-      "dmi": 7.568528180256513,
+      "dmi": 11.268528180256514,
       "inflation": 3.2685281802565136,
-      "slack": 4.3
+      "slack": 8.0
     },
     {
       "group_id": "Q5",
-      "dmi": 7.531984536577204,
+      "dmi": 11.231984536577205,
       "inflation": 3.2319845365772037,
-      "slack": 4.3
+      "slack": 8.0
     }
   ],
   "summary_metrics": {
-    "dmi_median": 7.531984536577204,
-    "dmi_stress": 7.568528180256513,
-    "dmi_income_pressure_gap": -0.07895122063910076
+    "dmi_median": 11.231984536577205,
+    "dmi_stress": 11.268528180256514,
+    "dmi_income_pressure_gap": -0.07895122063910165
   },
   "inflation_contributions": [
     {
@@ -248,10 +248,10 @@
     }
   ],
   "metadata": {
-    "computed_at": "2026-04-19T23:50:46.020031Z",
+    "computed_at": "2026-04-19T23:50:47.874461Z",
     "num_groups": 5,
     "num_categories": 8
   },
-  "specification": "baseline",
-  "description": "Headline DMI using current inflation inputs and U-3 unemployment."
+  "specification": "slack_plus",
+  "description": "Companion DMI using broader labor-market slack."
 }
