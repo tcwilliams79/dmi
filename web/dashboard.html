@@ -610,6 +610,10 @@
                 const latestResponse = await fetch(`./data/outputs/dmi_release_${latestPeriod}.json`);
                 const latestData = await latestResponse.json();
 
+                // Load latest DMI specifications (slack-plus, core) from the output specifications.json
+                const specsResponse = await fetch('./data/outputs/specifications.json');
+                const specsData = await specsResponse.json();
+
                 // Load historical time series
                 const timeseriesResponse = await fetch('./data/outputs/published/dmi_timeseries.json');
                 const timeseriesData = await timeseriesResponse.json();
