@@ -168,6 +168,7 @@ jobs:
             - QA validation: PASSED
             - Ready for review and publication
           branch: release/${{ steps.period.outputs.period }}
+          branch-suffix: timestamp
           title: 'DMI Release: ${{ steps.period.outputs.period }}'
           body: |
             ## DMI Release for ${{ steps.period.outputs.period }}
@@ -206,6 +207,6 @@ jobs:
 
       - name: Auto-merge release PR
         if: steps.create-pr.outputs.pull-request-number
-        run: gh pr merge ${{ steps.create-pr.outputs.pull-request-number }} --merge
+        run: gh pr merge ${{ steps.create-pr.outputs.pull-request-number }} --merge --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
