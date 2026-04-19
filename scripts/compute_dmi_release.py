@@ -10,6 +10,7 @@ reference period chosen by the workflow, rather than silently falling back to
 import argparse
 import json
 import sys
+import pandas as pd
 from datetime import datetime
 from pathlib import Path
 
