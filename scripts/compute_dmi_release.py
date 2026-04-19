@@ -107,12 +107,73 @@ def parse_args() -> argparse.Namespace:
         'reference_period',
         help='Reference period to publish, in YYYY-MM format (for example 2026-03).',
     )
+    parser.add_argument(
+    "--spec",
+    choices=["baseline", "slack_plus", "core"],
+    default="baseline",
+    help="Which DMI specification to compute."
+    )
     return parser.parse_args()
+
+def output_suffix_for_spec(spec: str) -> str:
+    return "" if spec == "baseline" else f"_{spec}"
+
+
+def build_core_weights(weights_df: pd.DataFrame) -> pd.DataFrame:
+    core_weights = weights_df[weights_df["category_id"] != "CPI_FOOD_BEVERAGES"].copy()
+
+    for group_id in core_weights["group_id"].unique():
+        mask = core_weights["group_id"] == group_id
+        total = core_weights.loc[mask, "weight"].sum()
+        core_weights.loc[mask, "weight"] = core_weights.loc[mask, "weight"] / total
+
+    return core_weights
+
+
+def load_slack_for_spec(reference_period: str, spec: str, start_year: int, end_year: int) -> pd.DataFrame:
+    # baseline/core: use staged U-3
+    if spec in ("baseline", "core"):
+        slack_path = Path(f"data/staging/slack_u3_{start_year}_{end_year}.json")
+        if not slack_path.exists():
+            raise SystemExit(f"Missing staged U-3 slack file: {slack_path}")
+        return load_slack_data(slack_path)
+
+    # slack_plus: prefer staged U-6 if available; otherwise fetch and cache
+    slack_u6_path = Path(f"data/staging/slack_u6_{start_year}_{end_year}.json")
+    if slack_u6_path.exists():
+        return load_slack_data(slack_u6_path)
+
+    from dmi_pipeline.agents.bls_api_client import fetch_slack_data, convert_to_monthly_format
+    catalog_path = Path("registry/series_catalog_v0_1.json")
+    with open(catalog_path) as f:
+        catalog = json.load(f)
+
+    u6_series = [s for s in catalog["slack"]["national_series"] if s["metric"] == "U6"][0]
+    slack_df = fetch_slack_data(u6_series["series_id"], start_year, end_year)
+    slack_df = convert_to_monthly_format(slack_df)
+    slack_df = slack_df[["period_yyyymm", "value"]].rename(columns={"period_yyyymm": "period"})
+
+    # cache for reproducibility
+    slack_u6_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(slack_u6_path, "w") as f:
+        json.dump(slack_df.to_dict(orient="records"), f, indent=2)
+
+    return slack_df
+
+
+def spec_description(spec: str) -> str:
+    return {
+        "baseline": "Headline DMI using current inflation inputs and U-3 unemployment.",
+        "slack_plus": "Companion DMI using broader labor-market slack.",
+        "core": "Companion DMI using core inflation inputs."
+    }[spec]
 
 
 def main() -> int:
     args = parse_args()
     reference_period = args.reference_period
+    spec = args.spec
+    suffix = output_suffix_for_spec(spec)
 
     print("=" * 80)
     print("DMI Release Runner")
@@ -153,64 +214,83 @@ def main() -> int:
         scale_factor=2.0,
     )
 
+    # Add spec metadata
+    results["specification"] = spec
+    results["description"] = spec_description(spec)
+    results["parameters"]["spec_id"] = spec
+    if spec == "slack_plus":
+        results["parameters"]["slack_measure"] = "U6"
+    else:
+        results["parameters"]["slack_measure"] = "U3"
+    
+    if spec == "core":
+        results["parameters"]["inflation_measure"] = "CORE_CPI"
+        results["parameters"]["excluded_categories"] = ["CPI_FOOD_BEVERAGES"]
+    else:
+        results["parameters"]["inflation_measure"] = "HEADLINE_CPI"
+        
     output_path = Path(f"data/outputs/dmi_release_{reference_period}.json")
     save_dmi_output(results, output_path)
 
-    print("\n" + "=" * 80)
-    print("Generating QA Report...")
-    print("=" * 80)
-    qa_report = generate_qa_report(
-        dmi_output=results,
-        cpi_data=cpi_df,
-        weights_data=weights_df,
-        slack_data=slack_df,
-        output_path=Path(f"data/outputs/qa_report_{reference_period}.json"),
-    )
-    print_qa_summary(qa_report)
-
-    print("\n" + "=" * 80)
-    print("Creating CSV and Parquet files...")
-    print("=" * 80)
-    export_csv_parquet(results, reference_period)
-
-    year, month = reference_period.split('-')
-    current_release = {
-        'release_id': reference_period,
-        'data_through_label': f"{MONTH_NAMES[int(month) - 1]} {year}",
-        'metrics': build_metrics_payload(results),
-    }
-    prior_release = load_prior_release(reference_period)
-    summary_facts, summary = build_release_summary(current_release, prior_release)
-
-    print("\n" + "=" * 80)
-    print("Generating release note HTML...")
-    print("=" * 80)
-    release_html = generate_release_note_html(
-        reference_period=reference_period,
-        metrics=build_metrics_payload(results),
-        summary=summary,
-    )
-    save_release_note(release_html, reference_period)
-
-    print("\n" + "=" * 80)
-    print("Updating release manifests...")
-    print("=" * 80)
-    metrics_payload = build_metrics_payload(results)
-    update_releases_json(
-        reference_period=reference_period,
-        metrics=metrics_payload,
-        summary=summary,
-        summary_facts=summary_facts,
-    )
-    update_latest_json(
-        reference_period=reference_period,
-        metrics=metrics_payload,
-        summary=summary,
-        summary_facts=summary_facts,
-    )
-    update_health_json(reference_period)
-    update_timeseries_json(reference_period)
-
+    # only baseline gets QA + release note + manifests + health + timeseries
+    if spec == "baseline":
+        print("\n" + "=" * 80)
+        print("Generating QA Report...")
+        print("=" * 80)
+        qa_report = generate_qa_report(
+            dmi_output=results,
+            cpi_data=cpi_df,
+            weights_data=weights_df,
+            slack_data=slack_df,
+            output_path=Path(f"data/outputs/qa_report_{reference_period}.json"),
+        )
+        print_qa_summary(qa_report)
+    
+        print("\n" + "=" * 80)
+        print("Creating CSV and Parquet files...")
+        print("=" * 80)
+        export_csv_parquet(results, reference_period)
+    
+        year, month = reference_period.split('-')
+        current_release = {
+            'release_id': reference_period,
+            'data_through_label': f"{MONTH_NAMES[int(month) - 1]} {year}",
+            'metrics': build_metrics_payload(results),
+        }
+        prior_release = load_prior_release(reference_period)
+        summary_facts, summary = build_release_summary(current_release, prior_release)
+    
+        print("\n" + "=" * 80)
+        print("Generating release note HTML...")
+        print("=" * 80)
+        release_html = generate_release_note_html(
+            reference_period=reference_period,
+            metrics=build_metrics_payload(results),
+            summary=summary,
+        )
+        save_release_note(release_html, reference_period)
+    
+        print("\n" + "=" * 80)
+        print("Updating release manifests...")
+        print("=" * 80)
+        metrics_payload = build_metrics_payload(results)
+        update_releases_json(
+            reference_period=reference_period,
+            metrics=metrics_payload,
+            summary=summary,
+            summary_facts=summary_facts,
+        )
+        update_latest_json(
+            reference_period=reference_period,
+            metrics=metrics_payload,
+            summary=summary,
+            summary_facts=summary_facts,
+        )
+        update_health_json(reference_period)
+        update_timeseries_json(reference_period)
+    else:
+        print(f"Saved companion specification: {spec} -> {output_path}")
+        
     print("\n" + "=" * 80)
     print("DMI RELEASE SUMMARY")
     print("=" * 80)
