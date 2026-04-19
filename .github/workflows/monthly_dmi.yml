@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: main
       
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -156,6 +158,11 @@ jobs:
           echo "   Health:    https://dmianalysis.org/health.json"
           echo "   Data:      https://dmianalysis.org/data/outputs/dmi_release_${{ steps.period.outputs.period }}.json"
       
+
+      - name: Ensure workflow files are not included in release PR
+        run: |
+          git restore --source=HEAD --staged --worktree .github/workflows || true
+          
       - name: Create Pull Request
         id: create-pr
         uses: peter-evans/create-pull-request@v8
