@@ -82,6 +82,22 @@ jobs:
           test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}.json
           test -f data/outputs/latest.json
           test -f data/outputs/releases.json
+
+      - name: Compute DMI Slack+
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec slack_plus
+
+      - name: Compute DMI Core
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec core
+
+      - name: Build specifications manifest
+        run: |
+          python -m scripts.build_specifications_manifest ${{ steps.period.outputs.period }}
       
       - name: Update timeseries
         run: |
@@ -129,6 +145,9 @@ jobs:
 
           # Copy release notes
           cp data/outputs/releases/*.html deploy/data/outputs/releases/
+
+          # Copy slack-plus, core specifications
+          cp data/outputs/specifications.json deploy/data/outputs/
 
           # Copy published timeseries data
           cp data/outputs/published/*.json deploy/data/outputs/published/
