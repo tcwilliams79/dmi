@@ -1,10 +1,10 @@
 {
   "series_id": "DMI_NATIONAL_QUINTILE",
   "start_period": "2011-01",
-  "end_period": "2025-12",
+  "end_period": "2026-03",
   "geography": "US",
   "grouping": "quintile",
-  "observations_count": 895,
+  "observations_count": 905,
   "observations": [
     {
       "period": "2011-01",
@@ -7164,6 +7164,86 @@
       "dmi": 6.966200778890826,
       "inflation": 2.566200778890826,
       "slack": 4.4,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-02",
+      "group_id": "Q1",
+      "dmi": 7.009919860204779,
+      "inflation": 2.609919860204779,
+      "slack": 4.4,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-02",
+      "group_id": "Q2",
+      "dmi": 6.971894237028017,
+      "inflation": 2.5718942370280162,
+      "slack": 4.4,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-02",
+      "group_id": "Q3",
+      "dmi": 6.8540624815102555,
+      "inflation": 2.454062481510255,
+      "slack": 4.4,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-02",
+      "group_id": "Q4",
+      "dmi": 6.827775066923599,
+      "inflation": 2.4277750669235987,
+      "slack": 4.4,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-02",
+      "group_id": "Q5",
+      "dmi": 6.731927403009182,
+      "inflation": 2.331927403009182,
+      "slack": 4.4,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-03",
+      "group_id": "Q1",
+      "dmi": 7.453033315938103,
+      "inflation": 3.153033315938103,
+      "slack": 4.3,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-03",
+      "group_id": "Q2",
+      "dmi": 7.518253439275331,
+      "inflation": 3.2182534392753315,
+      "slack": 4.3,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-03",
+      "group_id": "Q3",
+      "dmi": 7.548009867181056,
+      "inflation": 3.2480098671810564,
+      "slack": 4.3,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-03",
+      "group_id": "Q4",
+      "dmi": 7.568528180256513,
+      "inflation": 3.2685281802565136,
+      "slack": 4.3,
+      "weights_vintage": 2023
+    },
+    {
+      "period": "2026-03",
+      "group_id": "Q5",
+      "dmi": 7.531984536577204,
+      "inflation": 3.2319845365772037,
+      "slack": 4.3,
       "weights_vintage": 2023
     }
   ],
