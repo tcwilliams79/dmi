@@ -189,8 +189,6 @@ def main() -> int:
 
     if not cpi_path.exists():
         raise SystemExit(f"Missing staged CPI file for {reference_period}: {cpi_path}")
-    if not slack_path.exists():
-        raise SystemExit(f"Missing staged slack file for {reference_period}: {slack_path}")
 
     print("\nLoading data...")
     weights_df = load_weights(weights_path)
@@ -199,7 +197,8 @@ def main() -> int:
     cpi_df = load_cpi_data(cpi_path)
     print(f"  ✓ CPI data: {len(cpi_df)} periods from {cpi_path.name}")
 
-    slack_df = load_slack_data(slack_path)
+    # NEW: load slack according to spec (U3 baseline/core, U6 for slack_plus)
+    slack_df = load_slack_for_spec(reference_period, spec, start_year, end_year)   
     print(f"  ✓ Slack data: {len(slack_df)} periods from {slack_path.name}")
 
     ensure_period_available(reference_period, cpi_df, slack_df)
@@ -230,7 +229,9 @@ def main() -> int:
     else:
         results["parameters"]["inflation_measure"] = "HEADLINE_CPI"
         
-    output_path = Path(f"data/outputs/dmi_release_{reference_period}.json")
+    # NEW: write outputs with suffix so specs don't overwrite each other
+    suffix = output_suffix_for_spec(spec)
+    output_path = Path(f"data/outputs/dmi_release_{reference_period}{suffix}.json")
     save_dmi_output(results, output_path)
 
     # only baseline gets QA + release note + manifests + health + timeseries
