@@ -270,7 +270,7 @@ def compute_dmi_for_period(
         slack_data=slack_df,
         reference_period=reference_period
     )
-    print(f"    ✓ Unemployment ({slack_measure}): {slack:.1f}%")
+    print(f"    ✓ Unemployment ({slack_measure_display}): {slack:.1f}%")
     
     # Step 3: Compute DMI
     print(f"  [3/4] Computing DMI (α={alpha}, scale={scale_factor})...")
