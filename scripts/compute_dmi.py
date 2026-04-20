@@ -696,7 +696,7 @@ def update_timeseries_json(reference_period: str):
     return timeseries_path
 
 
-def main(spec: str="baseline", weights_year: str="2023"):
+def main(weights_year: str="2023"):
     print("=" * 80)
     print("DMI v0.1.8 - Full Integration Test")
     print("=" * 80)
