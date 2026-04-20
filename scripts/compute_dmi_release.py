@@ -170,7 +170,7 @@ def spec_description(spec: str) -> str:
     }[spec]
 
 
-def main() -> int:
+def main(spec: str, weights_year: str) -> int:
     args = parse_args()
     reference_period = args.reference_period
     spec = args.spec
@@ -218,6 +218,7 @@ def main() -> int:
         reference_period=reference_period,
         alpha=0.5,
         scale_factor=2.0,
+        spec=spec
     )
 
     # Add spec metadata
@@ -247,12 +248,12 @@ def main() -> int:
         slack_data=slack_df,
         output_path=Path(f"data/outputs/qa_report_{reference_period}_{spec}.json"),
     )
-    print_qa_summary(qa_report)
+    print_qa_summary(qa_report, spec)
 
     print("\n" + "=" * 80)
     print("Creating CSV and Parquet files...")
     print("=" * 80)
-    export_csv_parquet(results, reference_period)
+    export_csv_parquet(results, reference_period, spec)
 
     # only baseline gets release note + manifests + health + timeseries
     if spec == "baseline":
