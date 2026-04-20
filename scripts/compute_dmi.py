@@ -4,7 +4,7 @@ Full DMI Integration - Compute DMI using real data.
 
 Combines:
 - Phase 1: Calculator core
-- Phase 2: CE weights (2023)
+- Phase 2: CE weights (2023, or specified year)
 - Phase 3: CPI + slack data (BLS API)
 """
 
@@ -217,7 +217,8 @@ def compute_dmi_for_period(
     slack_df: pd.DataFrame,
     reference_period: str,
     alpha: float = 0.5,
-    scale_factor: float = 2.0
+    scale_factor: float = 2.0,
+    weights_year: 2023
 ) -> dict:
     """
     Compute DMI for a reference period using real data.
@@ -225,10 +226,11 @@ def compute_dmi_for_period(
     Args:
         cpi_df: CPI data with columns [period, CPI_FOOD_BEVERAGES, ...]
         weights_df: Weights with columns [group_id, category_id, weight]
-        slack_df: Slack data with columns [period, value]
+        slack_df: Slack data with slack measure (U-3 or U-6), columns [period, value]
         reference_period: Period to compute DMI for (YYYY-MM)
         alpha: Inflation vs slack weight (default: 0.5)
         scale_factor: DMI scaling factor (default: 2.0)
+        weights_year: year weights were computed (default: 2023)
     
     Returns:
         Dictionary with DMI results
@@ -258,7 +260,7 @@ def compute_dmi_for_period(
         slack_data=slack_df,
         reference_period=reference_period
     )
-    print(f"    ✓ Unemployment (U-3): {slack:.1f}%")
+    print(f"    ✓ Unemployment ({slack_measure}): {slack:.1f}%")
     
     # Step 3: Compute DMI
     print(f"  [3/4] Computing DMI (α={alpha}, scale={scale_factor})...")
@@ -288,7 +290,7 @@ def compute_dmi_for_period(
         "parameters": {
             "alpha": alpha,
             "scale_factor": scale_factor,
-            "weights_year": 2023
+            "weights_year": weights_year
         },
         "dmi_by_group": dmi_df.to_dict(orient='records'),
         "summary_metrics": metrics,
@@ -681,7 +683,7 @@ def update_timeseries_json(reference_period: str):
     return timeseries_path
 
 
-def main():
+def main(spec: "baseline", weights_year: "2023"):
     print("=" * 80)
     print("DMI v0.1.8 - Full Integration Test")
     print("=" * 80)
@@ -699,9 +701,14 @@ def main():
         end_year = now.year
     
     # Paths
-    weights_path = Path("data/curated/weights_by_group_2023.json")
+    weights_path = Path("data/curated/weights_by_group_{weights_year}.json")
     cpi_path = Path(f"data/staging/cpi_levels_{start_year}_{end_year}.json")
-    slack_path = Path(f"data/staging/slack_u3_{start_year}_{end_year}.json")
+    if spec == "slack_plus":
+        slack_measure = "u6"
+    else:
+        slack_measure = "u3" 
+        
+    slack_path = Path(f"data/staging/slack_{slack_measure}_{start_year}_{end_year}.json")
     
     # Load data
     print("\nLoading data...")
@@ -713,6 +720,11 @@ def main():
     
     slack_df = load_slack_data(slack_path)
     print(f"  ✓ Slack data: {len(slack_df)} periods")
+
+    if slack_measure = "u6":
+        slack_measure_display = "U-6"
+    else:
+        slack_measure_display = "U-3"
     
     # Determine reference period dynamically from CPI data
     # Use the most recent complete month available in the data
@@ -744,7 +756,7 @@ def main():
         cpi_data=cpi_df,
         weights_data=weights_df,
         slack_data=slack_df,
-        output_path=Path(f"data/outputs/qa_report_{reference_period}.json")
+        output_path=Path(f"data/outputs/qa_report_{reference_period}_{spec}.json")
     )
     
     print_qa_summary(qa_report)
@@ -798,7 +810,8 @@ def main():
             'dmi_median': results['summary_metrics']['dmi_median'],
             'dmi_stress': results['summary_metrics']['dmi_stress'],
             'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
-            'unemployment': results['dmi_by_group'][0]['slack']  # U-3 rate from Q1
+            'unemployment': results['dmi_by_group'][0]['slack']  # slack (U-3 or U-6) rate from Q1
+            'slack_measure': 
         },
         summary=summary
     )
@@ -845,7 +858,7 @@ def main():
     print("DMI SUMMARY")
     print("=" * 80)
     print(f"Period: {reference_period}")
-    print(f"Weights Year: 2023")
+    print(f"Weights Year: {weights_year}")
     print(f"\nDMI by Income Quintile:")
     for record in results['dmi_by_group']:
         print(f"  {record['group_id']}: DMI={record['dmi']:6.2f}  (inflation={record['inflation']:5.2f}%, slack={record['slack']:4.1f}%)")
