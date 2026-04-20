@@ -1,12 +1,12 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-04-19T23:50:46.038757Z",
+  "generated_at": "2026-04-20T01:54:46.651289Z",
   "current_release_id": "2026-03",
   "releases": [
     {
       "release_id": "2026-03",
       "data_through_label": "March 2026",
-      "published_at": "2026-04-19",
+      "published_at": "2026-04-20",
       "status": "current",
       "methodology_version": "v0.1.11",
       "summary": "Economic pressure rose sharply in March 2026. Higher-income households faced more pressure than lower-income households. The labor-market backdrop improved slightly, with unemployment edging down to 4.3%.",
