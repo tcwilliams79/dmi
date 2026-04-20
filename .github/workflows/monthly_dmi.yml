@@ -108,15 +108,27 @@ jobs:
         run: |
           echo "QA validation completed (integrated in compute_dmi_release.py)"
           
-          # Check if QA report exists and passed
-          QA_STATUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}.json'))['status'])")
+          # Check if QA report exists for each spec and that QA passed
+          QA_STATUS_BASELINE=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_baseline.json'))['status'])")
+          QA_STATUS_SLACK_PLUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_slack_plus.json'))['status'])")
+          QA_STATUS_CORE=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_core.json'))['status'])")
           
-          if [ "$QA_STATUS" != "PASS" ] && [ "$QA_STATUS" != "PASS_WITH_WARNING" ]; then
-            echo "❌ QA validation failed: $QA_STATUS"
+          if [ "$QA_STATUS_BASELINE" != "PASS" ] && [ "$QA_STATUS_BASELINE" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_BASELINE"
+            exit 1
+          fi
+
+          if [ "$QA_STATUS_SLACK_PLUS" != "PASS" ] && [ "$QA_STATUS_SLACK_PLUS" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_SLACK_PLUS"
+            exit 1
+          fi
+
+          if [ "$QA_STATUS_CORE" != "PASS" ] && [ "$QA_STATUS_CORE" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_CORE"
             exit 1
           fi
           
-          echo "✅ QA validation: $QA_STATUS"
+          echo "✅ QA validation (Baseline): $QA_STATUS_BASELINE, (slack-plus): $QA_STATUS_SLACK_PLUS, (core): $QA_STATUS_CORE"
       
       # =========================================
       # FTP DEPLOYMENT TO IFASTNET
