@@ -249,7 +249,7 @@ def main(spec: str="baseline", weights_year: int=2023) -> int:
         slack_data=slack_df,
         output_path=Path(f"data/outputs/qa_report_{reference_period}_{spec}.json"),
     )
-    print_qa_summary(qa_report, spec)
+    print_qa_summary(qa_report)
 
     print("\n" + "=" * 80)
     print("Creating CSV and Parquet files...")
