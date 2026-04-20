@@ -414,7 +414,7 @@ def generate_release_note_html(
             <span class="metric-value">{metrics.get('dmi_income_pressure_gap', 0):.2f}</span>
         </div>
         <div class="metric-row">
-            <span class="metric-label">Unemployment ({slack_measure):</span>
+            <span class="metric-label">Unemployment ({slack_measure}):</span>
             <span class="metric-value">{metrics.get('unemployment', 0):.1f}%</span>
         </div>
     </div>
