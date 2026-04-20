@@ -338,7 +338,7 @@ def generate_release_note_html(
     reference_period: str,
     metrics: dict,
     summary: str = "",
-    slack_measure: str
+    slack_measure: str="U-3"
 ) -> str:
     """Generate HTML release note for the current release."""
     # Parse reference period to human-readable format
