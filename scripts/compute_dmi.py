@@ -256,6 +256,7 @@ def compute_dmi_for_period(
     
     # Step 2: Extract slack
     print(f"  [2/4] Extracting unemployment rate...")
+    slack_measure = slack_df.parameters.slack_measure
     slack = compute_slack(
         slack_data=slack_df,
         reference_period=reference_period
@@ -268,7 +269,8 @@ def compute_dmi_for_period(
         inflation_by_group=inflation_df,
         slack=slack,
         alpha=alpha,
-        scale_factor=scale_factor
+        scale_factor=scale_factor,
+        slack_measure=slack_measure
     )
     
     print(f"    ✓ DMI computed for {len(dmi_df)} quintiles")
@@ -315,17 +317,17 @@ def save_dmi_output(results: dict, output_path: Path):
     print(f"\n✓ Saved DMI output to {output_path}")
 
 
-def export_csv_parquet(results: dict, reference_period: str):
+def export_csv_parquet(results: dict, reference_period: str, spec: str):
     """Export DMI results to CSV and Parquet files."""
     dmi_df = pd.DataFrame(results['dmi_by_group'])
     
     # CSV export
-    csv_path = Path(f"data/outputs/dmi-{reference_period}.csv")
+    csv_path = Path(f"data/outputs/dmi-{reference_period}-{spec}.csv")
     dmi_df.to_csv(csv_path, index=False)
     print(f"✓ Saved CSV to {csv_path}")
     
     # Parquet export
-    parquet_path = Path(f"data/outputs/dmi-{reference_period}.parquet")
+    parquet_path = Path(f"data/outputs/dmi-{reference_period}-{spec}.parquet")
     dmi_df.to_parquet(parquet_path, index=False)
     print(f"✓ Saved Parquet to {parquet_path}")
     
@@ -335,7 +337,8 @@ def export_csv_parquet(results: dict, reference_period: str):
 def generate_release_note_html(
     reference_period: str,
     metrics: dict,
-    summary: str = ""
+    summary: str = "",
+    slack_measure: str
 ) -> str:
     """Generate HTML release note for the current release."""
     # Parse reference period to human-readable format
@@ -392,7 +395,7 @@ def generate_release_note_html(
     </style>
 </head>
 <body>
-    <h1>DMI Release: {reference_period}</h1>
+    <h1>DMI Release: {reference_period}-{spec}</h1>
     <p><strong>Data Through:</strong> {data_through}</p>
     <p><strong>Published:</strong> {datetime.now().strftime('%Y-%m-%d')}</p>
     
@@ -411,7 +414,7 @@ def generate_release_note_html(
             <span class="metric-value">{metrics.get('dmi_income_pressure_gap', 0):.2f}</span>
         </div>
         <div class="metric-row">
-            <span class="metric-label">Unemployment (U-3):</span>
+            <span class="metric-label">Unemployment ({slack_measure):</span>
             <span class="metric-value">{metrics.get('unemployment', 0):.1f}%</span>
         </div>
     </div>
@@ -683,7 +686,7 @@ def update_timeseries_json(reference_period: str):
     return timeseries_path
 
 
-def main(spec: "baseline", weights_year: "2023"):
+def main(spec: str="baseline", weights_year: "2023"):
     print("=" * 80)
     print("DMI v0.1.8 - Full Integration Test")
     print("=" * 80)
@@ -705,8 +708,10 @@ def main(spec: "baseline", weights_year: "2023"):
     cpi_path = Path(f"data/staging/cpi_levels_{start_year}_{end_year}.json")
     if spec == "slack_plus":
         slack_measure = "u6"
+        slack_measure_display = "U-6"
     else:
         slack_measure = "u3" 
+        slack_measure_display = "U-3"
         
     slack_path = Path(f"data/staging/slack_{slack_measure}_{start_year}_{end_year}.json")
     
@@ -721,11 +726,6 @@ def main(spec: "baseline", weights_year: "2023"):
     slack_df = load_slack_data(slack_path)
     print(f"  ✓ Slack data: {len(slack_df)} periods")
 
-    if slack_measure = "u6":
-        slack_measure_display = "U-6"
-    else:
-        slack_measure_display = "U-3"
-    
     # Determine reference period dynamically from CPI data
     # Use the most recent complete month available in the data
     print("\n" + "=" * 80)
@@ -739,7 +739,8 @@ def main(spec: "baseline", weights_year: "2023"):
         slack_df=slack_df,
         reference_period=reference_period,
         alpha=0.5,
-        scale_factor=2.0
+        scale_factor=2.0,
+        spec=spec
     )
     
     # Save results
@@ -766,7 +767,7 @@ def main(spec: "baseline", weights_year: "2023"):
     print("Creating CSV and Parquet files...")
     print("=" * 80)
     
-    csv_path, parquet_path = export_csv_parquet(results, reference_period)
+    csv_path, parquet_path = export_csv_parquet(results, reference_period, spec)
     
     # Generate release note HTML
     print("\n" + "=" * 80)
@@ -811,9 +812,9 @@ def main(spec: "baseline", weights_year: "2023"):
             'dmi_stress': results['summary_metrics']['dmi_stress'],
             'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
             'unemployment': results['dmi_by_group'][0]['slack']  # slack (U-3 or U-6) rate from Q1
-            'slack_measure': 
         },
-        summary=summary
+        summary=summary,
+        slack_measure=slack_measure_display
     )
     save_release_note(release_html, reference_period)
     
