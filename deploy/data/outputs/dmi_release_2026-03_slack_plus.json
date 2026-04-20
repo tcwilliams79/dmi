@@ -5,7 +5,7 @@
     "scale_factor": 2.0,
     "weights_year": 2023,
     "spec_id": "slack_plus",
-    "slack_measure": "U6",
+    "slack_measure": "u6",
     "inflation_measure": "HEADLINE_CPI"
   },
   "dmi_by_group": [
@@ -248,7 +248,7 @@
     }
   ],
   "metadata": {
-    "computed_at": "2026-04-19T23:50:47.874461Z",
+    "computed_at": "2026-04-20T01:54:47.070396Z",
     "num_groups": 5,
     "num_categories": 8
   },

@@ -1,12 +1,12 @@
 {
   "status": "healthy",
   "version": "0.1.11",
-  "build_timestamp": "2026-04-19T23:50:46.039280Z",
+  "build_timestamp": "2026-04-20T01:54:46.651865Z",
   "git_sha": "production",
   "latest_period": "2026-03",
   "data_vintage": "2023",
   "observations_count": 895,
-  "last_updated": "2026-04-19",
+  "last_updated": "2026-04-20",
   "endpoints": {
     "dashboard": "/",
     "timeseries": "/data/outputs/published/dmi_timeseries.json",
