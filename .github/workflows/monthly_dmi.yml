@@ -154,7 +154,7 @@ jobs:
           
           # List deployment contents
           echo "📁 Deployment package contents:"
-          find deploy -type f | head -40
+          find deploy -type f | sed -n '1,40p'
           
       - name: Setup SSH key
         run: |
