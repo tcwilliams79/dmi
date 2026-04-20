@@ -217,7 +217,8 @@ def main(spec: str="baseline", weights_year: str="2023") -> int:
         slack_df=slack_df,
         reference_period=reference_period,
         alpha=0.5,
-        scale_factor=2.0
+        scale_factor=2.0,
+        spec=spec
     )
 
     # Add spec metadata
