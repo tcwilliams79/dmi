@@ -185,7 +185,13 @@ def main() -> int:
 
     weights_path = Path("data/curated/weights_by_group_2023.json")
     cpi_path = Path(f"data/staging/cpi_levels_{start_year}_{end_year}.json")
-    slack_path = Path(f"data/staging/slack_u3_{start_year}_{end_year}.json")
+    
+    if spec == "slack_plus": 
+        slack_measure = "u6"
+    else:
+        slack_measure = "u3" 
+    
+    slack_path = Path(f"data/staging/slack_{slack_measure}_{start_year}_{end_year}.json")
 
     if not cpi_path.exists():
         raise SystemExit(f"Missing staged CPI file for {reference_period}: {cpi_path}")
@@ -218,10 +224,7 @@ def main() -> int:
     results["specification"] = spec
     results["description"] = spec_description(spec)
     results["parameters"]["spec_id"] = spec
-    if spec == "slack_plus":
-        results["parameters"]["slack_measure"] = "U6"
-    else:
-        results["parameters"]["slack_measure"] = "U3"
+    results["parameters"]["slack_measure"] = slack_measure  #  slack_measure is set earlier based on the spec type
     
     if spec == "core":
         results["parameters"]["inflation_measure"] = "CORE_CPI"
@@ -234,25 +237,25 @@ def main() -> int:
     output_path = Path(f"data/outputs/dmi_release_{reference_period}{suffix}.json")
     save_dmi_output(results, output_path)
 
-    # only baseline gets QA + release note + manifests + health + timeseries
+    print("\n" + "=" * 80)
+    print("Generating QA Report...")
+    print("=" * 80)
+    qa_report = generate_qa_report(
+        dmi_output=results,
+        cpi_data=cpi_df,
+        weights_data=weights_df,
+        slack_data=slack_df,
+        output_path=Path(f"data/outputs/qa_report_{reference_period}_{spec}.json"),
+    )
+    print_qa_summary(qa_report)
+
+    print("\n" + "=" * 80)
+    print("Creating CSV and Parquet files...")
+    print("=" * 80)
+    export_csv_parquet(results, reference_period)
+
+    # only baseline gets release note + manifests + health + timeseries
     if spec == "baseline":
-        print("\n" + "=" * 80)
-        print("Generating QA Report...")
-        print("=" * 80)
-        qa_report = generate_qa_report(
-            dmi_output=results,
-            cpi_data=cpi_df,
-            weights_data=weights_df,
-            slack_data=slack_df,
-            output_path=Path(f"data/outputs/qa_report_{reference_period}.json"),
-        )
-        print_qa_summary(qa_report)
-    
-        print("\n" + "=" * 80)
-        print("Creating CSV and Parquet files...")
-        print("=" * 80)
-        export_csv_parquet(results, reference_period)
-    
         year, month = reference_period.split('-')
         current_release = {
             'release_id': reference_period,
