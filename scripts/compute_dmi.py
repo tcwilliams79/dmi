@@ -278,8 +278,7 @@ def compute_dmi_for_period(
         inflation_by_group=inflation_df,
         slack=slack,
         alpha=alpha,
-        scale_factor=scale_factor,
-        spec=spec
+        scale_factor=scale_factor
     )
     
     print(f"    ✓ DMI computed for {len(dmi_df)} quintiles")
