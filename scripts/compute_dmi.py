@@ -218,7 +218,8 @@ def compute_dmi_for_period(
     reference_period: str,
     alpha: float = 0.5,
     scale_factor: float = 2.0,
-    weights_year: str = "2023" 
+    weights_year: str = "2023",
+    spec: str="baseline"
 ) -> dict:
     """
     Compute DMI for a reference period using real data.
@@ -226,11 +227,12 @@ def compute_dmi_for_period(
     Args:
         cpi_df: CPI data with columns [period, CPI_FOOD_BEVERAGES, ...]
         weights_df: Weights with columns [group_id, category_id, weight]
-        slack_df: Slack data with slack measure (U-3 or U-6), columns [period, value]
+        slack_df: Slack data with columns [period, value]
         reference_period: Period to compute DMI for (YYYY-MM)
         alpha: Inflation vs slack weight (default: 0.5)
         scale_factor: DMI scaling factor (default: 2.0)
         weights_year: year weights were computed (default: 2023)
+        spec: specification (baseline, slack-plus or core)
     
     Returns:
         Dictionary with DMI results
@@ -256,7 +258,14 @@ def compute_dmi_for_period(
     
     # Step 2: Extract slack
     print(f"  [2/4] Extracting unemployment rate...")
-    slack_measure = slack_df.parameters.slack_measure
+
+    if spec=="slack_plus":
+        slack_measure = "u6"
+        slack_measure_display = "U-6"
+    else:
+        slack_measure = "u3"
+        slack_measure_display = "U-3"
+    
     slack = compute_slack(
         slack_data=slack_df,
         reference_period=reference_period
@@ -270,7 +279,7 @@ def compute_dmi_for_period(
         slack=slack,
         alpha=alpha,
         scale_factor=scale_factor,
-        slack_measure=slack_measure
+        spec=spec
     )
     
     print(f"    ✓ DMI computed for {len(dmi_df)} quintiles")
@@ -338,6 +347,7 @@ def generate_release_note_html(
     reference_period: str,
     metrics: dict,
     summary: str = "",
+    spec: str="baseline",
     slack_measure: str="U-3"
 ) -> str:
     """Generate HTML release note for the current release."""
