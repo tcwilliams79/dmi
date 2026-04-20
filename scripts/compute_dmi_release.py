@@ -211,6 +211,7 @@ def main(spec: str="baseline", weights_year: str="2023") -> int:
 
     print("\n" + "=" * 80)
     print(f"Computing release for explicit period {reference_period}")
+    print(f"Spec is {spec})
     results = compute_dmi_for_period(
         cpi_df=cpi_df,
         weights_df=weights_df,
