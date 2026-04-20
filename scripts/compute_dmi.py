@@ -218,7 +218,7 @@ def compute_dmi_for_period(
     reference_period: str,
     alpha: float = 0.5,
     scale_factor: float = 2.0,
-    weights_year: str = "2023",
+    weights_year: int = 2023,
     spec: str="baseline"
 ) -> dict:
     """
@@ -695,7 +695,7 @@ def update_timeseries_json(reference_period: str):
     return timeseries_path
 
 
-def main(weights_year: str="2023"):
+def main(weights_year: int=2023):
     print("=" * 80)
     print("DMI v0.1.8 - Full Integration Test")
     print("=" * 80)
