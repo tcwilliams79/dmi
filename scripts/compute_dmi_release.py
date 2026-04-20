@@ -170,7 +170,7 @@ def spec_description(spec: str) -> str:
     }[spec]
 
 
-def main(spec: str, weights_year: str) -> int:
+def main(spec: str, weights_year: str="2023") -> int:
     args = parse_args()
     reference_period = args.reference_period
     spec = args.spec
