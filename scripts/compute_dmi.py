@@ -218,7 +218,7 @@ def compute_dmi_for_period(
     reference_period: str,
     alpha: float = 0.5,
     scale_factor: float = 2.0,
-    weights_year: 2023
+    weights_year: str = "2023" 
 ) -> dict:
     """
     Compute DMI for a reference period using real data.
