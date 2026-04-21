@@ -134,39 +134,137 @@ jobs:
       # FTP DEPLOYMENT TO IFASTNET
       # =========================================
       
-      - name: Prepare deployment package
+      name: Monthly DMI Computation
+
+on:
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      reference_period:
+        description: 'Reference period (YYYY-MM)'
+        required: true
+        default: '2026-03'
+  
+  # Scheduled: 15th of each month at 10am UTC (after BLS CPI release)
+  schedule:
+    - cron: '0 10 15 * *'
+
+env:
+  PYTHON_VERSION: '3.9'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  compute-dmi:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+      
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install dependencies
         run: |
-          echo "📦 Preparing deployment package..."
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Set reference period
+        id: period
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "period=${{ github.event.inputs.reference_period }}" >> $GITHUB_OUTPUT
+          else
+            # Auto-compute: previous month (CPI lags by ~2 weeks)
+            echo "period=$(date -d 'last month' '+%Y-%m')" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Fetch CPI data
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          echo "Fetching CPI data for ${{ steps.period.outputs.period }}..."
+          python -m scripts.test_bls_api
+      
+      - name: Check CE weights status
+        run: |
+          PERIOD_YEAR=$(echo "${{ steps.period.outputs.period }}" | cut -d'-' -f1)
+          WEIGHTS_YEAR=$(python -c "import json; print(json.load(open('data/curated/weights_by_group_2023.json'))['weights_year'])")
           
-          # Create deploy directory structure
-          mkdir -p deploy/data/outputs/published
-          mkdir -p deploy/data/outputs/releases
+          echo "Period year: $PERIOD_YEAR"
+          echo "Current weights year: $WEIGHTS_YEAR"
           
-          # Refresh the health endpoint from the just-generated workspace copy
-          cp web/health.json deploy/health.json
+          if [ $((PERIOD_YEAR - WEIGHTS_YEAR)) -gt 2 ]; then
+            echo "⚠️ WARNING: Weights are $((PERIOD_YEAR - WEIGHTS_YEAR)) years old"
+            echo "Consider updating CE weights"
+          fi
+      
+      - name: Compute DMI
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          echo "Computing DMI for explicit reference period ${{ steps.period.outputs.period }}..."
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }}
           
-          # Refresh release manifests used by the site and by manual deployments
-          cp data/outputs/latest.json deploy/data/outputs/
-          cp data/outputs/releases.json deploy/data/outputs/
-          
-          # Copy release data files retained in data/outputs/
-          cp data/outputs/dmi_release_*.json deploy/data/outputs/
-          cp data/outputs/qa_report_*.json deploy/data/outputs/
-          cp data/outputs/dmi-*.csv deploy/data/outputs/
-          cp data/outputs/dmi-*.parquet deploy/data/outputs/
+          # Verify the expected release artifacts were generated for the requested period
+          test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}.json
+          test -f data/outputs/latest.json
+          test -f data/outputs/releases.json
 
-          # Copy release notes
-          cp data/outputs/releases/*.html deploy/data/outputs/releases/
+      - name: Compute DMI Slack+
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec slack_plus
 
-          # Copy slack-plus, core specifications
-          cp data/outputs/specifications.json deploy/data/outputs/
+      - name: Compute DMI Core
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec core
 
-          # Copy published timeseries data
-          cp data/outputs/published/*.json deploy/data/outputs/published/
+      - name: Build specifications manifest
+        run: |
+          python -m scripts.build_specifications_manifest ${{ steps.period.outputs.period }}
+      
+      - name: Update timeseries
+        run: |
+          echo "Appending ${{ steps.period.outputs.period }} to timeseries..."
+          python -m scripts.update_timeseries ${{ steps.period.outputs.period }}
+
+      - name: Run QA validation
+        run: |
+          echo "QA validation completed (integrated in compute_dmi_release.py)"
           
-          # List deployment contents
-          echo "📁 Deployment package contents:"
-          find deploy -type f | sed -n '1,40p'
+          # Check if QA report exists for each spec and that QA passed
+          QA_STATUS_BASELINE=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_baseline.json'))['status'])")
+          QA_STATUS_SLACK_PLUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_slack_plus.json'))['status'])")
+          QA_STATUS_CORE=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_core.json'))['status'])")
+          
+          if [ "$QA_STATUS_BASELINE" != "PASS" ] && [ "$QA_STATUS_BASELINE" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_BASELINE"
+            exit 1
+          fi
+
+          if [ "$QA_STATUS_SLACK_PLUS" != "PASS" ] && [ "$QA_STATUS_SLACK_PLUS" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_SLACK_PLUS"
+            exit 1
+          fi
+
+          if [ "$QA_STATUS_CORE" != "PASS" ] && [ "$QA_STATUS_CORE" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_CORE"
+            exit 1
+          fi
+          
+          echo "✅ QA validation (Baseline): $QA_STATUS_BASELINE, (slack-plus): $QA_STATUS_SLACK_PLUS, (core): $QA_STATUS_CORE"
           
       - name: Setup SSH key
         run: |
@@ -182,13 +280,31 @@ jobs:
             ./deploy/ \
             ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/
           
+
+      - name: Deploy new historical file (incremental, optional)
+        run: |
+          PERIOD="${{ steps.period.outputs.period }}"
+          HIST_LOCAL="data/outputs/published/historical/dmi_release_${PERIOD}.json"
+          HIST_REMOTE="/home/agiraces/dmianalysis/data/outputs/published/historical/"
+      
+          if [ -f "$HIST_LOCAL" ]; then
+            echo "📦 Uploading historical delta: $HIST_LOCAL"
+            rsync -avz \
+              -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+              "$HIST_LOCAL" \
+              ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:"$HIST_REMOTE"
+          else
+            echo "ℹ️ No historical delta found for ${PERIOD}; skipping."
+          fi
+          
       - name: Deployment summary
         run: |
           echo "🚀 Deployment complete!"
           echo "   Dashboard: https://dmianalysis.org/dashboard.html"
           echo "   Health:    https://dmianalysis.org/health.json"
-          echo "   Data:      https://dmianalysis.org/data/outputs/dmi_release_${{ steps.period.outputs.period }}.json"
-      
+          echo "   Data (baseline):   https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}.json"
+          echo "   Data (slack_plus): https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_slack_plus.json"
+          echo "   Data (core):       https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_core.json"
 
       - name: Ensure workflow files are not included in release PR
         run: |
@@ -210,25 +326,24 @@ jobs:
           title: 'DMI Release: ${{ steps.period.outputs.period }}'
           body: |
             ## DMI Release for ${{ steps.period.outputs.period }}
-            
+          
             **Automated monthly computation**
-            
+          
             ### Summary
             - **Reference Period**: ${{ steps.period.outputs.period }}
-            - **QA Status**: See `data/outputs/qa_report_${{ steps.period.outputs.period }}.json`
-            - **DMI Results**: See `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
-            
-            ### Files Changed
-            - `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
-            - `data/outputs/qa_report_${{ steps.period.outputs.period }}.json`
-            - `data/staging/cpi_levels_*.json` (updated)
-            - `data/staging/slack_u3_*.json` (updated)
-            
+            - **DMI Results (baseline)**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
+            - **DMI Results (slack_plus)**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}_slack_plus.json`
+            - **DMI Results (core)**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}_core.json`
+          
+            - **QA (baseline)**: `data/outputs/qa_report_${{ steps.period.outputs.period }}_baseline.json`
+            - **QA (slack_plus)**: `data/outputs/qa_report_${{ steps.period.outputs.period }}_slack_plus.json`
+            - **QA (core)**: `data/outputs/qa_report_${{ steps.period.outputs.period }}_core.json`
+          
             ### Next Steps
-            1. Review DMI values for reasonableness
-            2. Check QA report for any warnings
+            1. Review baseline vs slack_plus deltas for reasonableness
+            2. Review QA warnings (especially weights vintage)
             3. Approve and merge to update repository
-            
+          
             > ✅ **Website automatically updated**: dmianalysis.org now shows data for ${{ steps.period.outputs.period }}
             
             ---
@@ -239,9 +354,7 @@ jobs:
           add-paths: |
             data/outputs/
             data/outputs/published/
-            data/staging/
             web/health.json
-            deploy/
 
       - name: Auto-merge release PR
         if: steps.create-pr.outputs.pull-request-number
