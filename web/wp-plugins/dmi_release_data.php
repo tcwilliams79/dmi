@@ -61,6 +61,47 @@ if ( ! function_exists( 'tcw_dmi_render_links' ) ) {
 	}
 }
 
+if ( ! function_exists( 'tcw_dmi_render_spec_links_table' ) ) {
+	function tcw_dmi_render_spec_links_table( $spec_urls ) {
+		if ( empty( $spec_urls ) || ! is_array( $spec_urls ) ) {
+			return '';
+		}
+
+		$labels = array(
+			'baseline'   => 'Baseline',
+			'slack_plus' => 'Slack-Plus',
+			'core'       => 'Core',
+		);
+
+		$notes = array(
+			'baseline'   => 'Canonical headline series',
+			'slack_plus' => 'Uses U-6 instead of U-3',
+			'core'       => 'Excludes food and beverages from inflation',
+		);
+
+		$html  = '<table class="tcw-dmi-spec-table">';
+		$html .= '<thead><tr><th>Specification</th><th>Downloads</th><th>Notes</th></tr></thead><tbody>';
+
+		foreach ( array( 'baseline', 'slack_plus', 'core' ) as $spec_key ) {
+			if ( empty( $spec_urls[ $spec_key ] ) || ! is_array( $spec_urls[ $spec_key ] ) ) {
+				continue;
+			}
+
+			$links = tcw_dmi_render_links( $spec_urls[ $spec_key ] );
+
+			$html .= '<tr>';
+			$html .= '<td><strong>' . esc_html( $labels[ $spec_key ] ) . '</strong></td>';
+			$html .= '<td>' . ( $links ? $links : 'Not available' ) . '</td>';
+			$html .= '<td>' . esc_html( $notes[ $spec_key ] ) . '</td>';
+			$html .= '</tr>';
+		}
+
+		$html .= '</tbody></table>';
+
+		return $html;
+	}
+}
+
 if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 	function tcw_dmi_release_data_shortcode( $atts = array() ) {
 		$manifest_path = trailingslashit( ABSPATH ) . 'data/outputs/releases.json';
@@ -137,8 +178,12 @@ if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 						<p><?php echo esc_html( $current['summary'] ); ?></p>
 					<?php endif; ?>
 
-					<p><?php echo tcw_dmi_render_links( $current['urls'] ); ?></p>
-
+					<?php if ( ! empty( $current['spec_urls'] ) && is_array( $current['spec_urls'] ) ) : ?>
+						<?php echo tcw_dmi_render_spec_links_table( $current['spec_urls'] ); ?>
+					<?php else : ?>
+						<p><?php echo tcw_dmi_render_links( $current['urls'] ); ?></p>
+					<?php endif; ?>
+		
 					<?php if ( ! empty( $current['metrics'] ) && is_array( $current['metrics'] ) ) : ?>
 						<h3>Current-release snapshot</h3>
 						<ul>
@@ -181,7 +226,11 @@ if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 								<p><?php echo esc_html( $release['summary'] ); ?></p>
 							<?php endif; ?>
 
-							<p><?php echo tcw_dmi_render_links( $release['urls'] ); ?></p>
+							<?php if ( ! empty( $current['spec_urls'] ) && is_array( $current['spec_urls'] ) ) : ?>
+								<?php echo tcw_dmi_render_spec_links_table( $current['spec_urls'] ); ?>
+							<?php else : ?>
+								<p><?php echo tcw_dmi_render_links( $current['urls'] ); ?></p>
+							<?php endif; ?>
 						</div>
 					<?php endforeach; ?>
 				</section>
