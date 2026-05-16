@@ -32,7 +32,10 @@ This project uses **two separate deployment workflows** because they update diff
 **Purpose:** deploy custom WordPress plugin code changes.
 
 ### What it does
-- deploys only the custom plugin folders:
+- deploys only the custom plugin folders stored in the repo under:
+  - `web/wp-plugins/dmi-latest-info/`
+  - `web/wp-plugins/dmi-release-data/`
+- syncs those folders to the live WordPress plugin directory:
   - `wp-content/plugins/dmi-latest-info/`
   - `wp-content/plugins/dmi-release-data/`
 - updates plugin PHP/code on the live WordPress site
@@ -113,8 +116,14 @@ Avoid making manual production edits on the server unless absolutely necessary.
 ---
 
 ## Current custom plugins
-- `dmi-latest-info`
-- `dmi-release-data`
+
+### Repo source
+- `web/wp-plugins/dmi-latest-info/`
+- `web/wp-plugins/dmi-release-data/`
+
+### Server destination
+- `wp-content/plugins/dmi-latest-info/`
+- `wp-content/plugins/dmi-release-data/`
 
 These should be updated through `deploy_wp_plugins.yml`, not by manual wp-admin editor changes.
 
@@ -188,7 +197,7 @@ Start with:
 
 Check:
 - whether the workflow ran
-- whether the plugin folder was actually synced
+- whether the plugin folders were actually synced
 - whether the plugin version/header was updated
 - whether WordPress or browser caching is masking the change
 

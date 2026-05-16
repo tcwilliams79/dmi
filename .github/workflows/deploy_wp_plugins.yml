@@ -4,8 +4,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'wp-content/plugins/dmi-latest-info/**'
-      - 'wp-content/plugins/dmi-release-data/**'
+      - 'web/wp-plugins/dmi-latest-info/**'
+      - 'web/wp-plugins/dmi-release-data/**'
   workflow_dispatch:
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
           mkdir -p deploy/wp-content/plugins
 
           for plugin in dmi-latest-info dmi-release-data; do
-            if [ -d "wp-content/plugins/$plugin" ]; then
+            if [ -d "web/wp-plugins/$plugin" ]; then
               mkdir -p "deploy/wp-content/plugins/$plugin"
               rsync -a \
                 --exclude=".git/" \
@@ -42,6 +42,11 @@ jobs:
                 "deploy/wp-content/plugins/$plugin/"
             fi
           done
+
+          if ! find deploy/wp-content/plugins -type f | grep -q .; then
+            echo "❌ No plugin files were staged for deployment"
+            exit 1
+          fi
 
           echo "📁 Plugin deployment contents:"
           find deploy/wp-content/plugins -type f | sed -n '1,120p'
