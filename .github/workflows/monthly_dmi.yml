@@ -80,6 +80,14 @@ jobs:
           test -f data/outputs/latest.json
           test -f data/outputs/releases.json
 
+      - name: Compute DMI Slack+
+        env:
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          echo "Computing slack-plus DMI for ${{ steps.period.outputs.period }}..."
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec slack_plus
+          test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}_slack_plus.json
+
       - name: Compute DMI Core
         env:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
@@ -103,14 +111,26 @@ jobs:
         run: |
           echo "QA validation completed."
 
-          QA_STATUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}.json'))['status'])")
+          QA_STATUS_BASELINE=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_baseline.json'))['status'])")
+          QA_STATUS_SLACK_PLUS=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_slack_plus.json'))['status'])")
+          QA_STATUS_CORE=$(python -c "import json; print(json.load(open('data/outputs/qa_report_${{ steps.period.outputs.period }}_core.json'))['status'])")
 
-          if [ "$QA_STATUS" != "PASS" ] && [ "$QA_STATUS" != "PASS_WITH_WARNING" ]; then
-            echo "❌ QA validation failed: $QA_STATUS"
+          if [ "$QA_STATUS_BASELINE" != "PASS" ] && [ "$QA_STATUS_BASELINE" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_BASELINE"
             exit 1
           fi
 
-          echo "✅ QA validation: $QA_STATUS"
+          if [ "$QA_STATUS_SLACK_PLUS" != "PASS" ] && [ "$QA_STATUS_SLACK_PLUS" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_SLACK_PLUS"
+            exit 1
+          fi
+
+          if [ "$QA_STATUS_CORE" != "PASS" ] && [ "$QA_STATUS_CORE" != "PASS_WITH_WARNING" ]; then
+            echo "❌ QA validation failed: $QA_STATUS_CORE"
+            exit 1
+          fi
+
+          echo "✅ QA validation (Baseline): $QA_STATUS_BASELINE, (slack-plus): $QA_STATUS_SLACK_PLUS, (core): $QA_STATUS_CORE"
 
       # =========================================
       # DEPLOYMENT TO IFASTNET (THIN MONTHLY DEPLOY)
@@ -189,14 +209,7 @@ jobs:
           echo "   Data (baseline):   https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}.json"
           echo "   Data (slack_plus): https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_slack_plus.json"
           echo "   Data (core):       https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_core.json"
-      - name: Deployment summary
-        run: |
-          PERIOD="${{ steps.period.outputs.period }}"
-          echo "🚀 Deployment complete!"
-          echo "   Dashboard: https://dmianalysis.org/dashboard.html"
-          echo "   Health:    https://dmianalysis.org/health.json"
-          echo "   Data:      https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}.json"
-          echo "   Core:      https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_core.json"
+
 
       - name: Ensure workflow files are not included in release PR
         run: |
@@ -211,6 +224,8 @@ jobs:
             Add DMI release for ${{ steps.period.outputs.period }}
 
             - DMI computed for all quintiles
+            - Baseline robustness variant generated
+            - Slack-plus robustness variant generated
             - Core robustness variant generated
             - QA validation passed
           branch: release/${{ steps.period.outputs.period }}
