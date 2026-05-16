@@ -145,12 +145,24 @@ def load_slack_for_spec(reference_period: str, spec: str, start_year: int, end_y
             raise SystemExit(f"Missing staged U-3 slack file: {slack_path}")
         return load_slack_data(slack_path)
 
-    # slack_plus: prefer staged U-6 if available; otherwise fetch and cache
+    # slack_plus: use staged U-6 if current enough; otherwise fetch and cache
     slack_u6_path = Path(f"data/staging/slack_u6_{start_year}_{end_year}.json")
+
     if slack_u6_path.exists():
-        return load_slack_data(slack_u6_path)
+        slack_df = load_slack_data(slack_u6_path)
+
+        # Refresh if the requested period is missing
+        available_periods = set(slack_df["period"].astype(str))
+        if reference_period in available_periods:
+            return slack_df
+
+        print(
+            f"Requested reference period {reference_period} is not present in staged slack data. "
+            f"Latest staged slack period: {max(available_periods)}. Refreshing U-6 data..."
+        )
 
     from dmi_pipeline.agents.bls_api_client import fetch_slack_data, convert_to_monthly_format
+
     catalog_path = Path("registry/series_catalog_v0_1.json")
     with open(catalog_path) as f:
         catalog = json.load(f)
