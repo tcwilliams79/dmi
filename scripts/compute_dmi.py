@@ -613,26 +613,40 @@ def update_latest_json(
 def update_health_json(reference_period: str):
     """Update web/health.json with current release information."""
     health_path = Path("web/health.json")
-    
+
     # Read current health.json
-    with open(health_path, 'r') as f:
+    with open(health_path, "r") as f:
         health = json.load(f)
-    
-    # Update fields
-    health['latest_period'] = reference_period
-    health['last_updated'] = datetime.now().strftime('%Y-%m-%d')
-    health['build_timestamp'] = datetime.now().isoformat() + "Z"
-    health['git_sha'] = "production"  # Will be updated by deployment
-    health['endpoints']['latest'] = f"/data/outputs/dmi_release_{reference_period}.json"
-    
+
+    # Update basic fields
+    health["latest_period"] = reference_period
+    health["last_updated"] = datetime.now().strftime("%Y-%m-%d")
+    health["build_timestamp"] = datetime.now().isoformat() + "Z"
+    health["git_sha"] = "production"  # Will be updated by deployment
+
+    # Ensure endpoints exists
+    health.setdefault("endpoints", {})
+
+    # Update current release endpoints
+    health["endpoints"]["latest"] = f"/data/outputs/dmi_release_{reference_period}.json"
+    health["endpoints"]["latest_slack_plus"] = f"/data/outputs/dmi_release_{reference_period}_slack_plus.json"
+    health["endpoints"]["latest_u6"] = health["endpoints"]["latest_slack_plus"]    
+    health["endpoints"]["latest_core"] = f"/data/outputs/dmi_release_{reference_period}_core.json"
+
+    # Optional: only include latest_with_ci if current-period file exists
+    latest_with_ci_path = Path(f"data/outputs/dmi_release_{reference_period}_with_ci.json")
+    if latest_with_ci_path.exists():
+        health["endpoints"]["latest_with_ci"] = f"/data/outputs/dmi_release_{reference_period}_with_ci.json"
+    else:
+        health["endpoints"].pop("latest_with_ci", None)
+
     # Update observations count if we can determine it
-    # For now, keep existing count or set a reasonable default
-    if 'observations_count' not in health:
-        health['observations_count'] = 895  # Default based on recent data
-    
-    with open(health_path, 'w') as f:
+    if "observations_count" not in health:
+        health["observations_count"] = 895  # Default based on recent data
+
+    with open(health_path, "w") as f:
         json.dump(health, f, indent=2)
-    
+
     print(f"✓ Updated web/health.json with latest period {reference_period}")
     return health_path
 
