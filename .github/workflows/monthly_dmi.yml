@@ -59,7 +59,7 @@ jobs:
       - name: Check CE weights status
         run: |
           PERIOD_YEAR=$(echo "${{ steps.period.outputs.period }}" | cut -d'-' -f1)
-          WEIGHTS_YEAR=$(python -c "import json; print(json.load(open('data/curated/weights_by_group_2023.json'))['weights_year'])")
+          WEIGHTS_YEAR=$(python -c "import json; print(json.load(open('data/curated/weights_by_group_latest.json'))['weights_year'])")
 
           echo "Period year: $PERIOD_YEAR"
           echo "Current weights year: $WEIGHTS_YEAR"
@@ -68,9 +68,6 @@ jobs:
             echo "⚠️ WARNING: Weights are $((PERIOD_YEAR - WEIGHTS_YEAR)) years old"
             echo "Consider updating CE weights"
           fi
-
-      - name: Resolve weights year
-        run: |
           echo "WEIGHTS_YEAR=$WEIGHTS_YEAR" >> $GITHUB_ENV
 
       - name: Compute DMI Baseline
