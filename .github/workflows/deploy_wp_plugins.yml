@@ -4,8 +4,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'wp-content/plugins/dmi-latest-info/**'
-      - 'wp-content/plugins/dmi-release-data/**'
+      - 'web/wp-plugins/dmi-latest-info/**'
+      - 'web/wp-plugins/dmi-release-data/**'
   workflow_dispatch:
 
 permissions:
