@@ -475,13 +475,13 @@ def update_releases_json(
             # Already in new format, get the releases array and filter to new schema only
             for release in existing.get('releases', []):
                 # Only keep releases that have the new schema structure AND are not the current release_id
-                if 'data_through_label' in release and 'urls' in release:
+                if 'data_through_label' in release and ('urls' in release or 'spec_urls' in release):
                     if release.get('release_id') != reference_period:
                         releases.append(release)
         elif isinstance(existing, list):
             # Old format - filter and migrate to new schema
             for release in existing:
-                if 'data_through_label' in release and 'urls' in release:
+                if 'data_through_label' in release and ('urls' in release or 'spec_urls' in release):
                     if release.get('release_id') != reference_period:
                         releases.append(release)
     
@@ -496,6 +496,7 @@ def update_releases_json(
     # Create release URL blocks
     base_release_note = f"/data/outputs/releases/{reference_period}.html"
 
+    # Backward-compatible canonical URLs (Baseline is the canonical series)
     urls = {
         "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
         "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
@@ -506,7 +507,8 @@ def update_releases_json(
         urls["dashboard"] = dashboard_url
     if repo_url:
         urls["repo"] = repo_url
-
+ 
+    # New multi-spec structure
     spec_urls = {
         "baseline": {
             "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
@@ -541,8 +543,8 @@ def update_releases_json(
         "methodology_version": methodology_version,
         "summary": summary,
         "summary_facts": summary_facts,
-        "urls": urls,
-        "spec_urls": spec_urls,
+        "urls": urls,           # backward compatibility
+        "spec_urls": spec_urls, # new multi-spec structure
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
@@ -563,7 +565,7 @@ def update_releases_json(
     
     # Build the releases.json structure
     releases_manifest = {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "generated_at": datetime.now().isoformat() + "Z",
         "current_release_id": reference_period,
         "releases": releases
