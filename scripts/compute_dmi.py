@@ -548,7 +548,7 @@ def update_releases_json(
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
-            "income_pressure_gap": metrics.get('income_pressure_gap', 0),
+            "income_pressure_gap": metrics.get('dmi_income_pressure_gap', 0),
             "unemployment": metrics.get('unemployment', 0)
         }
     }
