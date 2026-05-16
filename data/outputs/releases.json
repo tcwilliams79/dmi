@@ -1,6 +1,6 @@
 {
   "schema_version": "1.2.0",
-  "generated_at": "2026-05-16T18:00:39.991078Z",
+  "generated_at": "2026-05-16T18:27:38.099552Z",
   "current_release_id": "2026-04",
   "releases": [
     {
@@ -46,7 +46,7 @@
       "metrics": {
         "dmi_median": 8.147922001766158,
         "dmi_stress": 8.187267654664982,
-        "income_pressure_gap": -0.19540324803406506,
+        "income_pressure_gap": 0,
         "unemployment": 4.3
       }
     },
