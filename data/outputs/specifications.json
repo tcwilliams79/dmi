@@ -1,18 +1,18 @@
 {
   "schema_version": "0.1.0",
-  "generated_at": "2026-04-20T05:31:37.411848Z",
-  "reference_period": "2026-03",
+  "generated_at": "2026-05-16T03:39:36.618018Z",
+  "reference_period": "2026-04",
   "headline_spec": "baseline",
   "specifications": [
     {
       "spec_id": "baseline",
       "label": "DMI Baseline",
       "summary": "Headline DMI using current inflation inputs and U-3 unemployment.",
-      "release_json": "/data/outputs/dmi_release_2026-03.json",
+      "release_json": "/data/outputs/dmi_release_2026-04.json",
       "metrics": {
-        "dmi_median": 7.531984536577204,
-        "dmi_stress": 7.568528180256513,
-        "income_pressure_gap": -0.07895122063910076,
+        "dmi_median": 8.147922001766158,
+        "dmi_stress": 8.187267654664982,
+        "income_pressure_gap": -0.19540324803406506,
         "slack_measure": "u3"
       }
     },
@@ -20,11 +20,11 @@
       "spec_id": "slack_plus",
       "label": "DMI Slack+",
       "summary": "Companion DMI using broader labor-market slack.",
-      "release_json": "/data/outputs/dmi_release_2026-03_slack_plus.json",
+      "release_json": "/data/outputs/dmi_release_2026-04_slack_plus.json",
       "metrics": {
-        "dmi_median": 11.231984536577205,
-        "dmi_stress": 11.268528180256514,
-        "income_pressure_gap": -0.07895122063910165,
+        "dmi_median": 12.047922001766157,
+        "dmi_stress": 12.087267654664982,
+        "income_pressure_gap": -0.19540324803406506,
         "slack_measure": "u6"
       }
     },
@@ -32,11 +32,11 @@
       "spec_id": "core",
       "label": "DMI Core",
       "summary": "Companion DMI using core inflation inputs.",
-      "release_json": "/data/outputs/dmi_release_2026-03_core.json",
+      "release_json": "/data/outputs/dmi_release_2026-04_core.json",
       "metrics": {
-        "dmi_median": 7.531984536577204,
-        "dmi_stress": 7.568528180256513,
-        "income_pressure_gap": -0.07895122063910076,
+        "dmi_median": 8.147922001766158,
+        "dmi_stress": 8.187267654664982,
+        "income_pressure_gap": -0.19540324803406506,
         "slack_measure": "u3"
       }
     }
