@@ -112,27 +112,43 @@ jobs:
 
           echo "✅ QA validation: $QA_STATUS"
 
+      # =========================================
+      # DEPLOYMENT TO IFASTNET (THIN MONTHLY DEPLOY)
+      # =========================================
+
       - name: Prepare deployment package
         run: |
-          echo "📦 Preparing deployment package..."
+          echo "📦 Preparing deployment package (thin monthly deploy)..."
+          PERIOD="${{ steps.period.outputs.period }}"
 
+          # Create deploy directory structure
           mkdir -p deploy/data/outputs/published
           mkdir -p deploy/data/outputs/releases
 
+          # Refresh the health endpoint from the just-generated workspace copy
           cp web/health.json deploy/health.json
+
+          # Refresh release manifests used by the site and by manual deployments
           cp data/outputs/latest.json deploy/data/outputs/
           cp data/outputs/releases.json deploy/data/outputs/
           cp data/outputs/specifications.json deploy/data/outputs/
 
-          cp data/outputs/dmi_release_*.json deploy/data/outputs/
-          cp data/outputs/qa_report_*.json deploy/data/outputs/
-          cp data/outputs/dmi-*.csv deploy/data/outputs/
-          cp data/outputs/dmi-*.parquet deploy/data/outputs/
-          cp data/outputs/releases/*.html deploy/data/outputs/releases/
-          cp data/outputs/published/*.json deploy/data/outputs/published/
+          # Copy release data files for THIS PERIOD only
+          cp data/outputs/dmi_release_"$PERIOD"*.json deploy/data/outputs/
+          cp data/outputs/qa_report_"$PERIOD"*.json deploy/data/outputs/
+          cp data/outputs/dmi-"$PERIOD"*.csv deploy/data/outputs/ || true
+          cp data/outputs/dmi-"$PERIOD"*.parquet deploy/data/outputs/ || true
 
+          # Copy release notes
+          cp data/outputs/releases/"$PERIOD".html deploy/data/outputs/releases/ || true
+
+          # Copy published timeseries / lightweight published assets
+          # IMPORTANT: exclude historical from routine monthly deploys
+          rsync -a --exclude 'historical/' data/outputs/published/ deploy/data/outputs/published/
+
+          # List deployment contents
           echo "📁 Deployment package contents:"
-          find deploy -type f | head -40
+          find deploy -type f | sed -n '1,80p'
 
       - name: Setup SSH key
         run: |
@@ -148,6 +164,31 @@ jobs:
             ./deploy/ \
             ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/
 
+      - name: Deploy new historical file only (optional)
+        run: |
+          PERIOD="${{ steps.period.outputs.period }}"
+          HIST_LOCAL="data/outputs/published/historical/dmi_release_${PERIOD}.json"
+          HIST_REMOTE="/home/agiraces/dmianalysis/data/outputs/published/historical/"
+
+          if [ -f "$HIST_LOCAL" ]; then
+            echo "📦 Uploading historical delta: $HIST_LOCAL"
+            rsync -avz \
+              -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+              "$HIST_LOCAL" \
+              ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:"$HIST_REMOTE"
+          else
+            echo "ℹ️ No historical delta found for ${PERIOD}; skipping."
+          fi
+
+      - name: Deployment summary
+        run: |
+          PERIOD="${{ steps.period.outputs.period }}"
+          echo "🚀 Deployment complete!"
+          echo "   Dashboard: https://dmianalysis.org/dashboard.html"
+          echo "   Health:    https://dmianalysis.org/health.json"
+          echo "   Data (baseline):   https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}.json"
+          echo "   Data (slack_plus): https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_slack_plus.json"
+          echo "   Data (core):       https://dmianalysis.org/data/outputs/dmi_release_${PERIOD}_core.json"
       - name: Deployment summary
         run: |
           PERIOD="${{ steps.period.outputs.period }}"
