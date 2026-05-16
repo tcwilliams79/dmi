@@ -170,20 +170,26 @@ def spec_description(spec: str) -> str:
     }[spec]
 
 
-def main(spec: str="baseline", weights_year: int=2023) -> int:
+def main() -> int:
     args = parse_args()
     reference_period = args.reference_period
     spec = args.spec
+    weights_year = args.weights_year
     suffix = output_suffix_for_spec(spec)
 
     print("=" * 80)
     print("DMI Release Runner")
     print("=" * 80)
     print(f"Requested reference period: {reference_period}")
-
+    print(f"Requested weights year: {weights_year}")
+    
     start_year, end_year = staging_window_for_period(reference_period)
 
-    weights_path = Path("data/curated/weights_by_group_2023.json")
+    weights_path = Path("data/curated/weights_by_group_{weights_year}.json")
+
+    if not weights_path.exists():
+        raise SystemExit(f"Missing weights file for requested weights_year={weights_year}: {weights_path}")
+    
     cpi_path = Path(f"data/staging/cpi_levels_{start_year}_{end_year}.json")
     
     if spec == "slack_plus": 
