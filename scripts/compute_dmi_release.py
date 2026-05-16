@@ -191,7 +191,7 @@ def main() -> int:
     
     start_year, end_year = staging_window_for_period(reference_period)
 
-    weights_path = Path("data/curated/weights_by_group_{weights_year}.json")
+    weights_path = Path(f"data/curated/weights_by_group_{weights_year}.json")
 
     if not weights_path.exists():
         raise SystemExit(f"Missing weights file for requested weights_year={weights_year}: {weights_path}")
