@@ -1,0 +1,70 @@
+name: Deploy Custom WordPress Plugins
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'wp-content/plugins/dmi-latest-info/**'
+      - 'wp-content/plugins/dmi-release-data/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-wp-plugins:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Prepare plugin deployment package
+        run: |
+          echo "📦 Preparing WordPress custom plugin deployment package..."
+
+          mkdir -p deploy/wp-content/plugins
+
+          for plugin in dmi-latest-info dmi-release-data; do
+            if [ -d "wp-content/plugins/$plugin" ]; then
+              mkdir -p "deploy/wp-content/plugins/$plugin"
+              rsync -a \
+                --exclude=".git/" \
+                --exclude=".github/" \
+                --exclude=".DS_Store" \
+                --exclude="node_modules/" \
+                --exclude="tests/" \
+                --exclude="test/" \
+                --exclude="__pycache__/" \
+                "wp-content/plugins/$plugin/" \
+                "deploy/wp-content/plugins/$plugin/"
+            fi
+          done
+
+          echo "📁 Plugin deployment contents:"
+          find deploy/wp-content/plugins -type f | sed -n '1,120p'
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.IFASTNET_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 1394 ${{ secrets.IFASTNET_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy plugins to iFastNet via rsync
+        run: |
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+            ./deploy/wp-content/plugins/ \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/wp-content/plugins/
+
+      - name: Deployment summary
+        run: |
+          echo "🚀 WordPress plugin deployment complete!"
+          echo "   Plugins deployed:"
+          echo "   - dmi-latest-info"
+          echo "   - dmi-release-data"
+          echo "   Target: /home/agiraces/dmianalysis/wp-content/plugins/"
+          echo "   Site:   https://dmianalysis.org/"

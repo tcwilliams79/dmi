@@ -493,15 +493,45 @@ def update_releases_json(
     data_through_label = f"{month_name} {year}"
     
     # Create new release entry
+    # Create release URL blocks
+    base_release_note = f"/data/outputs/releases/{reference_period}.html"
+
     urls = {
-        "csv": f"/data/outputs/dmi-{reference_period}.csv",
-        "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
-        "release_note": f"/data/outputs/releases/{reference_period}.html"
+        "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
+        "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
+        "release_note": base_release_note,
     }
+
     if dashboard_url:
         urls["dashboard"] = dashboard_url
     if repo_url:
         urls["repo"] = repo_url
+
+    spec_urls = {
+        "baseline": {
+            "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
+            "release_note": base_release_note,
+        },
+        "slack_plus": {
+            "csv": f"/data/outputs/dmi-{reference_period}-slack_plus.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}-slack_plus.parquet",
+            "release_note": base_release_note,
+        },
+        "core": {
+            "csv": f"/data/outputs/dmi-{reference_period}-core.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}-core.parquet",
+            "release_note": base_release_note,
+        },
+    }
+
+    if dashboard_url:
+        for spec_key in spec_urls:
+            spec_urls[spec_key]["dashboard"] = dashboard_url
+
+    if repo_url:
+        for spec_key in spec_urls:
+            spec_urls[spec_key]["repo"] = repo_url
     
     new_release = {
         "release_id": reference_period,
@@ -512,6 +542,7 @@ def update_releases_json(
         "summary": summary,
         "summary_facts": summary_facts,
         "urls": urls,
+        "spec_urls": spec_urls,
         "metrics": {
             "dmi_median": metrics.get('dmi_median', 0),
             "dmi_stress": metrics.get('dmi_stress', 0),
