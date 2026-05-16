@@ -115,7 +115,9 @@ def parse_args() -> argparse.Namespace:
     help="Which DMI specification to compute."
     )
     parser.add_argument(
-        "--weights_year",
+        "--weights-year",
+        type=int,
+        default=2023,
         help='Year weights were published, in YYYY format (for example 2023).',
     )
     return parser.parse_args()
