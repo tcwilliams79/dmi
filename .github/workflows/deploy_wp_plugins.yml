@@ -38,7 +38,7 @@ jobs:
                 --exclude="tests/" \
                 --exclude="test/" \
                 --exclude="__pycache__/" \
-                "wp-content/plugins/$plugin/" \
+                "web/wp-plugins/$plugin/" \
                 "deploy/wp-content/plugins/$plugin/"
             fi
           done
