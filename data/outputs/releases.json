@@ -1,6 +1,6 @@
 {
   "schema_version": "1.1.0",
-  "generated_at": "2026-05-16T14:45:16.307378Z",
+  "generated_at": "2026-05-16T16:03:42.238259Z",
   "current_release_id": "2026-04",
   "releases": [
     {
@@ -22,9 +22,26 @@
         "gap_direction": "gap_narrowed_materially"
       },
       "urls": {
-        "csv": "/data/outputs/dmi-2026-04.csv",
-        "parquet": "/data/outputs/dmi-2026-04.parquet",
+        "csv": "/data/outputs/dmi-2026-04-baseline.csv",
+        "parquet": "/data/outputs/dmi-2026-04-baseline.parquet",
         "release_note": "/data/outputs/releases/2026-04.html"
+      },
+      "spec_urls": {
+        "baseline": {
+          "csv": "/data/outputs/dmi-2026-04-baseline.csv",
+          "parquet": "/data/outputs/dmi-2026-04-baseline.parquet",
+          "release_note": "/data/outputs/releases/2026-04.html"
+        },
+        "slack_plus": {
+          "csv": "/data/outputs/dmi-2026-04-slack_plus.csv",
+          "parquet": "/data/outputs/dmi-2026-04-slack_plus.parquet",
+          "release_note": "/data/outputs/releases/2026-04.html"
+        },
+        "core": {
+          "csv": "/data/outputs/dmi-2026-04-core.csv",
+          "parquet": "/data/outputs/dmi-2026-04-core.parquet",
+          "release_note": "/data/outputs/releases/2026-04.html"
+        }
       },
       "metrics": {
         "dmi_median": 8.147922001766158,
