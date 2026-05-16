@@ -218,19 +218,37 @@ jobs:
           title: 'DMI Release: ${{ steps.period.outputs.period }}'
           body: |
             ## DMI Release for ${{ steps.period.outputs.period }}
-
+            
             **Automated monthly computation**
-
+            
             ### Summary
             - **Reference Period**: ${{ steps.period.outputs.period }}
-            - **DMI Results**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
-            - **Core Results**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}_core.json`
-            - **QA Report**: `data/outputs/qa_report_${{ steps.period.outputs.period }}.json`
-
-            > ✅ Website automatically updated: dmianalysis.org now shows data for ${{ steps.period.outputs.period }}
-
+            - **DMI Results (baseline)**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
+            - **DMI Results (slack_plus)**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}_slack_plus.json`
+            - **DMI Results (core)**: `data/outputs/dmi_release_${{ steps.period.outputs.period }}_core.json`
+            - **QA (baseline)**: `data/outputs/qa_report_${{ steps.period.outputs.period }}_baseline.json`
+            - **QA (slack_plus)**: `data/outputs/qa_report_${{ steps.period.outputs.period }}_slack_plus.json`
+            - **QA (core)**: `data/outputs/qa_report_${{ steps.period.outputs.period }}_core.json`
+            
+            ### Files Changed
+            - `data/outputs/dmi_release_${{ steps.period.outputs.period }}.json`
+            - `data/outputs/dmi_release_${{ steps.period.outputs.period }}_slack_plus.json`
+            - `data/outputs/dmi_release_${{ steps.period.outputs.period }}_core.json`
+            - `data/outputs/qa_report_${{ steps.period.outputs.period }}_baseline.json`
+            - `data/outputs/qa_report_${{ steps.period.outputs.period }}_slack_plus.json`
+            - `data/outputs/qa_report_${{ steps.period.outputs.period }}_core.json`
+            - `data/outputs/specifications.json`
+            
+            ### Next Steps
+            1. Review baseline vs slack_plus vs core for reasonableness
+            2. Check QA warnings (especially weights vintage)
+            3. Approve and merge to update repository
+            
+            > ✅ **Website automatically updated**: dmianalysis.org now shows data for ${{ steps.period.outputs.period }}
+            
             ---
             *This PR was automatically created by the Monthly DMI workflow*
+            
           labels: |
             automated
             release
