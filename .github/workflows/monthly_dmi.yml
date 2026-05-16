@@ -69,12 +69,16 @@ jobs:
             echo "Consider updating CE weights"
           fi
 
+      - name: Resolve weights year
+        run: |
+          echo "WEIGHTS_YEAR=$WEIGHTS_YEAR" >> $GITHUB_ENV
+
       - name: Compute DMI Baseline
         env:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
         run: |
           echo "Computing baseline DMI for ${{ steps.period.outputs.period }}..."
-          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec baseline --weights_year $WEIGHTS_YEAR
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec baseline --weights-year "$WEIGHTS_YEAR"
 
           test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}.json
           test -f data/outputs/latest.json
@@ -85,7 +89,7 @@ jobs:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
         run: |
           echo "Computing slack-plus DMI for ${{ steps.period.outputs.period }}..."
-          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec slack_plus --weights_year $WEIGHTS_YEAR
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec slack_plus --weights-year "$WEIGHTS_YEAR"
           test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}_slack_plus.json
 
       - name: Compute DMI Core
@@ -93,7 +97,7 @@ jobs:
           BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
         run: |
           echo "Computing core DMI for ${{ steps.period.outputs.period }}..."
-          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec core --weights_year $WEIGHTS_YEAR
+          python -m scripts.compute_dmi_release ${{ steps.period.outputs.period }} --spec core --weights-year "$WEIGHTS_YEAR"
 
           test -f data/outputs/dmi_release_${{ steps.period.outputs.period }}_core.json
 
