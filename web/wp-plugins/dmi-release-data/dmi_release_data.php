@@ -226,10 +226,10 @@ if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 								<p><?php echo esc_html( $release['summary'] ); ?></p>
 							<?php endif; ?>
 
-							<?php if ( ! empty( $current['spec_urls'] ) && is_array( $current['spec_urls'] ) ) : ?>
-								<?php echo tcw_dmi_render_spec_links_table( $current['spec_urls'] ); ?>
+							<?php if ( ! empty( $release['spec_urls'] ) && is_array( $release['spec_urls'] ) ) : ?>
+								<?php echo tcw_dmi_render_spec_links_table( $release['spec_urls'] ); ?>
 							<?php else : ?>
-								<p><?php echo tcw_dmi_render_links( $current['urls'] ); ?></p>
+								<p><?php echo tcw_dmi_render_links( $release['urls'] ); ?></p>
 							<?php endif; ?>
 						</div>
 					<?php endforeach; ?>
