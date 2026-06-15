@@ -1,18 +1,18 @@
 {
   "schema_version": "0.1.0",
-  "generated_at": "2026-05-16T18:27:40.374275Z",
-  "reference_period": "2026-04",
+  "generated_at": "2026-06-15T16:06:20.694167Z",
+  "reference_period": "2026-05",
   "headline_spec": "baseline",
   "specifications": [
     {
       "spec_id": "baseline",
       "label": "DMI Baseline",
       "summary": "Headline DMI using current inflation inputs and U-3 unemployment.",
-      "release_json": "/data/outputs/dmi_release_2026-04.json",
+      "release_json": "/data/outputs/dmi_release_2026-05.json",
       "metrics": {
-        "dmi_median": 8.147922001766158,
-        "dmi_stress": 8.187267654664982,
-        "income_pressure_gap": -0.19540324803406506,
+        "dmi_median": 8.563655970678015,
+        "dmi_stress": 8.631538722139872,
+        "income_pressure_gap": -0.3519182047831322,
         "slack_measure": "u3"
       }
     },
@@ -20,11 +20,11 @@
       "spec_id": "slack_plus",
       "label": "DMI Slack+",
       "summary": "Companion DMI using broader labor-market slack.",
-      "release_json": "/data/outputs/dmi_release_2026-04_slack_plus.json",
+      "release_json": "/data/outputs/dmi_release_2026-05_slack_plus.json",
       "metrics": {
-        "dmi_median": 12.047922001766157,
-        "dmi_stress": 12.087267654664982,
-        "income_pressure_gap": -0.19540324803406506,
+        "dmi_median": 12.363655970678014,
+        "dmi_stress": 12.431538722139871,
+        "income_pressure_gap": -0.3519182047831304,
         "slack_measure": "u6"
       }
     },
@@ -32,11 +32,11 @@
       "spec_id": "core",
       "label": "DMI Core",
       "summary": "Companion DMI using core inflation inputs.",
-      "release_json": "/data/outputs/dmi_release_2026-04_core.json",
+      "release_json": "/data/outputs/dmi_release_2026-05_core.json",
       "metrics": {
-        "dmi_median": 8.147922001766158,
-        "dmi_stress": 8.187267654664982,
-        "income_pressure_gap": -0.19540324803406506,
+        "dmi_median": 8.563655970678015,
+        "dmi_stress": 8.631538722139872,
+        "income_pressure_gap": -0.3519182047831322,
         "slack_measure": "u3"
       }
     }
@@ -46,7 +46,7 @@
     "stress_group_consistent": true,
     "notes": [
       "The distributional pattern is consistent across the published specifications.",
-      "The highest-pressure income fifth remains Q4 across the published specifications."
+      "The highest-pressure income fifth remains Q5 across the published specifications."
     ]
   }
 }
