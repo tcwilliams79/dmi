@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0.0",
-  "generated_at": "2026-06-16T14:32:10.283690Z",
+  "generated_at": "2026-06-16T21:35:59.265146Z",
   "current_release_id": "2026-05",
   "releases": [
     {
@@ -32,13 +32,11 @@
         },
         "slack_plus": {
           "csv": "/data/outputs/dmi-2026-05-slack_plus.csv",
-          "parquet": "/data/outputs/dmi-2026-05-slack_plus.parquet",
-          "release_note": "/data/outputs/releases/2026-05.html"
+          "parquet": "/data/outputs/dmi-2026-05-slack_plus.parquet"
         },
         "core": {
           "csv": "/data/outputs/dmi-2026-05-core.csv",
-          "parquet": "/data/outputs/dmi-2026-05-core.parquet",
-          "release_note": "/data/outputs/releases/2026-05.html"
+          "parquet": "/data/outputs/dmi-2026-05-core.parquet"
         }
       },
       "metrics": {

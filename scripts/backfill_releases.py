@@ -87,22 +87,20 @@ def backfill_releases(output_dir: str = "data/outputs"):
             computed_at = data['metadata']['computed_at']
             published_at = computed_at.split('T')[0]
 
-            base_release_note = f"/data/outputs/releases/{release_id}.html"
+            # Only baseline gets a release_note link (see rebuild_release_manifests.py).
             spec_urls = {
                 "baseline": {
                     "csv": f"/data/outputs/dmi-{release_id}-baseline.csv",
                     "parquet": f"/data/outputs/dmi-{release_id}-baseline.parquet",
-                    "release_note": base_release_note,
+                    "release_note": f"/data/outputs/releases/{release_id}.html",
                 },
                 "slack_plus": {
                     "csv": f"/data/outputs/dmi-{release_id}-slack_plus.csv",
                     "parquet": f"/data/outputs/dmi-{release_id}-slack_plus.parquet",
-                    "release_note": base_release_note,
                 },
                 "core": {
                     "csv": f"/data/outputs/dmi-{release_id}-core.csv",
                     "parquet": f"/data/outputs/dmi-{release_id}-core.parquet",
-                    "release_note": base_release_note,
                 },
             }
 

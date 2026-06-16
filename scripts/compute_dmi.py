@@ -527,23 +527,23 @@ def update_releases_json(
     month_name = months[int(month) - 1]
     data_through_label = f"{month_name} {year}"
 
-    base_release_note = f"/data/outputs/releases/{reference_period}.html"
-
+    # Only baseline gets a release_note link. The released note is
+    # spec-agnostic (driven by the robust distributional pattern), so
+    # advertising it on slack_plus/core was misleading; the WP plugin
+    # gracefully skips the link when the field is absent.
     spec_urls = {
         "baseline": {
             "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
             "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
-            "release_note": base_release_note,
+            "release_note": f"/data/outputs/releases/{reference_period}.html",
         },
         "slack_plus": {
             "csv": f"/data/outputs/dmi-{reference_period}-slack_plus.csv",
             "parquet": f"/data/outputs/dmi-{reference_period}-slack_plus.parquet",
-            "release_note": base_release_note,
         },
         "core": {
             "csv": f"/data/outputs/dmi-{reference_period}-core.csv",
             "parquet": f"/data/outputs/dmi-{reference_period}-core.parquet",
-            "release_note": base_release_note,
         },
     }
 
@@ -619,23 +619,23 @@ def update_latest_json(
     month_name = months[int(month) - 1]
     data_through_label = f"{month_name} {year}"
 
-    base_release_note = f"/data/outputs/releases/{reference_period}.html"
-
+    # Only baseline gets a release_note link. The released note is
+    # spec-agnostic (driven by the robust distributional pattern), so
+    # advertising it on slack_plus/core was misleading; the WP plugin
+    # gracefully skips the link when the field is absent.
     spec_urls = {
         "baseline": {
             "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
             "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
-            "release_note": base_release_note,
+            "release_note": f"/data/outputs/releases/{reference_period}.html",
         },
         "slack_plus": {
             "csv": f"/data/outputs/dmi-{reference_period}-slack_plus.csv",
             "parquet": f"/data/outputs/dmi-{reference_period}-slack_plus.parquet",
-            "release_note": base_release_note,
         },
         "core": {
             "csv": f"/data/outputs/dmi-{reference_period}-core.csv",
             "parquet": f"/data/outputs/dmi-{reference_period}-core.parquet",
-            "release_note": base_release_note,
         },
     }
 

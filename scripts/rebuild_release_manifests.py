@@ -93,15 +93,21 @@ def derive_metrics(raw_release: dict) -> dict:
 
 
 def build_spec_urls(release_id: str) -> dict:
+    # Only the baseline spec gets a release_note link. slack_plus and core
+    # use the same underlying summary (the distributional pattern is robust
+    # across specs by design), so linking them to the baseline note misled
+    # users into thinking they were spec-specific.
     base_release_note = f"/data/outputs/releases/{release_id}.html"
-    return {
-        spec: {
+    spec_urls = {}
+    for spec in ("baseline", "slack_plus", "core"):
+        urls = {
             "csv": f"/data/outputs/dmi-{release_id}-{spec}.csv",
             "parquet": f"/data/outputs/dmi-{release_id}-{spec}.parquet",
-            "release_note": base_release_note,
         }
-        for spec in ("baseline", "slack_plus", "core")
-    }
+        if spec == "baseline":
+            urls["release_note"] = base_release_note
+        spec_urls[spec] = urls
+    return spec_urls
 
 
 @dataclass
