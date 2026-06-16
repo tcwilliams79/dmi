@@ -72,7 +72,7 @@ if ( ! function_exists( 'tcw_dmi_latest_info_shortcode' ) ) {
 						<td><strong>Income Pressure Spread (gap between the most- and least-pressured groups):</strong></td><td><?php echo esc_html( tcw_dmi_format_number($latest_metrics['income_pressure_spread']) ); ?></td>
 						</tr>
 						<tr>
-						<td><strong>Income Pressure Tilt (Q1 DMI minus Q5 DMI; positive means lower-income fifth more pressured):</strong></td><td><?php echo esc_html( tcw_dmi_format_number($latest_metrics['income_pressure_tilt']) ); ?></td>
+						<td><strong>Income Pressure Tilt (Q1 DMI - Q5 DMI. Positive = more pressure in Q1; negative = more pressure in Q5):</strong></td><td><?php echo esc_html( tcw_dmi_format_number($latest_metrics['income_pressure_tilt']) ); ?></td>
 						</tr>
 					</table>
 					<p><font size=2> Snapshot metrics summarize current distributional economic pressure; see Methods for construction details.</font> </p>
