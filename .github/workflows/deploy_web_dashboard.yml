@@ -1,0 +1,58 @@
+name: Deploy Web Dashboard
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'web/dashboard.html'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-web-dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Prepare dashboard deployment package
+        run: |
+          echo "Preparing web dashboard deployment package..."
+
+          mkdir -p deploy
+
+          if [ ! -f "web/dashboard.html" ]; then
+            echo "web/dashboard.html not found in repository"
+            exit 1
+          fi
+
+          cp web/dashboard.html deploy/dashboard.html
+
+          echo "Dashboard deployment contents:"
+          find deploy -type f
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.IFASTNET_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p 1394 ${{ secrets.IFASTNET_SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy dashboard to iFastNet via rsync
+        run: |
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+            ./deploy/dashboard.html \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/dashboard.html
+
+      - name: Deployment summary
+        run: |
+          echo "Web dashboard deployment complete."
+          echo "  File deployed: web/dashboard.html"
+          echo "  Target:        /home/agiraces/dmianalysis/dashboard.html"
+          echo "  Site:          https://dmianalysis.org/dashboard.html"
