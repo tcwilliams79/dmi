@@ -75,7 +75,10 @@
   "summary_metrics": {
     "dmi_median": 6.754045127505345,
     "dmi_stress": 6.882745554963851,
-    "dmi_income_pressure_gap": 0.23489756025811914
+    "income_pressure_spread": 0.23489756025811914,
+    "income_pressure_tilt": 0.23489756025811914,
+    "most_pressured_group": "Q1",
+    "least_pressured_group": "Q5"
   },
   "metadata": {
     "note": "Confidence intervals reflect CE weights uncertainty only (not CPI or unemployment)",

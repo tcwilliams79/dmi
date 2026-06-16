@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "generated_at": "2026-06-15T16:06:20.694167Z",
   "reference_period": "2026-05",
   "headline_spec": "baseline",
@@ -12,7 +12,10 @@
       "metrics": {
         "dmi_median": 8.563655970678015,
         "dmi_stress": 8.631538722139872,
-        "income_pressure_gap": -0.3519182047831322,
+        "income_pressure_spread": 0.3519182047831322,
+        "income_pressure_tilt": -0.3519182047831322,
+        "most_pressured_group": "Q5",
+        "least_pressured_group": "Q1",
         "slack_measure": "u3"
       }
     },
@@ -24,7 +27,10 @@
       "metrics": {
         "dmi_median": 12.363655970678014,
         "dmi_stress": 12.431538722139871,
-        "income_pressure_gap": -0.3519182047831304,
+        "income_pressure_spread": 0.3519182047831304,
+        "income_pressure_tilt": -0.3519182047831304,
+        "most_pressured_group": "Q5",
+        "least_pressured_group": "Q1",
         "slack_measure": "u6"
       }
     },
@@ -36,17 +42,20 @@
       "metrics": {
         "dmi_median": 8.563655970678015,
         "dmi_stress": 8.631538722139872,
-        "income_pressure_gap": -0.3519182047831322,
+        "income_pressure_spread": 0.3519182047831322,
+        "income_pressure_tilt": -0.3519182047831322,
+        "most_pressured_group": "Q5",
+        "least_pressured_group": "Q1",
         "slack_measure": "u3"
       }
     }
   ],
   "robustness_assessment": {
-    "pressure_gap_sign_consistent": true,
     "stress_group_consistent": true,
     "notes": [
       "The distributional pattern is consistent across the published specifications.",
       "The highest-pressure income fifth remains Q5 across the published specifications."
-    ]
+    ],
+    "tilt_sign_consistent": true
   }
 }
