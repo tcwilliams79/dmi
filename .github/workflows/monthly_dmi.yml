@@ -133,6 +133,86 @@ jobs:
 
           echo "✅ QA validation (Baseline): $QA_STATUS_BASELINE, (slack-plus): $QA_STATUS_SLACK_PLUS, (core): $QA_STATUS_CORE"
 
+      - name: Sanity-check release manifest vs raw release
+        run: |
+          echo "Verifying releases.json/latest.json metrics match the raw baseline release for ${{ steps.period.outputs.period }}..."
+          PERIOD="${{ steps.period.outputs.period }}" python <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          period = os.environ["PERIOD"]
+          raw_path = Path(f"data/outputs/dmi_release_{period}.json")
+          releases_path = Path("data/outputs/releases.json")
+          latest_path = Path("data/outputs/latest.json")
+
+          REQUIRED_METRICS = (
+              "dmi_median",
+              "dmi_stress",
+              "income_pressure_spread",
+              "income_pressure_tilt",
+              "most_pressured_group",
+              "least_pressured_group",
+              "unemployment",
+          )
+          # Field names in raw summary_metrics differ for unemployment; pull that
+          # one from the Q1 slack value, matching build_metrics_payload().
+          NUMERIC_TOL = 1e-6
+
+          raw = json.loads(raw_path.read_text())
+          raw_summary = raw["summary_metrics"]
+          raw_metrics = {
+              "dmi_median": raw_summary["dmi_median"],
+              "dmi_stress": raw_summary["dmi_stress"],
+              "income_pressure_spread": raw_summary["income_pressure_spread"],
+              "income_pressure_tilt": raw_summary["income_pressure_tilt"],
+              "most_pressured_group": raw_summary["most_pressured_group"],
+              "least_pressured_group": raw_summary["least_pressured_group"],
+              "unemployment": raw["dmi_by_group"][0]["slack"],
+          }
+
+          # Guard against the original silent-zero bug: spread must match a non-zero
+          # raw spread; tilt must agree in sign with raw tilt.
+          if raw_metrics["income_pressure_spread"] <= 0:
+              print(f"ERROR: raw income_pressure_spread is {raw_metrics['income_pressure_spread']}; expected positive.")
+              sys.exit(1)
+
+          def check_manifest(manifest_path: Path, label: str) -> int:
+              manifest = json.loads(manifest_path.read_text())
+              entries = [r for r in manifest["releases"] if r["release_id"] == period]
+              if not entries:
+                  print(f"ERROR: {label} has no entry for {period}.")
+                  return 1
+              entry_metrics = entries[0]["metrics"]
+              errs = 0
+              for key in REQUIRED_METRICS:
+                  if key not in entry_metrics:
+                      print(f"ERROR: {label} entry {period} missing metric '{key}'.")
+                      errs += 1
+                      continue
+                  manifest_val = entry_metrics[key]
+                  raw_val = raw_metrics[key]
+                  if isinstance(raw_val, str):
+                      if manifest_val != raw_val:
+                          print(f"ERROR: {label} entry {period} metric '{key}': manifest={manifest_val!r}, raw={raw_val!r}")
+                          errs += 1
+                  else:
+                      if abs(float(manifest_val) - float(raw_val)) > NUMERIC_TOL:
+                          print(f"ERROR: {label} entry {period} metric '{key}': manifest={manifest_val}, raw={raw_val}")
+                          errs += 1
+              return errs
+
+          errs = 0
+          errs += check_manifest(releases_path, "releases.json")
+          errs += check_manifest(latest_path, "latest.json")
+
+          if errs:
+              print(f"❌ Sanity check failed with {errs} mismatch(es).")
+              sys.exit(1)
+          print("✅ Sanity check passed: manifest metrics match raw release.")
+          PY
+
       # =========================================
       # DEPLOYMENT TO IFASTNET (THIN MONTHLY DEPLOY)
       # =========================================

@@ -31,8 +31,9 @@ THRESHOLDS = {
     'little_changed': 0.05,
     'edged': 0.15,
     'modestly': 0.30,
-    'gap_little_changed': 0.015,  # Adjusted to classify 0.0178 as slightly changed
-    'gap_slightly': 0.08,
+    'spread_little_changed': 0.015,
+    'spread_slightly': 0.08,
+    'tilt_similar': 0.02,
     'unemployment_little_changed': 0.1,
     'unemployment_noticeably': 0.3,
 }
@@ -51,15 +52,19 @@ def classify_direction(delta: float, thresholds: dict) -> str:
         return 'rose_sharply' if delta > 0 else 'fell_sharply'
 
 
-def classify_gap_direction(gap_delta: float) -> str:
-    """Classify gap direction."""
-    abs_delta = abs(gap_delta)
-    if abs_delta < THRESHOLDS['gap_little_changed']:
-        return 'gap_little_changed'
-    elif abs_delta < THRESHOLDS['gap_slightly']:
-        return 'gap_narrowed_slightly' if gap_delta < 0 else 'gap_widened_slightly'
+def classify_spread_direction(spread_delta: float) -> str:
+    """Classify how the Income Pressure Spread (max-min) is changing.
+
+    Since the spread is non-negative, a negative delta means the
+    bottom-to-top distribution narrowed; a positive delta means it widened.
+    """
+    abs_delta = abs(spread_delta)
+    if abs_delta < THRESHOLDS['spread_little_changed']:
+        return 'spread_little_changed'
+    elif abs_delta < THRESHOLDS['spread_slightly']:
+        return 'spread_narrowed_slightly' if spread_delta < 0 else 'spread_widened_slightly'
     else:
-        return 'gap_narrowed_materially' if gap_delta < 0 else 'gap_widened_materially'
+        return 'spread_narrowed_materially' if spread_delta < 0 else 'spread_widened_materially'
 
 
 def classify_unemployment_direction(unemp_delta: float) -> str:
@@ -80,43 +85,51 @@ def build_release_summary(
 ) -> tuple[dict, str]:
     """
     Generate deterministic plain-English summary for a DMI release.
-    
+
     Returns (summary_facts, summary_text)
     """
     metrics = current_release['metrics']
     dmi_median = metrics['dmi_median']
     dmi_stress = metrics['dmi_stress']
-    income_pressure_gap = metrics['income_pressure_gap']
+    spread = metrics['income_pressure_spread']
+    tilt = metrics['income_pressure_tilt']
+    most_pressured_group = metrics['most_pressured_group']
+    least_pressured_group = metrics['least_pressured_group']
     unemployment = metrics['unemployment']
-    
+
+    tilt_similar = THRESHOLDS['tilt_similar']
     summary_facts = {
-        'lower_income_more_pressure': income_pressure_gap > 0,
-        'higher_income_more_pressure': income_pressure_gap < 0,
-        'pressure_similar_across_bottom_top': abs(income_pressure_gap) < 0.02,
+        'lower_income_more_pressure': tilt > tilt_similar,
+        'higher_income_more_pressure': tilt < -tilt_similar,
+        'pressure_similar_across_bottom_top': abs(tilt) <= tilt_similar,
+        'most_pressured_group': most_pressured_group,
+        'least_pressured_group': least_pressured_group,
     }
-    
+
     data_through_label = current_release['data_through_label']
-    
+
     # Compute deltas if prior exists
     if prior_release:
         prior_metrics = prior_release['metrics']
         median_delta_mom = dmi_median - prior_metrics['dmi_median']
         stress_delta_mom = dmi_stress - prior_metrics['dmi_stress']
-        gap_delta_mom = income_pressure_gap - prior_metrics['income_pressure_gap']
+        spread_delta_mom = spread - prior_metrics['income_pressure_spread']
+        tilt_delta_mom = tilt - prior_metrics['income_pressure_tilt']
         unemployment_delta_mom = unemployment - prior_metrics['unemployment']
-        
+
         summary_facts.update({
             'median_delta_mom': median_delta_mom,
             'stress_delta_mom': stress_delta_mom,
-            'gap_delta_mom': gap_delta_mom,
+            'spread_delta_mom': spread_delta_mom,
+            'tilt_delta_mom': tilt_delta_mom,
             'unemployment_delta_mom': unemployment_delta_mom,
             'overall_direction': classify_direction(median_delta_mom, THRESHOLDS),
-            'gap_direction': classify_gap_direction(gap_delta_mom),
+            'spread_direction': classify_spread_direction(spread_delta_mom),
         })
-        
+
         # Build summary with prior
         sentences = []
-        
+
         # Sentence 1: overall movement
         direction = summary_facts['overall_direction']
         if direction == 'little_changed':
@@ -133,24 +146,27 @@ def build_release_summary(
             sentences.append(f"Economic pressure rose sharply in {data_through_label}.")
         elif direction == 'fell_sharply':
             sentences.append(f"Economic pressure fell sharply in {data_through_label}.")
-        
+
         # Sentence 2: distributional pattern
+        spread_direction = summary_facts['spread_direction']
         if summary_facts['lower_income_more_pressure']:
-            if summary_facts['gap_direction'] == 'gap_little_changed':
-                sentences.append("Lower-income households continued to face more pressure than higher-income households.")
-            elif summary_facts['gap_direction'] == 'gap_narrowed_slightly':
-                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap narrowed slightly from the prior month.")
-            elif summary_facts['gap_direction'] == 'gap_widened_slightly':
-                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap widened slightly from the prior month.")
-            elif summary_facts['gap_direction'] == 'gap_narrowed_materially':
-                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap narrowed materially from the prior month.")
-            elif summary_facts['gap_direction'] == 'gap_widened_materially':
-                sentences.append("Lower-income households continued to face more pressure than higher-income households, and the Income Pressure Gap widened materially from the prior month.")
+            base = "Lower-income households continued to face more pressure than higher-income households"
         elif summary_facts['higher_income_more_pressure']:
-            sentences.append("Higher-income households faced more pressure than lower-income households.")
+            base = "Higher-income households faced more pressure than lower-income households"
         else:
-            sentences.append("Pressure was felt more similarly across the bottom and top income fifths.")
-        
+            base = "Pressure was felt more similarly across the bottom and top income fifths"
+
+        if spread_direction == 'spread_little_changed':
+            sentences.append(f"{base}.")
+        elif spread_direction == 'spread_narrowed_slightly':
+            sentences.append(f"{base}, and the Income Pressure Spread narrowed slightly from the prior month.")
+        elif spread_direction == 'spread_widened_slightly':
+            sentences.append(f"{base}, and the Income Pressure Spread widened slightly from the prior month.")
+        elif spread_direction == 'spread_narrowed_materially':
+            sentences.append(f"{base}, and the Income Pressure Spread narrowed materially from the prior month.")
+        elif spread_direction == 'spread_widened_materially':
+            sentences.append(f"{base}, and the Income Pressure Spread widened materially from the prior month.")
+
         # Sentence 3: optional detail
         if contributor_context and 'top_contributors_q1' in contributor_context:
             contributors = contributor_context['top_contributors_q1']
@@ -161,7 +177,7 @@ def build_release_summary(
             elif len(contributors) >= 3:
                 contrib_str = ', '.join(c.lower() for c in contributors[:-1]) + f", and {contributors[-1].lower()}"
                 sentences.append(f"For the bottom income fifth, the main contributors remained {contrib_str}.")
-        elif prior_release:
+        else:
             unemp_direction = classify_unemployment_direction(unemployment_delta_mom)
             if unemp_direction != 'unemployment_little_changed':
                 if unemp_direction == 'unemployment_edged_up':
@@ -172,15 +188,26 @@ def build_release_summary(
                     sentences.append(f"The labor-market backdrop softened noticeably, with unemployment rising to {unemployment}%.")
                 elif unemp_direction == 'unemployment_fell_noticeably':
                     sentences.append(f"The labor-market backdrop improved noticeably, with unemployment falling to {unemployment}%.")
-        
+
         summary = ' '.join(sentences)
     else:
         # Fallback: no prior release
         summary_facts.update({
             'overall_direction': 'no_prior',
         })
-        summary = f"The {data_through_label} release shows {'higher' if income_pressure_gap > 0 else 'lower' if income_pressure_gap < 0 else 'similar'} measured pressure for lower-income households than for higher-income households. The current dashboard reports a DMI Median of {dmi_median:.2f}, a DMI Stress reading of {dmi_stress:.2f}, and an Income Pressure Gap of {income_pressure_gap:.2f}."
-    
+        if summary_facts['lower_income_more_pressure']:
+            who = "higher measured pressure for lower-income households than for higher-income households"
+        elif summary_facts['higher_income_more_pressure']:
+            who = "higher measured pressure for higher-income households than for lower-income households"
+        else:
+            who = "similar measured pressure across lower- and higher-income households"
+        summary = (
+            f"The {data_through_label} release shows {who}. "
+            f"The current dashboard reports a DMI Median of {dmi_median:.2f}, "
+            f"a DMI Stress reading of {dmi_stress:.2f}, "
+            f"and an Income Pressure Spread of {spread:.2f}."
+        )
+
     return summary_facts, summary
 
 
@@ -292,7 +319,11 @@ def compute_dmi_for_period(
     print(f"    ✓ Summary metrics:")
     print(f"      Median DMI: {metrics['dmi_median']:.2f}")
     print(f"      Stress (max): {metrics['dmi_stress']:.2f}")
-    print(f"      Income Pressure Gap (Q1-Q5): {metrics['dmi_income_pressure_gap']:.2f}")
+    print(f"      Income Pressure Spread (max-min): {metrics['income_pressure_spread']:.2f}")
+    if 'income_pressure_tilt' in metrics:
+        print(f"      Income Pressure Tilt (Q1-Q5): {metrics['income_pressure_tilt']:.2f}")
+    print(f"      Most pressured group: {metrics['most_pressured_group']}")
+    print(f"      Least pressured group: {metrics['least_pressured_group']}")
     
     # Compile results
     results = {
@@ -412,19 +443,31 @@ def generate_release_note_html(
     <div class="metrics">
         <div class="metric-row">
             <span class="metric-label">DMI Median:</span>
-            <span class="metric-value">{metrics.get('dmi_median', 0):.2f}</span>
+            <span class="metric-value">{metrics['dmi_median']:.2f}</span>
         </div>
         <div class="metric-row">
             <span class="metric-label">DMI Stress:</span>
-            <span class="metric-value">{metrics.get('dmi_stress', 0):.2f}</span>
+            <span class="metric-value">{metrics['dmi_stress']:.2f}</span>
         </div>
         <div class="metric-row">
-            <span class="metric-label">Income Pressure Gap:</span>
-            <span class="metric-value">{metrics.get('dmi_income_pressure_gap', 0):.2f}</span>
+            <span class="metric-label">Income Pressure Spread (max&minus;min):</span>
+            <span class="metric-value">{metrics['income_pressure_spread']:.2f}</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Income Pressure Tilt (Q1&minus;Q5):</span>
+            <span class="metric-value">{metrics['income_pressure_tilt']:+.2f}</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Most pressured group:</span>
+            <span class="metric-value">{metrics['most_pressured_group']}</span>
+        </div>
+        <div class="metric-row">
+            <span class="metric-label">Least pressured group:</span>
+            <span class="metric-value">{metrics['least_pressured_group']}</span>
         </div>
         <div class="metric-row">
             <span class="metric-label">Unemployment ({slack_measure}):</span>
-            <span class="metric-value">{metrics.get('unemployment', 0):.1f}%</span>
+            <span class="metric-value">{metrics['unemployment']:.1f}%</span>
         </div>
     </div>
     
@@ -456,59 +499,32 @@ def update_releases_json(
     metrics: dict,
     summary: str,
     summary_facts: dict,
-    methodology_version: str = "v0.1.11",
+    methodology_version: str = "v0.1.12",
     dashboard_url: str = None,
     repo_url: str = None,
     notes: list = None
 ):
     """Update releases.json with the new release metadata conforming to schema."""
     releases_path = Path("data/outputs/releases.json")
-    
-    # Load existing releases or create new structure
+
+    # Load existing releases (always a manifest object under the current schema)
     releases = []
     if releases_path.exists():
         with open(releases_path, 'r') as f:
             existing = json.load(f)
-        
-        # Handle both old format (array) and new format (manifest object)
-        if isinstance(existing, dict) and 'releases' in existing:
-            # Already in new format, get the releases array and filter to new schema only
-            for release in existing.get('releases', []):
-                # Only keep releases that have the new schema structure AND are not the current release_id
-                if 'data_through_label' in release and ('urls' in release or 'spec_urls' in release):
-                    if release.get('release_id') != reference_period:
-                        releases.append(release)
-        elif isinstance(existing, list):
-            # Old format - filter and migrate to new schema
-            for release in existing:
-                if 'data_through_label' in release and ('urls' in release or 'spec_urls' in release):
-                    if release.get('release_id') != reference_period:
-                        releases.append(release)
-    
+        for release in existing.get('releases', []):
+            if release.get('release_id') != reference_period:
+                releases.append(release)
+
     # Convert reference period to data_through_label format
     year, month = reference_period.split('-')
     months = ['January', 'February', 'March', 'April', 'May', 'June',
               'July', 'August', 'September', 'October', 'November', 'December']
     month_name = months[int(month) - 1]
     data_through_label = f"{month_name} {year}"
-    
-    # Create new release entry
-    # Create release URL blocks
+
     base_release_note = f"/data/outputs/releases/{reference_period}.html"
 
-    # Backward-compatible canonical URLs (Baseline is the canonical series)
-    urls = {
-        "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
-        "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
-        "release_note": base_release_note,
-    }
-
-    if dashboard_url:
-        urls["dashboard"] = dashboard_url
-    if repo_url:
-        urls["repo"] = repo_url
- 
-    # New multi-spec structure
     spec_urls = {
         "baseline": {
             "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
@@ -534,7 +550,7 @@ def update_releases_json(
     if repo_url:
         for spec_key in spec_urls:
             spec_urls[spec_key]["repo"] = repo_url
-    
+
     new_release = {
         "release_id": reference_period,
         "data_through_label": data_through_label,
@@ -543,38 +559,38 @@ def update_releases_json(
         "methodology_version": methodology_version,
         "summary": summary,
         "summary_facts": summary_facts,
-        "urls": urls,           # backward compatibility
-        "spec_urls": spec_urls, # new multi-spec structure
+        "spec_urls": spec_urls,
         "metrics": {
-            "dmi_median": metrics.get('dmi_median', 0),
-            "dmi_stress": metrics.get('dmi_stress', 0),
-            "income_pressure_gap": metrics.get('dmi_income_pressure_gap', 0),
-            "unemployment": metrics.get('unemployment', 0)
-        }
+            "dmi_median": metrics['dmi_median'],
+            "dmi_stress": metrics['dmi_stress'],
+            "income_pressure_spread": metrics['income_pressure_spread'],
+            "income_pressure_tilt": metrics['income_pressure_tilt'],
+            "most_pressured_group": metrics['most_pressured_group'],
+            "least_pressured_group": metrics['least_pressured_group'],
+            "unemployment": metrics['unemployment'],
+        },
     }
     if notes:
         new_release["notes"] = notes
-    
+
     # Mark any other current releases as superseded
     for release in releases:
         if release.get('status') == 'current':
             release['status'] = 'superseded'
-    
+
     # Add new release at top
     releases.insert(0, new_release)
-    
-    # Build the releases.json structure
+
     releases_manifest = {
-        "schema_version": "1.2.0",
+        "schema_version": "2.0.0",
         "generated_at": datetime.now().isoformat() + "Z",
         "current_release_id": reference_period,
         "releases": releases
     }
-    
-    # Save updated releases.json
+
     with open(releases_path, 'w') as f:
         json.dump(releases_manifest, f, indent=2)
-    
+
     print(f"✓ Updated releases.json with new release {reference_period}")
     return releases_path
 
@@ -584,31 +600,48 @@ def update_latest_json(
     metrics: dict,
     summary: str,
     summary_facts: dict,
-    methodology_version: str = "v0.1.11",
+    methodology_version: str = "v0.1.12",
     dashboard_url: str = None,
     repo_url: str = None,
     notes: list = None
 ):
     """Update latest.json with the most recent release metadata conforming to schema."""
     latest_path = Path("data/outputs/latest.json")
-    
+
     # Convert reference period to data_through_label format
     year, month = reference_period.split('-')
     months = ['January', 'February', 'March', 'April', 'May', 'June',
               'July', 'August', 'September', 'October', 'November', 'December']
     month_name = months[int(month) - 1]
     data_through_label = f"{month_name} {year}"
-    
-    urls = {
-        "csv": f"/data/outputs/dmi-{reference_period}.csv",
-        "parquet": f"/data/outputs/dmi-{reference_period}.parquet",
-        "release_note": f"/data/outputs/releases/{reference_period}.html"
+
+    base_release_note = f"/data/outputs/releases/{reference_period}.html"
+
+    spec_urls = {
+        "baseline": {
+            "csv": f"/data/outputs/dmi-{reference_period}-baseline.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}-baseline.parquet",
+            "release_note": base_release_note,
+        },
+        "slack_plus": {
+            "csv": f"/data/outputs/dmi-{reference_period}-slack_plus.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}-slack_plus.parquet",
+            "release_note": base_release_note,
+        },
+        "core": {
+            "csv": f"/data/outputs/dmi-{reference_period}-core.csv",
+            "parquet": f"/data/outputs/dmi-{reference_period}-core.parquet",
+            "release_note": base_release_note,
+        },
     }
+
     if dashboard_url:
-        urls["dashboard"] = dashboard_url
+        for spec_key in spec_urls:
+            spec_urls[spec_key]["dashboard"] = dashboard_url
     if repo_url:
-        urls["repo"] = repo_url
-    
+        for spec_key in spec_urls:
+            spec_urls[spec_key]["repo"] = repo_url
+
     latest_release = {
         "release_id": reference_period,
         "data_through_label": data_through_label,
@@ -617,28 +650,30 @@ def update_latest_json(
         "methodology_version": methodology_version,
         "summary": summary,
         "summary_facts": summary_facts,
-        "urls": urls,
+        "spec_urls": spec_urls,
         "metrics": {
-            "dmi_median": metrics.get('dmi_median', 0),
-            "dmi_stress": metrics.get('dmi_stress', 0),
-            "income_pressure_gap": metrics.get('income_pressure_gap', 0),
-            "unemployment": metrics.get('unemployment', 0)
-        }
+            "dmi_median": metrics['dmi_median'],
+            "dmi_stress": metrics['dmi_stress'],
+            "income_pressure_spread": metrics['income_pressure_spread'],
+            "income_pressure_tilt": metrics['income_pressure_tilt'],
+            "most_pressured_group": metrics['most_pressured_group'],
+            "least_pressured_group": metrics['least_pressured_group'],
+            "unemployment": metrics['unemployment'],
+        },
     }
     if notes:
         latest_release["notes"] = notes
-    
-    # Build the latest.json structure following the same schema as releases.json
+
     latest_manifest = {
-        "schema_version": "1.1.0",
+        "schema_version": "2.0.0",
         "generated_at": datetime.now().isoformat() + "Z",
         "current_release_id": reference_period,
         "releases": [latest_release]
     }
-    
+
     with open(latest_path, 'w') as f:
         json.dump(latest_manifest, f, indent=2)
-    
+
     print(f"✓ Updated latest.json with release {reference_period}")
     return latest_path
 
@@ -830,76 +865,61 @@ def main(weights_year: int=2023):
     print("Generating release note HTML...")
     print("=" * 80)
     
+    # Shared metrics payload for summary, HTML, and manifest updates
+    metrics_payload = {
+        'dmi_median': results['summary_metrics']['dmi_median'],
+        'dmi_stress': results['summary_metrics']['dmi_stress'],
+        'income_pressure_spread': results['summary_metrics']['income_pressure_spread'],
+        'income_pressure_tilt': results['summary_metrics']['income_pressure_tilt'],
+        'most_pressured_group': results['summary_metrics']['most_pressured_group'],
+        'least_pressured_group': results['summary_metrics']['least_pressured_group'],
+        'unemployment': results['dmi_by_group'][0]['slack'],
+    }
+
     # Generate summary
     current_release = {
         'release_id': reference_period,
         'data_through_label': f"{['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][int(reference_period.split('-')[1]) - 1]} {reference_period.split('-')[0]}",
-        'metrics': {
-            'dmi_median': results['summary_metrics']['dmi_median'],
-            'dmi_stress': results['summary_metrics']['dmi_stress'],
-            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
-            'unemployment': results['dmi_by_group'][0]['slack']
-        }
+        'metrics': metrics_payload,
     }
-    
+
     # Get prior release
     prior_release = None
     releases_path = Path("data/outputs/releases.json")
     if releases_path.exists():
         with open(releases_path, 'r') as f:
             existing = json.load(f)
-        if isinstance(existing, dict) and 'releases' in existing:
-            existing_releases = existing.get('releases', [])
-        elif isinstance(existing, list):
-            existing_releases = existing
-        else:
-            existing_releases = []
+        existing_releases = existing.get('releases', [])
+        existing_releases = [r for r in existing_releases if r.get('release_id') != reference_period]
         if existing_releases:
-            # Sort by release_id descending, take the first (latest)
             existing_releases.sort(key=lambda x: x['release_id'], reverse=True)
             prior_release = existing_releases[0]
-    
+
     summary_facts, summary = build_release_summary(current_release, prior_release)
-    
+
     release_html = generate_release_note_html(
         reference_period=reference_period,
-        metrics={
-            'dmi_median': results['summary_metrics']['dmi_median'],
-            'dmi_stress': results['summary_metrics']['dmi_stress'],
-            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
-            'unemployment': results['dmi_by_group'][0]['slack']  # slack (U-3 or U-6) rate from Q1
-        },
+        metrics=metrics_payload,
         summary=summary,
         slack_measure=slack_measure_display
     )
     save_release_note(release_html, reference_period)
-    
+
     # Update releases.json
     print("\n" + "=" * 80)
     print("Updating releases.json and latest.json...")
     print("=" * 80)
-    
+
     update_releases_json(
         reference_period=reference_period,
-        metrics={
-            'dmi_median': results['summary_metrics']['dmi_median'],
-            'dmi_stress': results['summary_metrics']['dmi_stress'],
-            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
-            'unemployment': results['dmi_by_group'][0]['slack']
-        },
+        metrics=metrics_payload,
         summary=summary,
         summary_facts=summary_facts
     )
-    
-    # Update latest.json
+
     update_latest_json(
         reference_period=reference_period,
-        metrics={
-            'dmi_median': results['summary_metrics']['dmi_median'],
-            'dmi_stress': results['summary_metrics']['dmi_stress'],
-            'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
-            'unemployment': results['dmi_by_group'][0]['slack']
-        },
+        metrics=metrics_payload,
         summary=summary,
         summary_facts=summary_facts
     )
@@ -922,8 +942,11 @@ def main(weights_year: int=2023):
     
     print(f"\nSummary Metrics:")
     print(f"  Median DMI: {results['summary_metrics']['dmi_median']:.2f}")
-    print(f"  Stress (Q1): {results['summary_metrics']['dmi_stress']:.2f}")
-    print(f"  Income Pressure Gap (Q1-Q5): {results['summary_metrics']['dmi_income_pressure_gap']:.2f}")
+    print(f"  Stress: {results['summary_metrics']['dmi_stress']:.2f}")
+    print(f"  Income Pressure Spread (max-min): {results['summary_metrics']['income_pressure_spread']:.2f}")
+    print(f"  Income Pressure Tilt (Q1-Q5): {results['summary_metrics']['income_pressure_tilt']:+.2f}")
+    print(f"  Most pressured group: {results['summary_metrics']['most_pressured_group']}")
+    print(f"  Least pressured group: {results['summary_metrics']['least_pressured_group']}")
     
     print("\n" + "=" * 80)
     print("✓ Full DMI integration test completed successfully!")

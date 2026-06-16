@@ -52,31 +52,30 @@ def load_release(path: Path) -> dict:
 
 
 def metrics_from_release(release: dict) -> dict:
-    summary = release.get("summary_metrics", {})
-    params = release.get("parameters", {})
+    summary = release["summary_metrics"]
+    params = release["parameters"]
     return {
-        "dmi_median": summary.get("dmi_median"),
-        "dmi_stress": summary.get("dmi_stress"),
-        "income_pressure_gap": summary.get("dmi_income_pressure_gap"),
-        "slack_measure": params.get("slack_measure", "U3"),
+        "dmi_median": summary["dmi_median"],
+        "dmi_stress": summary["dmi_stress"],
+        "income_pressure_spread": summary["income_pressure_spread"],
+        "income_pressure_tilt": summary["income_pressure_tilt"],
+        "most_pressured_group": summary["most_pressured_group"],
+        "least_pressured_group": summary["least_pressured_group"],
+        "slack_measure": params["slack_measure"],
     }
 
 
 def pressure_pattern(release: dict) -> str:
-    gap = release.get("summary_metrics", {}).get("dmi_income_pressure_gap", 0.0)
-    if gap > 0.02:
+    tilt = release["summary_metrics"]["income_pressure_tilt"]
+    if tilt > 0.02:
         return "lower_income_more_pressure"
-    if gap < -0.02:
+    if tilt < -0.02:
         return "higher_income_more_pressure"
     return "similar_pressure"
 
 
 def stress_group(release: dict) -> str:
-    groups = release.get("dmi_by_group", [])
-    if not groups:
-        return "unknown"
-    top = max(groups, key=lambda row: row["dmi"])
-    return top["group_id"]
+    return release["summary_metrics"]["most_pressured_group"]
 
 
 def build_notes(releases_by_spec: dict) -> tuple[dict, list[str]]:
@@ -84,18 +83,18 @@ def build_notes(releases_by_spec: dict) -> tuple[dict, list[str]]:
     baseline_pattern = pressure_pattern(baseline)
     baseline_stress_group = stress_group(baseline)
 
-    gap_consistent = True
+    tilt_consistent = True
     stress_consistent = True
 
     for spec_id in ("slack_plus", "core"):
         release = releases_by_spec[spec_id]
         if pressure_pattern(release) != baseline_pattern:
-            gap_consistent = False
+            tilt_consistent = False
         if stress_group(release) != baseline_stress_group:
             stress_consistent = False
 
     notes = []
-    if gap_consistent:
+    if tilt_consistent:
         notes.append("The distributional pattern is consistent across the published specifications.")
     else:
         notes.append("The distributional pattern varies across the published specifications.")
@@ -106,7 +105,7 @@ def build_notes(releases_by_spec: dict) -> tuple[dict, list[str]]:
         notes.append("The highest-pressure income fifth changes across the published specifications.")
 
     robustness = {
-        "pressure_gap_sign_consistent": gap_consistent,
+        "pressure_tilt_sign_consistent": tilt_consistent,
         "stress_group_consistent": stress_consistent,
     }
 
@@ -141,7 +140,7 @@ def main():
     robustness_assessment, notes = build_notes(releases_by_spec)
 
     manifest = {
-        "schema_version": "0.1.0",
+        "schema_version": "0.2.0",
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "reference_period": reference_period,
         "headline_spec": "baseline",

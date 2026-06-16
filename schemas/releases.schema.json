@@ -1,3 +1,4 @@
+{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DMI Releases Manifest",
   "type": "object",
@@ -35,7 +36,7 @@
           "methodology_version",
           "summary",
           "summary_facts",
-          "urls",
+          "spec_urls",
           "metrics"
         ],
         "properties": {
@@ -73,14 +74,25 @@
               "stress_delta_mom": {
                 "type": "number"
               },
-              "gap_delta_mom": {
+              "spread_delta_mom": {
+                "type": "number"
+              },
+              "tilt_delta_mom": {
                 "type": "number"
               },
               "unemployment_delta_mom": {
                 "type": "number"
               },
-              "gap_direction": {
+              "spread_direction": {
                 "type": "string"
+              },
+              "most_pressured_group": {
+                "type": "string",
+                "pattern": "^Q[1-5]$"
+              },
+              "least_pressured_group": {
+                "type": "string",
+                "pattern": "^Q[1-5]$"
               },
               "lower_income_more_pressure": {
                 "type": "boolean"
@@ -93,30 +105,19 @@
               }
             }
           },
-          "urls": {
+          "spec_urls": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["csv", "parquet", "release_note"],
+            "required": ["baseline", "slack_plus", "core"],
             "properties": {
-              "csv": {
-                "type": "string",
-                "format": "uri-reference"
+              "baseline": {
+                "$ref": "#/$defs/spec_url_block"
               },
-              "parquet": {
-                "type": "string",
-                "format": "uri-reference"
+              "slack_plus": {
+                "$ref": "#/$defs/spec_url_block"
               },
-              "release_note": {
-                "type": "string",
-                "format": "uri-reference"
-              },
-              "dashboard": {
-                "type": "string",
-                "format": "uri-reference"
-              },
-              "repo": {
-                "type": "string",
-                "format": "uri-reference"
+              "core": {
+                "$ref": "#/$defs/spec_url_block"
               }
             }
           },
@@ -126,7 +127,10 @@
             "required": [
               "dmi_median",
               "dmi_stress",
-              "income_pressure_gap",
+              "income_pressure_spread",
+              "income_pressure_tilt",
+              "most_pressured_group",
+              "least_pressured_group",
               "unemployment"
             ],
             "properties": {
@@ -136,8 +140,20 @@
               "dmi_stress": {
                 "type": "number"
               },
-              "income_pressure_gap": {
+              "income_pressure_spread": {
+                "type": "number",
+                "minimum": 0
+              },
+              "income_pressure_tilt": {
                 "type": "number"
+              },
+              "most_pressured_group": {
+                "type": "string",
+                "pattern": "^Q[1-5]$"
+              },
+              "least_pressured_group": {
+                "type": "string",
+                "pattern": "^Q[1-5]$"
               },
               "unemployment": {
                 "type": "number"
@@ -150,6 +166,27 @@
               "type": "string"
             }
           }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "spec_url_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["csv", "parquet", "release_note"],
+      "properties": {
+        "csv": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "parquet": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "release_note": {
+          "type": "string",
+          "format": "uri-reference"
         }
       }
     }

@@ -223,35 +223,44 @@ def compute_dmi(
 
 def compute_summary_metrics(
     dmi_by_group: pd.DataFrame
-) -> Dict[str, float]:
+) -> Dict[str, object]:
     """
     Compute summary metrics for DMI distribution.
-    
+
     Args:
         dmi_by_group: DataFrame with columns [group_id, dmi, ...]
-    
+
     Returns:
         Dictionary with keys:
-        - dmi_median: Median DMI (typically Q3 for quintiles)
-        - dmi_stress: Maximum DMI across groups
-        - dmi_dispersion_q5_q1: Q5 - Q1 (for quintiles)
+        - dmi_median:             Median DMI across groups
+        - dmi_stress:             Maximum DMI across groups
+        - income_pressure_spread: max(DMI) - min(DMI), always >= 0
+        - most_pressured_group:   group_id of the highest-DMI group
+        - least_pressured_group:  group_id of the lowest-DMI group
+        - income_pressure_tilt:   Q1 DMI - Q5 DMI (signed; positive => bottom
+                                  fifth more pressured). Only present when both
+                                  Q1 and Q5 are in the input.
     """
     dmi_values = dmi_by_group['dmi'].values
-    
-    # Sort group_ids to get Q1-Q5 ordering
     sorted_groups = dmi_by_group.sort_values('group_id')
-    
-    metrics = {
+
+    max_idx = dmi_by_group['dmi'].idxmax()
+    min_idx = dmi_by_group['dmi'].idxmin()
+
+    metrics: Dict[str, object] = {
         'dmi_median': float(np.median(dmi_values)),
-        'dmi_stress': float(np.max(dmi_values))
+        'dmi_stress': float(np.max(dmi_values)),
+        'income_pressure_spread': float(np.max(dmi_values) - np.min(dmi_values)),
+        'most_pressured_group': str(dmi_by_group.loc[max_idx, 'group_id']),
+        'least_pressured_group': str(dmi_by_group.loc[min_idx, 'group_id']),
     }
-    
-    # Income Pressure Gap (Q1 - Q5) if quintiles present
+
+    # Signed Q1 - Q5 tilt (positive => lower-income fifth more pressured)
     if 'Q5' in sorted_groups['group_id'].values and 'Q1' in sorted_groups['group_id'].values:
         q5_dmi = float(sorted_groups[sorted_groups['group_id'] == 'Q5']['dmi'].values[0])
         q1_dmi = float(sorted_groups[sorted_groups['group_id'] == 'Q1']['dmi'].values[0])
-        metrics['dmi_income_pressure_gap'] = q1_dmi - q5_dmi
-    
+        metrics['income_pressure_tilt'] = q1_dmi - q5_dmi
+
     return metrics
 
 

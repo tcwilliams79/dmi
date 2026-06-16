@@ -85,7 +85,10 @@ Visit the interactive dashboard:
   "summary_metrics": {
     "dmi_median": 6.72,
     "dmi_stress": 6.85,
-    "dmi_dispersion_q5_q1": -0.24
+    "income_pressure_spread": 0.24,
+    "income_pressure_tilt": 0.24,
+    "most_pressured_group": "Q1",
+    "least_pressured_group": "Q5"
   },
   "inflation_contributions": [...],
   "metadata": {
@@ -175,9 +178,12 @@ Adds CI fields to each group:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `dmi_median` | number | Q3 (middle quintile) DMI |
-| `dmi_stress` | number | Q1 (highest DMI) |
-| `dmi_dispersion_q5_q1` | number | Q5 - Q1 difference |
+| `dmi_median` | number | Median DMI across published income fifths |
+| `dmi_stress` | number | Highest DMI across published income fifths |
+| `income_pressure_spread` | number | max(DMI) − min(DMI); always ≥ 0; dispersion across fifths |
+| `income_pressure_tilt` | number | Q1 DMI − Q5 DMI; signed; positive means bottom fifth more pressured |
+| `most_pressured_group` | string | `group_id` of the highest-DMI fifth (e.g., `"Q1"`) |
+| `least_pressured_group` | string | `group_id` of the lowest-DMI fifth (e.g., `"Q5"`) |
 
 ### Inflation Contributions
 

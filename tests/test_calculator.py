@@ -188,12 +188,19 @@ class TestSummaryMetrics:
         
         # Median should be 8.5 (middle value)
         assert metrics['dmi_median'] == 8.5
-        
+
         # Stress should be max = 10.0
         assert metrics['dmi_stress'] == 10.0
-        
-        # Dispersion = Q5 - Q1 = 7.0 - 10.0 = -3.0
-        assert metrics['dmi_dispersion_q5_q1'] == -3.0
+
+        # Spread = max - min = 10.0 - 7.0 = 3.0
+        assert metrics['income_pressure_spread'] == 3.0
+
+        # Tilt = Q1 - Q5 = 10.0 - 7.0 = 3.0 (signed; positive => bottom fifth more pressured)
+        assert metrics['income_pressure_tilt'] == 3.0
+
+        # Group identifiers
+        assert metrics['most_pressured_group'] == 'Q1'
+        assert metrics['least_pressured_group'] == 'Q5'
 
 
 class TestEndToEndCalculation:
@@ -223,7 +230,10 @@ class TestEndToEndCalculation:
         
         assert 'dmi_median' in metrics
         assert 'dmi_stress' in metrics
-        assert 'dmi_dispersion_q5_q1' in metrics
+        assert 'income_pressure_spread' in metrics
+        assert 'income_pressure_tilt' in metrics
+        assert 'most_pressured_group' in metrics
+        assert 'least_pressured_group' in metrics
         
         # DMI should be higher than individual components
         assert all(dmi_df['dmi'] > 0)

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.12]
+
+### Changed - Metrics Rename (Breaking)
+- Replaced single signed `income_pressure_gap` with two distinct metrics:
+  - `income_pressure_spread` (always ≥ 0): max(DMI) − min(DMI) across groups, measures dispersion
+  - `income_pressure_tilt` (signed): Q1 DMI − Q5 DMI, measures regressivity (positive ⇒ bottom fifth more pressured)
+- Added `most_pressured_group` and `least_pressured_group` (group identifiers) to `summary_metrics`
+- Bumped schema versions: `releases.json` 1.2.0 → 2.0.0, `latest.json` 1.1.0 → 2.0.0, `specifications.json` 0.1.0 → 0.2.0
+- Bumped methodology version to v0.1.12
+- Dropped legacy `urls` block in releases/latest; only `spec_urls` going forward
+- Summary generator: `classify_gap_direction` → `classify_spread_direction`; `gap_delta_mom`/`gap_direction` → `spread_delta_mom`/`tilt_delta_mom`/`spread_direction`
+
+### Added - Phase 3 Sanity Check
+- Workflow step verifies `releases.json` and `latest.json` metrics match the raw release manifest within tolerance (guards against the silent-zero bug)
+
+### Fixed
+- WordPress `dmi-latest-info` plugin: "Most-Pressured Group" row previously rendered `dmi_stress` (numeric); now correctly shows `group_id`
+- Strict (subscript) access replaces silent `.get(key, default)` patterns for required metrics
+
 ## [0.1.11] - 2025-12-17
 
 ### Added - Dashboard Polish

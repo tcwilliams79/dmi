@@ -92,10 +92,14 @@ def load_prior_release(reference_period: str):
 
 def build_metrics_payload(results: dict) -> dict:
     """Return the standardized metrics payload used across release artifacts."""
+    summary = results['summary_metrics']
     return {
-        'dmi_median': results['summary_metrics']['dmi_median'],
-        'dmi_stress': results['summary_metrics']['dmi_stress'],
-        'income_pressure_gap': results['summary_metrics']['dmi_income_pressure_gap'],
+        'dmi_median': summary['dmi_median'],
+        'dmi_stress': summary['dmi_stress'],
+        'income_pressure_spread': summary['income_pressure_spread'],
+        'income_pressure_tilt': summary['income_pressure_tilt'],
+        'most_pressured_group': summary['most_pressured_group'],
+        'least_pressured_group': summary['least_pressured_group'],
         'unemployment': results['dmi_by_group'][0]['slack'],
     }
 
@@ -335,9 +339,15 @@ def main() -> int:
     print(f"  Median DMI: {results['summary_metrics']['dmi_median']:.2f}")
     print(f"  Stress: {results['summary_metrics']['dmi_stress']:.2f}")
     print(
-        f"  Income Pressure Gap (Q1-Q5): "
-        f"{results['summary_metrics']['dmi_income_pressure_gap']:.2f}"
+        f"  Income Pressure Spread (max-min): "
+        f"{results['summary_metrics']['income_pressure_spread']:.2f}"
     )
+    print(
+        f"  Income Pressure Tilt (Q1-Q5): "
+        f"{results['summary_metrics']['income_pressure_tilt']:+.2f}"
+    )
+    print(f"  Most pressured group: {results['summary_metrics']['most_pressured_group']}")
+    print(f"  Least pressured group: {results['summary_metrics']['least_pressured_group']}")
 
     print("\n✓ Explicit-period DMI release run completed successfully!")
     return 0

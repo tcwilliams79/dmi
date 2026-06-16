@@ -16,11 +16,11 @@ Summaries are created by the `build_release_summary()` function in `scripts/comp
 - **Deterministic**: Same inputs always produce the same output
 - **Non-LLM**: Pure algorithmic generation, no AI models required
 - **Constrained tone**: Avoids partisan, causal, or alarmist language
-- **Metric-driven**: Based on DMI Median, DMI Stress, Income Pressure Gap, and unemployment changes
+- **Metric-driven**: Based on DMI Median, DMI Stress, Income Pressure Spread, Income Pressure Tilt, and unemployment changes
 
 ## Thresholds
 
-- Little changed: < 0.05 (DMI), < 0.015 (Gap), < 0.1 (Unemployment)
+- Little changed: < 0.05 (DMI), < 0.015 (Spread), < 0.1 (Unemployment); |Tilt| ≤ 0.02 means similar pressure across bottom/top fifths
 - Edged: 0.05-0.15
 - Modestly: 0.15-0.30
 - Sharply: > 0.30

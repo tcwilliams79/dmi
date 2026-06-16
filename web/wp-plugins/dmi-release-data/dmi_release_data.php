@@ -180,28 +180,18 @@ if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 
 					<?php if ( ! empty( $current['spec_urls'] ) && is_array( $current['spec_urls'] ) ) : ?>
 						<?php echo tcw_dmi_render_spec_links_table( $current['spec_urls'] ); ?>
-					<?php else : ?>
-						<p><?php echo tcw_dmi_render_links( $current['urls'] ); ?></p>
 					<?php endif; ?>
-		
+
 					<?php if ( ! empty( $current['metrics'] ) && is_array( $current['metrics'] ) ) : ?>
 						<h3>Current-release snapshot</h3>
 						<ul>
-							<?php if ( isset( $current['metrics']['dmi_median'] ) ) : ?>
-								<li><strong>DMI Median:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['dmi_median'] ) ); ?></li>
-							<?php endif; ?>
-
-							<?php if ( isset( $current['metrics']['dmi_stress'] ) ) : ?>
-								<li><strong>DMI Stress:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['dmi_stress'] ) ); ?></li>
-							<?php endif; ?>
-
-							<?php if ( isset( $current['metrics']['income_pressure_gap'] ) ) : ?>
-								<li><strong>Income Pressure Gap:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['income_pressure_gap'] ) ); ?></li>
-							<?php endif; ?>
-
-							<?php if ( isset( $current['metrics']['unemployment'] ) ) : ?>
-								<li><strong>National unemployment:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['unemployment'], 1 ) ); ?>%</li>
-							<?php endif; ?>
+							<li><strong>DMI Median:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['dmi_median'] ) ); ?></li>
+							<li><strong>DMI Stress:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['dmi_stress'] ) ); ?></li>
+							<li><strong>Income Pressure Spread (max DMI &minus; min DMI):</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['income_pressure_spread'] ) ); ?></li>
+							<li><strong>Income Pressure Tilt (Q1 DMI &minus; Q5 DMI):</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['income_pressure_tilt'] ) ); ?></li>
+							<li><strong>Most-pressured group:</strong> <?php echo esc_html( $current['metrics']['most_pressured_group'] ); ?></li>
+							<li><strong>Least-pressured group:</strong> <?php echo esc_html( $current['metrics']['least_pressured_group'] ); ?></li>
+							<li><strong>National unemployment:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['unemployment'], 1 ) ); ?>%</li>
 						</ul>
 					<?php endif; ?>
 				</div>
@@ -228,8 +218,6 @@ if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 
 							<?php if ( ! empty( $release['spec_urls'] ) && is_array( $release['spec_urls'] ) ) : ?>
 								<?php echo tcw_dmi_render_spec_links_table( $release['spec_urls'] ); ?>
-							<?php else : ?>
-								<p><?php echo tcw_dmi_render_links( $release['urls'] ); ?></p>
 							<?php endif; ?>
 						</div>
 					<?php endforeach; ?>
