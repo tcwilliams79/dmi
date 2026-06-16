@@ -7,6 +7,8 @@ on:
       - 'web/dashboard.html'
       - 'web/dashboard/.htaccess'
       - 'web/health.json'
+      - 'data/outputs/releases.json'
+      - 'data/outputs/latest.json'
   workflow_dispatch:
 
 permissions:
@@ -46,6 +48,19 @@ jobs:
           fi
           cp web/health.json deploy/health.json
 
+          mkdir -p deploy/data/outputs
+          if [ ! -f "data/outputs/releases.json" ]; then
+            echo "data/outputs/releases.json not found in repository"
+            exit 1
+          fi
+          cp data/outputs/releases.json deploy/data/outputs/releases.json
+
+          if [ ! -f "data/outputs/latest.json" ]; then
+            echo "data/outputs/latest.json not found in repository"
+            exit 1
+          fi
+          cp data/outputs/latest.json deploy/data/outputs/latest.json
+
           echo "Dashboard deployment contents:"
           find deploy -type f
 
@@ -83,14 +98,26 @@ jobs:
             ./deploy/health.json \
             ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/health.json
 
+      - name: Deploy release manifests to iFastNet via rsync
+        run: |
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+            ./deploy/data/outputs/releases.json \
+            ./deploy/data/outputs/latest.json \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/data/outputs/
+
       - name: Deployment summary
         run: |
           echo "Web dashboard deployment complete."
           echo "  Files deployed:"
-          echo "    web/dashboard.html       -> /home/agiraces/dmianalysis/dashboard.html"
-          echo "    web/dashboard/.htaccess  -> /home/agiraces/dmianalysis/dashboard/.htaccess"
-          echo "    web/health.json          -> /home/agiraces/dmianalysis/health.json"
+          echo "    web/dashboard.html         -> /home/agiraces/dmianalysis/dashboard.html"
+          echo "    web/dashboard/.htaccess    -> /home/agiraces/dmianalysis/dashboard/.htaccess"
+          echo "    web/health.json            -> /home/agiraces/dmianalysis/health.json"
+          echo "    data/outputs/releases.json -> /home/agiraces/dmianalysis/data/outputs/releases.json"
+          echo "    data/outputs/latest.json   -> /home/agiraces/dmianalysis/data/outputs/latest.json"
           echo "  Site:"
           echo "    https://dmianalysis.org/dashboard.html (canonical)"
           echo "    https://dmianalysis.org/dashboard/     (301 -> /dashboard.html)"
           echo "    https://dmianalysis.org/health.json"
+          echo "    https://dmianalysis.org/data/outputs/releases.json"
+          echo "    https://dmianalysis.org/data/outputs/latest.json"
