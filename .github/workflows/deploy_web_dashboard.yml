@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'web/dashboard.html'
+      - 'web/dashboard/.htaccess'
   workflow_dispatch:
 
 permissions:
@@ -24,14 +25,19 @@ jobs:
         run: |
           echo "Preparing web dashboard deployment package..."
 
-          mkdir -p deploy
+          mkdir -p deploy/dashboard
 
           if [ ! -f "web/dashboard.html" ]; then
             echo "web/dashboard.html not found in repository"
             exit 1
           fi
-
           cp web/dashboard.html deploy/dashboard.html
+
+          if [ ! -f "web/dashboard/.htaccess" ]; then
+            echo "web/dashboard/.htaccess not found in repository"
+            exit 1
+          fi
+          cp web/dashboard/.htaccess deploy/dashboard/.htaccess
 
           echo "Dashboard deployment contents:"
           find deploy -type f
@@ -50,9 +56,19 @@ jobs:
             ./deploy/dashboard.html \
             ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/dashboard.html
 
+      - name: Deploy /dashboard/.htaccess redirect to iFastNet via rsync
+        run: |
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+            ./deploy/dashboard/.htaccess \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/dashboard/.htaccess
+
       - name: Deployment summary
         run: |
           echo "Web dashboard deployment complete."
-          echo "  File deployed: web/dashboard.html"
-          echo "  Target:        /home/agiraces/dmianalysis/dashboard.html"
-          echo "  Site:          https://dmianalysis.org/dashboard.html"
+          echo "  Files deployed:"
+          echo "    web/dashboard.html       -> /home/agiraces/dmianalysis/dashboard.html"
+          echo "    web/dashboard/.htaccess  -> /home/agiraces/dmianalysis/dashboard/.htaccess"
+          echo "  Site:"
+          echo "    https://dmianalysis.org/dashboard.html (canonical)"
+          echo "    https://dmianalysis.org/dashboard/     (301 -> /dashboard.html)"
