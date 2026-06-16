@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 """
-Generic rebuilder for releases.json and latest.json from existing raw
-dmi_release_*.json artifacts.
+Generic rebuilder for DMI release artifacts.
 
-This is the targeted retrofit tool used to migrate published manifests to a
-new schema/methodology without re-running the full DMI pipeline. It:
+This is the targeted retrofit tool used to migrate published outputs to a new
+schema/methodology without re-running the full DMI pipeline. It can:
 
-  * derives distribution metrics (spread, tilt, most/least pressured groups,
-    unemployment) directly from each release's ``dmi_by_group`` so output is
-    consistent regardless of which ``summary_metrics`` fields were written at
-    compute time;
-  * regenerates ``summary`` and ``summary_facts`` via the canonical
-    ``build_release_summary`` helper so wording stays in sync with the
-    rest of the pipeline;
-  * emits the current ``schema_version`` ("2.0.0") and the configured
-    ``methodology_version`` (default v0.1.12);
-  * supports a period filter (``--periods``) and a ``--dry-run`` mode that
-    prints what would change without writing files.
+  * rewrite ``releases.json`` and ``latest.json`` (default behaviour),
+    deriving distribution metrics (spread, tilt, most/least pressured groups,
+    unemployment) directly from each release's ``dmi_by_group`` and
+    regenerating ``summary`` / ``summary_facts`` via the canonical
+    ``build_release_summary`` helper;
+  * with ``--retrofit-raw``, rewrite the raw ``dmi_release_*.json`` files
+    (and their ``_core`` / ``_slack_plus`` / ``_u6`` / ``_with_ci`` variants)
+    so ``summary_metrics`` carries the v2.0.0 fields and the legacy
+    ``dmi_income_pressure_gap`` field is removed;
+  * with ``--retrofit-specs``, rewrite ``specifications.json`` to replace
+    ``income_pressure_gap`` with the new fields per spec entry, rename the
+    robustness flag, and bump its ``schema_version`` to 0.2.0.
 
-The companion ``backfill_releases.py`` is functionally similar but is used as a
+Behaviour is controlled by flags. ``--dry-run`` prints planned changes
+without writing.
+
+The companion ``backfill_releases.py`` is functionally similar but is the
 one-shot "rebuild every public release from raw files" tool. This script is
 designed to be re-run safely when the schema changes again.
 """
@@ -307,6 +310,156 @@ def verify_against_raw(plans: list[RebuildPlan], tol: float = 1e-9) -> None:
             )
 
 
+SPECIFICATIONS_SCHEMA_VERSION = "0.2.0"
+
+
+def derive_metrics_for_raw(raw: dict) -> dict:
+    """Build the v2.0.0 ``summary_metrics`` block for a raw release file.
+
+    The raw schema is a flat object (unlike the manifest, which nests
+    metrics under each release entry). We keep ``dmi_median`` / ``dmi_stress``
+    sourced from the existing block (they're already canonical) and derive
+    distribution metrics from ``dmi_by_group``.
+    """
+    dmi_by_group = raw["dmi_by_group"]
+    dmis = {g["group_id"]: g["dmi"] for g in dmi_by_group}
+    max_group = max(dmi_by_group, key=lambda g: g["dmi"])
+    min_group = min(dmi_by_group, key=lambda g: g["dmi"])
+    return {
+        "dmi_median": raw["summary_metrics"]["dmi_median"],
+        "dmi_stress": raw["summary_metrics"]["dmi_stress"],
+        "income_pressure_spread": max_group["dmi"] - min_group["dmi"],
+        "income_pressure_tilt": dmis["Q1"] - dmis["Q5"],
+        "most_pressured_group": max_group["group_id"],
+        "least_pressured_group": min_group["group_id"],
+    }
+
+
+def retrofit_raw_release_file(path: Path, dry_run: bool) -> Optional[str]:
+    """Retrofit a single raw ``dmi_release_*.json`` file's ``summary_metrics``.
+
+    Returns a one-line diff description if the file changed, else None.
+    """
+    raw = json.loads(path.read_text())
+    if "dmi_by_group" not in raw or "summary_metrics" not in raw:
+        return None
+
+    old_sm = raw["summary_metrics"]
+    new_sm = derive_metrics_for_raw(raw)
+
+    if old_sm == new_sm:
+        return None
+
+    added = sorted(set(new_sm) - set(old_sm))
+    removed = sorted(set(old_sm) - set(new_sm))
+    changed = sorted(k for k in set(old_sm) & set(new_sm) if old_sm[k] != new_sm[k])
+
+    parts = []
+    if added:
+        parts.append(f"+{','.join(added)}")
+    if removed:
+        parts.append(f"-{','.join(removed)}")
+    if changed:
+        parts.append(f"~{','.join(changed)}")
+    description = " ".join(parts) if parts else "(reordered)"
+
+    if not dry_run:
+        raw["summary_metrics"] = new_sm
+        path.write_text(json.dumps(raw, indent=2))
+
+    return description
+
+
+def retrofit_raw_releases(
+    output_dir: Path,
+    requested_periods: Optional[set[str]],
+    dry_run: bool,
+) -> int:
+    """Retrofit raw release files in ``output_dir`` (and their variants).
+
+    Returns the number of files actually changed (or that would change in
+    dry-run mode).
+    """
+    changed = 0
+    for path in sorted(output_dir.glob("dmi_release_*.json")):
+        stem = path.stem.replace("dmi_release_", "")
+        # First token is the period; trailing tokens (if any) are variant suffix
+        period = stem.split("_")[0]
+        if requested_periods is not None and period not in requested_periods:
+            continue
+        try:
+            description = retrofit_raw_release_file(path, dry_run)
+        except (KeyError, ValueError) as exc:
+            print(f"  ! {path.name}: skipped ({exc})")
+            continue
+        if description is None:
+            continue
+        changed += 1
+        action = "would update" if dry_run else "updated"
+        print(f"  {action} {path.name}: {description}")
+    return changed
+
+
+def retrofit_specifications(
+    specs_path: Path,
+    output_dir: Path,
+    dry_run: bool,
+) -> bool:
+    """Retrofit ``specifications.json`` to use the new metric fields.
+
+    For each spec entry, reads the linked release JSON and replaces
+    ``income_pressure_gap`` with the new four fields (preserving
+    ``slack_measure``). Renames the legacy robustness flag
+    ``pressure_gap_sign_consistent`` to ``tilt_sign_consistent`` and bumps
+    ``schema_version`` to 0.2.0.
+
+    Returns True if the file changed (or would change in dry-run mode).
+    """
+    if not specs_path.exists():
+        print(f"  ! specifications.json not found at {specs_path}; skipping")
+        return False
+
+    specs = json.loads(specs_path.read_text())
+    changed = False
+
+    for spec in specs.get("specifications", []):
+        release_json_rel = spec["release_json"].lstrip("/")
+        release_path = Path(release_json_rel)
+        if not release_path.exists():
+            print(f"  ! spec {spec.get('spec_id')}: linked file missing ({release_path}); skipping")
+            continue
+        release = json.loads(release_path.read_text())
+        derived = derive_metrics_for_raw(release)
+        new_metrics = {
+            "dmi_median": derived["dmi_median"],
+            "dmi_stress": derived["dmi_stress"],
+            "income_pressure_spread": derived["income_pressure_spread"],
+            "income_pressure_tilt": derived["income_pressure_tilt"],
+            "most_pressured_group": derived["most_pressured_group"],
+            "least_pressured_group": derived["least_pressured_group"],
+            "slack_measure": spec["metrics"]["slack_measure"],
+        }
+        if spec["metrics"] != new_metrics:
+            spec["metrics"] = new_metrics
+            changed = True
+
+    rob = specs.get("robustness_assessment", {})
+    if "pressure_gap_sign_consistent" in rob:
+        rob["tilt_sign_consistent"] = rob.pop("pressure_gap_sign_consistent")
+        changed = True
+
+    if specs.get("schema_version") != SPECIFICATIONS_SCHEMA_VERSION:
+        specs["schema_version"] = SPECIFICATIONS_SCHEMA_VERSION
+        changed = True
+
+    if changed:
+        action = "would update" if dry_run else "updated"
+        print(f"  {action} {specs_path.name}: metrics + robustness flag + schema_version")
+        if not dry_run:
+            specs_path.write_text(json.dumps(specs, indent=2))
+    return changed
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     parser.add_argument(
@@ -330,6 +483,21 @@ def main(argv: Optional[list[str]] = None) -> int:
         action="store_true",
         help="Print planned changes without writing manifest files",
     )
+    parser.add_argument(
+        "--retrofit-raw",
+        action="store_true",
+        help="Also rewrite raw dmi_release_*.json files (and variants) so summary_metrics carries the v2.0.0 fields",
+    )
+    parser.add_argument(
+        "--retrofit-specs",
+        action="store_true",
+        help="Also rewrite specifications.json (metrics + robustness flag + schema_version)",
+    )
+    parser.add_argument(
+        "--skip-manifests",
+        action="store_true",
+        help="Skip the default releases.json/latest.json rebuild (useful with --retrofit-raw/--retrofit-specs)",
+    )
     args = parser.parse_args(argv)
 
     output_dir = Path(args.output_dir)
@@ -339,45 +507,58 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     requested = set(args.periods) if args.periods else None
 
-    print(f"Discovering releases in {output_dir}...")
-    plans = discover_releases(output_dir, requested)
-    if not plans:
-        print("No releases matched the requested filter.")
-        return 1
+    if not args.skip_manifests:
+        print(f"Discovering releases in {output_dir}...")
+        plans = discover_releases(output_dir, requested)
+        if not plans:
+            print("No releases matched the requested filter.")
+            return 1
 
-    print(f"Selected {len(plans)} release(s):")
-    for plan in plans:
-        m = plan.metrics
-        print(
-            f"  {plan.release_id}: spread={m['income_pressure_spread']:.4f}, "
-            f"tilt={m['income_pressure_tilt']:+.4f}, "
-            f"most={m['most_pressured_group']}, least={m['least_pressured_group']}, "
-            f"unemployment={m['unemployment']}"
+        print(f"Selected {len(plans)} release(s):")
+        for plan in plans:
+            m = plan.metrics
+            print(
+                f"  {plan.release_id}: spread={m['income_pressure_spread']:.4f}, "
+                f"tilt={m['income_pressure_tilt']:+.4f}, "
+                f"most={m['most_pressured_group']}, least={m['least_pressured_group']}, "
+                f"unemployment={m['unemployment']}"
+            )
+
+        verify_against_raw(plans)
+        print("Sanity check passed: derived tilt matches raw dmi_income_pressure_gap; spread > 0.")
+
+        releases_manifest, latest_manifest = assemble_manifests(
+            plans, args.methodology_version
         )
 
-    verify_against_raw(plans)
-    print("Sanity check passed: derived tilt matches raw dmi_income_pressure_gap; spread > 0.")
+        releases_path = output_dir / "releases.json"
+        latest_path = output_dir / "latest.json"
 
-    releases_manifest, latest_manifest = assemble_manifests(
-        plans, args.methodology_version
-    )
+        print("\nPlanned changes to releases.json:")
+        print(render_diff(releases_path, releases_manifest))
+        print("\nPlanned changes to latest.json:")
+        print(render_diff(latest_path, latest_manifest))
 
-    releases_path = output_dir / "releases.json"
-    latest_path = output_dir / "latest.json"
+        if not args.dry_run:
+            releases_path.write_text(json.dumps(releases_manifest, indent=2))
+            latest_path.write_text(json.dumps(latest_manifest, indent=2))
+            print(f"\nWrote {releases_path}")
+            print(f"Wrote {latest_path}")
 
-    print("\nPlanned changes to releases.json:")
-    print(render_diff(releases_path, releases_manifest))
-    print("\nPlanned changes to latest.json:")
-    print(render_diff(latest_path, latest_manifest))
+    if args.retrofit_raw:
+        print("\nRetrofitting raw release files...")
+        n = retrofit_raw_releases(output_dir, requested, args.dry_run)
+        action = "would change" if args.dry_run else "changed"
+        print(f"  {action} {n} raw release file(s).")
+
+    if args.retrofit_specs:
+        print("\nRetrofitting specifications.json...")
+        retrofit_specifications(
+            output_dir / "specifications.json", output_dir, args.dry_run
+        )
 
     if args.dry_run:
         print("\n[dry-run] No files written.")
-        return 0
-
-    releases_path.write_text(json.dumps(releases_manifest, indent=2))
-    latest_path.write_text(json.dumps(latest_manifest, indent=2))
-    print(f"\nWrote {releases_path}")
-    print(f"Wrote {latest_path}")
     return 0
 
 
