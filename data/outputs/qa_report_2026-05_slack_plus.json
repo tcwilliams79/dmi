@@ -1,8 +1,8 @@
 {
   "schema_version": "0.1.8",
-  "run_id": "a92fc0a4-40be-42b5-b0eb-9d1dad1d354c",
+  "run_id": "4a5572fd-7cc3-4b3d-a11e-05ffebe5c2c1",
   "reference_period": "2026-05",
-  "created_at": "2026-06-15T16:06:20.106033Z",
+  "created_at": "2026-06-16T14:32:11.998344Z",
   "status": "PASS_WITH_WARNING",
   "hard_checks": [
     {

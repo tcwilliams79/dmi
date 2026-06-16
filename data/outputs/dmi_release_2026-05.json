@@ -44,9 +44,9 @@
     "dmi_median": 8.563655970678015,
     "dmi_stress": 8.631538722139872,
     "income_pressure_spread": 0.3519182047831322,
-    "income_pressure_tilt": -0.3519182047831322,
     "most_pressured_group": "Q5",
-    "least_pressured_group": "Q1"
+    "least_pressured_group": "Q1",
+    "income_pressure_tilt": -0.3519182047831322
   },
   "inflation_contributions": [
     {
@@ -251,7 +251,7 @@
     }
   ],
   "metadata": {
-    "computed_at": "2026-06-15T16:06:18.371582Z",
+    "computed_at": "2026-06-16T14:32:10.262842Z",
     "num_groups": 5,
     "num_categories": 8
   },
