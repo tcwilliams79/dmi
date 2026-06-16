@@ -1,6 +1,6 @@
 # DMI Release Calendar
 
-**Version**: 0.1.10  
+**Version**: 0.1.12
 **Purpose**: Document data release schedule and publication timeline
 
 ---
@@ -90,10 +90,18 @@
 
 ### Historical Performance
 
-| Period | CPI Release | DMI Published | Days Elapsed |
-|--------|-------------|---------------|--------------|
-| 2024-11 | Dec 11, 2024 | Dec 17, 2024 | 6 days |
-| 2025-01 | TBD | TBD | (pending) |
+Recent releases (most recent 6, sourced from `data/outputs/releases.json`).
+CPI release dates are approximate (BLS publishes ~10th–13th of each month);
+see https://www.bls.gov/schedule/news_release/cpi.htm for the official schedule.
+
+| Period | CPI Release (approx.) | DMI Published | Days Elapsed |
+|--------|------------------------|----------------|--------------|
+| 2025-12 | Jan 14, 2026  | Jan 16, 2026 | 2 days |
+| 2026-01 | Feb 13, 2026  | Feb 15, 2026 | 2 days |
+| 2026-02 | Mar 12, 2026  | Mar 22, 2026 | 10 days |
+| 2026-03 | Apr 10, 2026  | Apr 20, 2026 | 10 days |
+| 2026-04 | May 13, 2026  | May 16, 2026 | 3 days |
+| 2026-05 | Jun 11, 2026  | Jun 16, 2026 | 5 days |
 
 **Target**: Maintain <7 day average
 
@@ -120,32 +128,29 @@
 
 ---
 
-## 2024-2025 Projected Release Dates
+## Projected Release Dates
 
-### 2024 Remaining
-
-| Month | Est. CPI Release | Target DMI | Notes |
-|-------|------------------|------------|-------|
-| Dec 2024 | Jan 14, 2025 | Jan 21, 2025 | |
-
-### 2025 Full Year
+### 2026 Remaining
 
 | Month | Est. CPI Release | Target DMI | Notes |
 |-------|------------------|------------|-------|
-| Jan 2025 | Feb 12 | Feb 19 | |
-| Feb 2025 | Mar 12 | Mar 19 | |
-| Mar 2025 | Apr 10 | Apr 17 | |
-| Apr 2025 | May 13 | May 20 | |
-| May 2025 | Jun 11 | Jun 18 | |
-| Jun 2025 | Jul 11 | Jul 18 | |
-| Jul 2025 | Aug 13 | Aug 20 | |
-| Aug 2025 | Sep 11 | Sep 18 | |
-| Sep 2025 | Oct 10 | Oct 17 | |
-| Oct 2025 | Nov 13 | Nov 20 | Thanksgiving week |
-| Nov 2025 | Dec 10 | Dec 17 | |
-| Dec 2025 | Jan 14, 2026 | Jan 21, 2026 | |
+| Jun 2026 | Jul 14, 2026 | Jul 21, 2026 | |
+| Jul 2026 | Aug 12, 2026 | Aug 19, 2026 | |
+| Aug 2026 | Sep 11, 2026 | Sep 18, 2026 | |
+| Sep 2026 | Oct 14, 2026 | Oct 21, 2026 | Columbus Day week |
+| Oct 2026 | Nov 12, 2026 | Nov 19, 2026 | |
+| Nov 2026 | Dec 10, 2026 | Dec 17, 2026 | |
+| Dec 2026 | Jan 13, 2027 | Jan 20, 2027 | |
 
-**Note**: Dates are estimates based on historical patterns. Check BLS official schedule for confirmed dates.
+### 2027 Outlook
+
+| Month | Est. CPI Release | Target DMI | Notes |
+|-------|------------------|------------|-------|
+| Jan 2027 | Feb 11, 2027 | Feb 18, 2027 | |
+| Feb 2027 | Mar 11, 2027 | Mar 18, 2027 | |
+| Mar 2027 | Apr 13, 2027 | Apr 20, 2027 | |
+
+**Note**: Dates are estimates based on historical BLS patterns (CPI releases ~10th–13th, Target DMI = CPI + 7 days). Check the official BLS schedule for confirmed dates: https://www.bls.gov/schedule/news_release/cpi.htm
 
 ---
 
@@ -265,5 +270,5 @@ Future enhancement: Add computed `days_since_update` field
 
 ---
 
-**Last Updated**: December 17, 2025  
-**For**: DMI v0.1.10
+**Last Updated**: June 16, 2026
+**For**: DMI v0.1.12
