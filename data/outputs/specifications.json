@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2.0",
-  "generated_at": "2026-06-15T16:06:20.694167Z",
+  "generated_at": "2026-06-16T14:32:12.549451Z",
   "reference_period": "2026-05",
   "headline_spec": "baseline",
   "specifications": [
@@ -51,11 +51,11 @@
     }
   ],
   "robustness_assessment": {
+    "pressure_tilt_sign_consistent": true,
     "stress_group_consistent": true,
     "notes": [
       "The distributional pattern is consistent across the published specifications.",
       "The highest-pressure income fifth remains Q5 across the published specifications."
-    ],
-    "tilt_sign_consistent": true
+    ]
   }
 }

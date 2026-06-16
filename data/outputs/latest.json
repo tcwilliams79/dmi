@@ -1,12 +1,12 @@
 {
   "schema_version": "2.0.0",
-  "generated_at": "2026-06-16T13:57:06.581938Z",
+  "generated_at": "2026-06-16T14:32:10.283690Z",
   "current_release_id": "2026-05",
   "releases": [
     {
       "release_id": "2026-05",
       "data_through_label": "May 2026",
-      "published_at": "2026-06-15",
+      "published_at": "2026-06-16",
       "status": "current",
       "methodology_version": "v0.1.12",
       "summary": "Economic pressure rose sharply in May 2026. Higher-income households faced more pressure than lower-income households, and the Income Pressure Spread widened materially from the prior month.",
