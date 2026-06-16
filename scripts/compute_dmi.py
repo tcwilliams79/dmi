@@ -26,6 +26,10 @@ from dmi_calculator.core import (
 from dmi_pipeline.agents.qa_validator import generate_qa_report, print_qa_summary
 
 
+# Methodology version (also written to web/health.json without the leading 'v')
+METHODOLOGY_VERSION = "v0.1.12"
+
+
 # Threshold constants for summary generation
 THRESHOLDS = {
     'little_changed': 0.05,
@@ -499,7 +503,7 @@ def update_releases_json(
     metrics: dict,
     summary: str,
     summary_facts: dict,
-    methodology_version: str = "v0.1.12",
+    methodology_version: str = METHODOLOGY_VERSION,
     dashboard_url: str = None,
     repo_url: str = None,
     notes: list = None
@@ -600,7 +604,7 @@ def update_latest_json(
     metrics: dict,
     summary: str,
     summary_facts: dict,
-    methodology_version: str = "v0.1.12",
+    methodology_version: str = METHODOLOGY_VERSION,
     dashboard_url: str = None,
     repo_url: str = None,
     notes: list = None
@@ -687,6 +691,7 @@ def update_health_json(reference_period: str):
         health = json.load(f)
 
     # Update basic fields
+    health["version"] = METHODOLOGY_VERSION.lstrip("v")
     health["latest_period"] = reference_period
     health["last_updated"] = datetime.now().strftime("%Y-%m-%d")
     health["build_timestamp"] = datetime.now().isoformat() + "Z"

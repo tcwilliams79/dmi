@@ -166,7 +166,7 @@ curl "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0?latest=true"
 
 **Method 3 - Our Health Endpoint**:
 ```bash
-curl https://dmianalysis.org/dashboard/health.json | jq '.latest_period'
+curl https://dmianalysis.org/health.json | jq '.latest_period'
 
 # If result < current month-1, data is fresh
 # If result = current month-2 or older, data is stale
