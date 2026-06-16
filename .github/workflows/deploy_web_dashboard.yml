@@ -56,6 +56,12 @@ jobs:
             ./deploy/dashboard.html \
             ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/dashboard.html
 
+      - name: Ensure /dashboard/ directory exists on iFastNet
+        run: |
+          ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }} \
+            'mkdir -p /home/agiraces/dmianalysis/dashboard'
+
       - name: Deploy /dashboard/.htaccess redirect to iFastNet via rsync
         run: |
           rsync -avz --progress \
