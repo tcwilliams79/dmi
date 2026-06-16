@@ -36,6 +36,28 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
 
+        .back-link {
+            display: inline-block;
+            font-size: 0.9rem;
+            color: #667eea;
+            text-decoration: none;
+            margin-bottom: 1rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer .back-link {
+            color: white;
+            text-decoration: underline;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .footer .back-link:hover {
+            opacity: 0.8;
+        }
+
         h1 {
             font-size: 2.5rem;
             color: #667eea;
@@ -296,6 +318,7 @@
 <body>
     <div class="container">
         <header>
+            <a href="https://dmianalysis.org/" class="back-link">&larr; dmianalysis.org</a>
             <h1>Distributional Misery Index</h1>
             <p class="subtitle">Measuring Economic Pressure Across Income Groups</p>
             <div class="period-info" id="period">Loading...</div>
@@ -442,6 +465,7 @@
         </div>
 
         <div class="footer">
+            <a href="https://dmianalysis.org/" class="back-link">&larr; dmianalysis.org</a>
             <p>
                 Distributional Misery Index (DMI) — v0.1.12<br>
                 Data through: <span id="footer-period">Loading...</span> • Published: <span
