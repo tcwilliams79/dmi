@@ -59,32 +59,31 @@
 
 ---
 
-### Monthly Workflow
+### Monthly Workflow (Automated)
+
+The monthly release runs unattended via the [`monthly_dmi.yml`](../.github/workflows/monthly_dmi.yml) GitHub Action.
 
 **Day 0**: BLS Publishes CPI (~13th of month)
-- Example: Dec 11 - November CPI published
 
-**Day 1-2**: Data Verification
-- Verify BLS API has latest data
-- Check for any BLS revisions or corrections
-- Run `compute_dmi.py` locally
+**Day 2 (15th, 10:17 UTC)**: Scheduled run of `monthly_dmi.yml`
+- Cron: `17 10 15 * *` (workflow_dispatch also available with explicit period)
+- Fetches latest CPI + slack data from the BLS API
+- Computes DMI for all three specifications: baseline, slack-plus, core
+- Builds `specifications.json`, updates `dmi_timeseries.json`
+- Runs QA validation (`qa_report_<period>_*.json`); fails the job on QA error
+- Sanity-checks `releases.json`/`latest.json` metrics against the raw baseline release
+- Refreshes `web/health.json`
+- Rsyncs the thin monthly deploy bundle to iFastNet (`/home/agiraces/dmianalysis/`)
+- Opens an automated PR (`release/<period>`) and auto-merges it on success
 
-**Day 3-4**: QA & Review
-- Review DMI values for anomalies
-- Check inflation contributions make sense
-- Validate historical consistency
-- Run alternative specifications if needed
+**Post-run human review** (optional)
+- Inspect the merged PR for anomalies
+- Confirm `https://dmianalysis.org/health.json` reflects the new period
+- Spot-check the dashboard cards
 
-**Day 5-6**: Deployment Preparation
-- Run `prepare_deployment.sh`
-- Update CHANGELOG if methodology changed
-- Test deployment package locally
-
-**Day 7**: Publication
-- Upload to production
-- Verify health.json shows new period
-- Run smoke test checklist
-- Announce update (optional)
+**Out-of-cycle changes** are handled by dedicated workflows so they don't require a full recompute:
+- `deploy_web_dashboard.yml` — `web/dashboard.html`, `web/dashboard/.htaccess`, `web/health.json`
+- `deploy_wp_plugins.yml` — `web/wp-plugins/**`
 
 ---
 
@@ -179,45 +178,25 @@ curl https://dmianalysis.org/health.json | jq '.latest_period'
 
 ---
 
-## Automation Opportunities
+## Automation Status
 
-### Current: Manual Monthly
+### Current: Automated Monthly (shipped)
 
-Process:
-1. Check BLS website around 13th  
-2. Run compute_dmi.py locally
-3. Upload manually
-4. Verify deployment
+Implemented in [`monthly_dmi.yml`](../.github/workflows/monthly_dmi.yml).
 
-**Time**: ~30 minutes/month
+- **Trigger**: cron `17 10 15 * *` (15th of each month at 10:17 UTC) + `workflow_dispatch`
+- **Pipeline**: fetch BLS data → compute baseline / slack-plus / core → build manifests → QA validate → sanity-check → rsync deploy to iFastNet → open + auto-merge release PR
+- **Gating**: QA failures and metrics-mismatch sanity checks fail the job before deploy
+- **Human effort**: ~0 minutes/month for routine releases; spot-check the merged PR
 
----
+### Future Enhancements
 
-### Future: Semi-Automated (v0.2.0)
+- **Anomaly detection**: flag releases whose DMI moves more than _N_ σ from the trailing window
+- **Notifications**: Slack/email on success and on QA failure (currently visible only in GitHub Actions UI)
+- **Rollback automation**: one-click revert of the last release PR + redeploy of the prior period
+- **Weights vintage alerting**: surface the existing `WEIGHTS_YEAR` drift warning into the release PR body
 
-GitHub Actions workflow:
-1. Trigger on schedule (15th of month)
-2. Fetch latest CPI from BLS API
-3. Compute DMI automatically
-4. Create deployment package
-5. **Manual approval step**
-6. Deploy to production
-
-**Time**: 5 minutes/month (just approval)
-
----
-
-### Future: Fully Automated (v0.3.0)
-
-Requires:
-- Robust data validation
-- Automatic anomaly detection
-- Rollback capability
-- Notification system
-
-**Risk**: Publishes bad data if BLS has errors
-
-**Recommendation**: Keep manual review step
+**Manual review** of the merged release PR is recommended but not required; the workflow already gates on QA + sanity checks.
 
 ---
 
