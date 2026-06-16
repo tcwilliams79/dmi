@@ -6,6 +6,7 @@ on:
     paths:
       - 'web/dashboard.html'
       - 'web/dashboard/.htaccess'
+      - 'web/health.json'
   workflow_dispatch:
 
 permissions:
@@ -39,6 +40,12 @@ jobs:
           fi
           cp web/dashboard/.htaccess deploy/dashboard/.htaccess
 
+          if [ ! -f "web/health.json" ]; then
+            echo "web/health.json not found in repository"
+            exit 1
+          fi
+          cp web/health.json deploy/health.json
+
           echo "Dashboard deployment contents:"
           find deploy -type f
 
@@ -69,12 +76,21 @@ jobs:
             ./deploy/dashboard/.htaccess \
             ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/dashboard/.htaccess
 
+      - name: Deploy health.json to iFastNet via rsync
+        run: |
+          rsync -avz --progress \
+            -e "ssh -i ~/.ssh/deploy_key -p 1394 -o StrictHostKeyChecking=no" \
+            ./deploy/health.json \
+            ${{ secrets.IFASTNET_SSH_USER }}@${{ secrets.IFASTNET_SSH_HOST }}:/home/agiraces/dmianalysis/health.json
+
       - name: Deployment summary
         run: |
           echo "Web dashboard deployment complete."
           echo "  Files deployed:"
           echo "    web/dashboard.html       -> /home/agiraces/dmianalysis/dashboard.html"
           echo "    web/dashboard/.htaccess  -> /home/agiraces/dmianalysis/dashboard/.htaccess"
+          echo "    web/health.json          -> /home/agiraces/dmianalysis/health.json"
           echo "  Site:"
           echo "    https://dmianalysis.org/dashboard.html (canonical)"
           echo "    https://dmianalysis.org/dashboard/     (301 -> /dashboard.html)"
+          echo "    https://dmianalysis.org/health.json"
