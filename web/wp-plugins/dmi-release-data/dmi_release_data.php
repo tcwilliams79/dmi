@@ -2,7 +2,7 @@
 /*
 Plugin Name: DMI Release Data
 Description: Renders DMI release data from releases.json
-Version: 0.1.0
+Version: 0.2.0
 Author: Thomas C. Williams
 */
 
@@ -26,6 +26,47 @@ if ( ! function_exists( 'tcw_dmi_format_date' ) ) {
 		}
 		$ts = strtotime( $value );
 		return $ts ? date_i18n( 'F j, Y', $ts ) : $value;
+	}
+}
+
+if ( ! function_exists( 'tcw_dmi_get_income_pressure_spread' ) ) {
+	function tcw_dmi_get_income_pressure_spread( $metrics ) {
+		if ( ! is_array( $metrics ) ) {
+			return null;
+		}
+
+		// Schema 2.0.0+: explicit nonnegative spread.
+		if ( isset( $metrics['income_pressure_spread'] ) && is_numeric( $metrics['income_pressure_spread'] ) ) {
+			return (float) $metrics['income_pressure_spread'];
+		}
+
+		// Legacy schema: income_pressure_gap was effectively a signed Q1-Q5 tilt
+		// in some releases, so use abs() when presenting it as a spread.
+		if ( isset( $metrics['income_pressure_gap'] ) && is_numeric( $metrics['income_pressure_gap'] ) ) {
+			return abs( (float) $metrics['income_pressure_gap'] );
+		}
+
+		return null;
+	}
+}
+
+if ( ! function_exists( 'tcw_dmi_get_income_pressure_tilt' ) ) {
+	function tcw_dmi_get_income_pressure_tilt( $metrics ) {
+		if ( ! is_array( $metrics ) ) {
+			return null;
+		}
+
+		// Schema 2.0.0+: explicit signed Q1-Q5 tilt.
+		if ( isset( $metrics['income_pressure_tilt'] ) && is_numeric( $metrics['income_pressure_tilt'] ) ) {
+			return (float) $metrics['income_pressure_tilt'];
+		}
+
+		// Legacy schema fallback: preserve sign if income_pressure_gap exists.
+		if ( isset( $metrics['income_pressure_gap'] ) && is_numeric( $metrics['income_pressure_gap'] ) ) {
+			return (float) $metrics['income_pressure_gap'];
+		}
+
+		return null;
 	}
 }
 
@@ -183,12 +224,23 @@ if ( ! function_exists( 'tcw_dmi_release_data_shortcode' ) ) {
 					<?php endif; ?>
 
 					<?php if ( ! empty( $current['metrics'] ) && is_array( $current['metrics'] ) ) : ?>
+						<?php
+						$income_pressure_spread = tcw_dmi_get_income_pressure_spread( $current['metrics'] );
+						$income_pressure_tilt   = tcw_dmi_get_income_pressure_tilt( $current['metrics'] );
+						?>						
 						<h3>Current-release snapshot</h3>
 						<ul>
 							<li><strong>DMI Median:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['dmi_median'] ) ); ?></li>
 							<li><strong>DMI Stress:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['dmi_stress'] ) ); ?></li>
-							<li><strong>Income Pressure Spread (max DMI &minus; min DMI):</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['income_pressure_spread'] ) ); ?></li>
-							<li><strong>Income Pressure Tilt (Q1 DMI &minus; Q5 DMI):</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['income_pressure_tilt'] ) ); ?></li>
+							<li>
+								<strong>Income Pressure Spread (max DMI &minus; min DMI):</strong>
+								<?php echo esc_html( null !== $income_pressure_spread ? tcw_dmi_format_number( $income_pressure_spread ) : 'N/A' ); ?>
+							</li>
+
+							<li>
+								<strong>Income Pressure Tilt (Q1 DMI &minus; Q5 DMI):</strong>
+								<?php echo esc_html( null !== $income_pressure_tilt ? tcw_dmi_format_number( $income_pressure_tilt ) : 'N/A' ); ?>
+							</li>
 							<li><strong>Most-pressured group:</strong> <?php echo esc_html( $current['metrics']['most_pressured_group'] ); ?></li>
 							<li><strong>Least-pressured group:</strong> <?php echo esc_html( $current['metrics']['least_pressured_group'] ); ?></li>
 							<li><strong>National unemployment:</strong> <?php echo esc_html( tcw_dmi_format_number( $current['metrics']['unemployment'], 1 ) ); ?>%</li>
