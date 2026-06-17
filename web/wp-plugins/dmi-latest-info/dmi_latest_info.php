@@ -146,7 +146,7 @@ if ( ! function_exists( 'tcw_dmi_latest_info_shortcode' ) ) {
 						<td><strong>DMI Stress (highest DMI across income groups):</strong></td> <td><?php echo esc_html( tcw_dmi_format_metric_or_na( $dmi_stress ) ); ?></td>
 						</tr>
 						<tr>
-						<td><strong>Most-Pressured Group (the income fifth under greatest strain):</strong></td> <td><?php if ( 'N/A' !== $most_pressured_group ) : ?> <?php echo esc_html( $most_pressured_group ); ?>; ?><?php endif; ?></td>
+						<td><strong>Most-Pressured Group (the income fifth under greatest strain):</strong></td> <td><?php if ( 'N/A' !== $most_pressured_group ) : ?> <?php echo esc_html( $most_pressured_group ); ?><?php endif; ?></td>
 						</tr>
 						<tr>
 						<td><strong>Income Pressure Spread (gap between the most- and least-pressured groups):</strong></td><td><?php echo esc_html( tcw_dmi_format_metric_or_na( $income_pressure_spread ) ); ?></td>
