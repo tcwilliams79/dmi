@@ -1,20 +1,20 @@
 {
   "schema_version": "0.2.0",
-  "generated_at": "2026-06-16T14:32:12.549451Z",
-  "reference_period": "2026-05",
+  "generated_at": "2026-07-15T11:51:49.828612Z",
+  "reference_period": "2026-06",
   "headline_spec": "baseline",
   "specifications": [
     {
       "spec_id": "baseline",
       "label": "DMI Baseline",
       "summary": "Headline DMI using current inflation inputs and U-3 unemployment.",
-      "release_json": "/data/outputs/dmi_release_2026-05.json",
+      "release_json": "/data/outputs/dmi_release_2026-06.json",
       "metrics": {
-        "dmi_median": 8.563655970678015,
-        "dmi_stress": 8.631538722139872,
-        "income_pressure_spread": 0.3519182047831322,
-        "income_pressure_tilt": -0.3519182047831322,
-        "most_pressured_group": "Q5",
+        "dmi_median": 7.793742264030375,
+        "dmi_stress": 7.83664036203053,
+        "income_pressure_spread": 0.21790141392414863,
+        "income_pressure_tilt": -0.20237538623115725,
+        "most_pressured_group": "Q4",
         "least_pressured_group": "Q1",
         "slack_measure": "u3"
       }
@@ -23,13 +23,13 @@
       "spec_id": "slack_plus",
       "label": "DMI Slack+",
       "summary": "Companion DMI using broader labor-market slack.",
-      "release_json": "/data/outputs/dmi_release_2026-05_slack_plus.json",
+      "release_json": "/data/outputs/dmi_release_2026-06_slack_plus.json",
       "metrics": {
-        "dmi_median": 12.363655970678014,
-        "dmi_stress": 12.431538722139871,
-        "income_pressure_spread": 0.3519182047831304,
-        "income_pressure_tilt": -0.3519182047831304,
-        "most_pressured_group": "Q5",
+        "dmi_median": 11.493742264030375,
+        "dmi_stress": 11.53664036203053,
+        "income_pressure_spread": 0.21790141392414775,
+        "income_pressure_tilt": -0.20237538623115725,
+        "most_pressured_group": "Q4",
         "least_pressured_group": "Q1",
         "slack_measure": "u6"
       }
@@ -38,13 +38,13 @@
       "spec_id": "core",
       "label": "DMI Core",
       "summary": "Companion DMI using core inflation inputs.",
-      "release_json": "/data/outputs/dmi_release_2026-05_core.json",
+      "release_json": "/data/outputs/dmi_release_2026-06_core.json",
       "metrics": {
-        "dmi_median": 8.563655970678015,
-        "dmi_stress": 8.631538722139872,
-        "income_pressure_spread": 0.3519182047831322,
-        "income_pressure_tilt": -0.3519182047831322,
-        "most_pressured_group": "Q5",
+        "dmi_median": 7.793742264030375,
+        "dmi_stress": 7.83664036203053,
+        "income_pressure_spread": 0.21790141392414863,
+        "income_pressure_tilt": -0.20237538623115725,
+        "most_pressured_group": "Q4",
         "least_pressured_group": "Q1",
         "slack_measure": "u3"
       }
@@ -55,7 +55,7 @@
     "stress_group_consistent": true,
     "notes": [
       "The distributional pattern is consistent across the published specifications.",
-      "The highest-pressure income fifth remains Q5 across the published specifications."
+      "The highest-pressure income fifth remains Q4 across the published specifications."
     ]
   }
 }
