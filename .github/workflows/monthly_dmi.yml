@@ -1,3 +1,5 @@
+# NOTE:  Any file deployed from deploy/ but maintained elsewhere **MUST** be refreshed into deploy/ during the deployment workflow.
+
 name: Monthly DMI Computation
 
 on:
