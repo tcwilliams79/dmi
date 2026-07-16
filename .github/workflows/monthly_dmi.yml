@@ -226,6 +226,10 @@ jobs:
           mkdir -p deploy/data/outputs/published
           mkdir -p deploy/data/outputs/releases
 
+          # The monthly workflow deploys /deploy.
+          # Keep the deployed dashboard shell aligned with the canonical source located in the 'web' directory
+          cp web/dashboard.html deploy/dashboard.html
+
           # Refresh the health endpoint from the just-generated workspace copy
           cp web/health.json deploy/health.json
 
